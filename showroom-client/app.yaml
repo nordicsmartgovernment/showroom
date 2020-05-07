@@ -1,0 +1,13 @@
+runtime: python27
+service: default
+api_version: 1
+threadsafe: true
+
+handlers:
+  - url: /
+    static_files: dist/showroom-client/index.html
+    upload: dist/showroom-client/index.html
+
+  - url: /(.*)
+    static_files: dist/showroom-client/\1
+    upload: dist/showroom-client/(.*)
