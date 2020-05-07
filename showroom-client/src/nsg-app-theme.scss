@@ -1,0 +1,85 @@
+@import '~@angular/material/theming';
+
+@include mat-core();
+
+// Extracted from branding presentation:
+// Primary #201f4b
+// Accent #e25d5e
+
+$nsg-primary: (
+  50 : #e4e4e9,
+  100 : #bcbcc9,
+  200 : #908fa5,
+  300 : #636281,
+  400 : #414166,
+  500 : #201f4b,
+  600 : #1c1b44,
+  700 : #18173b,
+  800 : #131233,
+  900 : #0b0a23,
+  A100 : #6a62ff,
+  A200 : #3a2fff,
+  A400 : #0d00fb,
+  A700 : #0c00e1,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #ffffff,
+    400 : #ffffff,
+    500 : #ffffff,
+    600 : #ffffff,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #ffffff,
+    A200 : #ffffff,
+    A400 : #ffffff,
+    A700 : #ffffff,
+  )
+);
+
+$nsg-accent: (
+  50 : #fcecec,
+  100 : #f6cecf,
+  200 : #f1aeaf,
+  300 : #eb8e8e,
+  400 : #e67576,
+  500 : #e25d5e,
+  600 : #df5556,
+  700 : #da4b4c,
+  800 : #d64142,
+  900 : #cf3031,
+  A100 : #ffffff,
+  A200 : #ffe0e0,
+  A400 : #ffadad,
+  A700 : #ff9394,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #000000,
+    400 : #000000,
+    500 : #000000,
+    600 : #ffffff,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #000000,
+    A200 : #000000,
+    A400 : #000000,
+    A700 : #000000,
+  )
+);
+
+$nsg-app-primary: mat-palette($nsg-primary);
+$nsg-app-accent: mat-palette($nsg-accent, A200, A100, A400);
+$nsg-app-warn: mat-palette($mat-red);
+
+$nsg-app-theme: mat-light-theme(
+    $nsg-app-primary,
+    $nsg-app-accent,
+    $nsg-app-warn
+);
+
+@include angular-material-theme($nsg-app-theme);

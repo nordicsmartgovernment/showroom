@@ -1,0 +1,11 @@
+mat-toolbar {
+  height: 100px;
+  font-size: 25px;
+  font-weight: lighter;
+  background: rgb(226,93,94);
+  background: radial-gradient(circle at bottom left, rgba(226,93,94,1) 0%, rgba(32,31,75,1) 50%);
+}
+
+span {
+  color: white;
+}

@@ -1,0 +1,12 @@
+mat-grid-list {
+  margin-top: 20px;
+}
+
+mat-grid-tile a {
+  text-decoration: none;
+}
+
+button {
+  height: 50px;
+  width: 200px;
+}
