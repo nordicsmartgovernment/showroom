@@ -6,6 +6,7 @@ mat-toolbar {
   background: radial-gradient(circle at bottom left, rgb(226, 93, 94) 10%, rgb(32, 31, 75) 50%);
 }
 
-span {
+a {
   color: white;
+  text-decoration: none;
 }

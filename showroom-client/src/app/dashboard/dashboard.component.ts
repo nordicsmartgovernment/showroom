@@ -1,14 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Page, PAGES } from '../shared/page.constants';
 
-const DASHBOARD_WIDGETS = [
-  { title: 'Create a company' },
-  { title: 'Purchasing' },
-  { title: 'Ordering' },
-  { title: 'Something else' },
-  { title: 'Something else' },
-  { title: 'Something else' },
-  { title: 'Something else' }
-];
 
 @Component({
   selector: 'app-dashboard',
@@ -17,7 +9,7 @@ const DASHBOARD_WIDGETS = [
 })
 export class DashboardComponent implements OnInit {
 
-  cards = DASHBOARD_WIDGETS;
+  cards: Page[] = PAGES;
 
   constructor() {
   }
