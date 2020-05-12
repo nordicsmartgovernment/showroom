@@ -1,13 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { StoreService } from './store.service';
 
 @Component({
   selector: 'app-purchasing',
   templateUrl: './purchasing.component.html',
-  styleUrls: ['./purchasing.component.css']
+  styleUrls: ['./purchasing.component.css'],
+  providers: [StoreService]
 })
 export class PurchasingComponent implements OnInit {
 
-  constructor() { }
+  // TODO This component is probably not needed
+
+  constructor() {
+  }
 
   ngOnInit(): void {
   }

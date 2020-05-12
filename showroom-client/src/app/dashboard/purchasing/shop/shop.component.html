@@ -1,0 +1,28 @@
+<h1>Welcome to {{store.name}}!</h1>
+
+<div>
+  <h2>Available products</h2>
+  <mat-list>
+    <mat-list-item
+      *ngFor="let product of store.inventory;let lastProduct = last;">
+      <div mat-line>
+        <p style="float:left">{{product.name}}</p>
+        <button mat-flat-button style="float:right" color="primary">
+          <mat-icon svgIcon="cart-arrow-right"></mat-icon>
+          Buy now
+        </button>
+      </div>
+      <div mat-line>
+        á {{product.cost}} €
+      </div>
+      <mat-divider *ngIf="!lastProduct"></mat-divider>
+    </mat-list-item>
+  </mat-list>
+</div>
+
+<div class="back-to-stores">
+  <button mat-raised-button [routerLink]="['/purchasing']">
+    <mat-icon svgIcon="store"></mat-icon>
+    Back to store selection
+  </button>
+</div>

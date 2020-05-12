@@ -1,12 +1,10 @@
 import { PURCHASING_ROUTE } from './routing.constants';
 
 export interface Page {
-
   title: string;
   active: boolean;
   description?: string;
   route?: string;
-
 }
 
 export const PAGES: Page[] = [
@@ -15,7 +13,7 @@ export const PAGES: Page[] = [
   { title: 'Ordering', active: true },
   { title: 'Payroll', active: false },
   { title: 'Bookkeeping transactions', active: false },
-  { title: 'Windows to financials', active: false },
+  { title: 'Window to financials', active: false },
   { title: 'Warehouse management', active: false },
   { title: 'Sales', active: false },
   { title: 'Credit assessment', active: false },
