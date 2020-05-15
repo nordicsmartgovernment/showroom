@@ -8,13 +8,24 @@ import { Company, CompanyService } from '../shared/company.service';
 })
 export class HeaderComponent implements OnInit {
 
-  company: Company;
+  actingCompany: Company;
+  otherCompanies: Company[];
 
   constructor(private companyService: CompanyService) {
   }
 
   ngOnInit(): void {
-    this.company = this.companyService.getCurrentCompany();
+    this.populateCompanyInfo();
+  }
+
+  changeCompanyTo(company: Company) {
+    this.companyService.actAsCompany(company.id);
+    this.populateCompanyInfo();
+  }
+
+  private populateCompanyInfo() {
+    this.actingCompany = this.companyService.getActingCompany();
+    this.otherCompanies = this.companyService.getAllCompanies().filter(c => c !== this.actingCompany);
   }
 
 }
