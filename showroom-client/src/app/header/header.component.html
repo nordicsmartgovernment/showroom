@@ -1,5 +1,35 @@
 <mat-toolbar>
-  <a routerLink="/" matTooltip="Back to the dashboard">
-    NSG Showroom
-  </a>
+  <span>
+    <a routerLink="/" matTooltip="Back to the dashboard">
+      NSG Showroom
+    </a>
+  </span>
+
+  <span class="fill-remaining-space"></span>
+
+  <span class="company" [matMenuTriggerFor]="menu">
+    <!-- Make this look like a link, but it shouldn't go anywhere -->
+    <a href="javascript:" matTooltip="Change company">
+      <mat-icon svgIcon="account-circle"></mat-icon>
+      {{company.name}} ({{company.id}})
+    </a>
+
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item disabled>
+        <mat-icon svgIcon="information"></mat-icon>
+        Currently acting as:
+      </button>
+      <button mat-menu-item disabled>{{company.name}}, ID {{company.id}}</button>
+      <button mat-menu-item disabled>Country {{company.country}}, VAT ID {{company.vatId}}</button>
+      <button mat-menu-item disabled>
+        <mat-icon svgIcon="briefcase-upload"></mat-icon>
+        Change company
+      </button>
+      <button mat-menu-item disabled>
+        <mat-icon svgIcon="briefcase-plus"></mat-icon>
+        Start a new company
+      </button>
+    </mat-menu>
+  </span>
+
 </mat-toolbar>

@@ -8,5 +8,5 @@ export interface Store {
 
 export interface Product {
   name: string;
-  cost: number;
+  price: number;
 }

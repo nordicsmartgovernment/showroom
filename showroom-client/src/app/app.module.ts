@@ -17,6 +17,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { ShopComponent } from './dashboard/purchasing/shop/shop.component';
 import { ShopsComponent } from './dashboard/purchasing/shops/shops.component';
 import { MatListModule } from '@angular/material/list';
+import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
 
 @NgModule({
   declarations: [
@@ -38,7 +40,9 @@ import { MatListModule } from '@angular/material/list';
     MatButtonModule,
     MatTooltipModule,
     MatIconModule,
-    MatListModule
+    MatListModule,
+    FormsModule,
+    MatMenuModule
   ],
   providers: [MatIconRegistry],
   bootstrap: [AppComponent]

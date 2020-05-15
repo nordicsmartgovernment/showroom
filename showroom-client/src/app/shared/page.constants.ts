@@ -8,9 +8,8 @@ export interface Page {
 }
 
 export const PAGES: Page[] = [
-  { title: 'Start a company', active: false },
   { title: 'Purchasing', active: true, description: 'eReceipt and eInvoice', route: PURCHASING_ROUTE },
-  { title: 'Ordering', active: true },
+  { title: 'Ordering', active: false },
   { title: 'Payroll', active: false },
   { title: 'Bookkeeping transactions', active: false },
   { title: 'Window to financials', active: false },

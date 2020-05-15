@@ -1,6 +1,13 @@
 import { Store } from './store.model';
+import { Injectable } from '@angular/core';
 
+@Injectable({
+  providedIn: 'root'
+})
 export class StoreService {
+
+  constructor() {
+  }
 
   getStores(): Store[] {
     // Static stores - should be parsed from XMl later
@@ -19,9 +26,9 @@ const STORE_1: Store = {
   name: 'BestPowerTools',
   type: 'Hardware store',
   inventory: [
-    { name: 'Electric Drill', cost: 25 },
-    { name: 'Circular Saw', cost: 42 },
-    { name: 'Oscillating Multitool', cost: 39 }
+    { name: 'Electric Drill', price: 25 },
+    { name: 'Circular Saw', price: 42 },
+    { name: 'Oscillating Multitool', price: 39 }
   ],
   icon: 'hammer-screwdriver'
 };
@@ -31,8 +38,8 @@ const STORE_2: Store = {
   name: 'Builder\'s Paradise',
   type: 'Building material store',
   inventory: [
-    { name: 'Drywall piece', cost: 95 },
-    { name: 'Flooring', cost: 19 },
+    { name: 'Drywall piece', price: 95 },
+    { name: 'Flooring', price: 19 },
   ],
   icon: 'hammer-wrench'
 };
@@ -42,9 +49,9 @@ const STORE_3: Store = {
   name: 'Fruit4You',
   type: 'Food wholesales store',
   inventory: [
-    { name: 'Apple', cost: 2 },
-    { name: 'Orange', cost: 19 },
-    { name: 'Pomelo', cost: 15 },
+    { name: 'Apple', price: 2 },
+    { name: 'Orange', price: 19 },
+    { name: 'Pomelo', price: 15 },
   ],
   icon: 'food-apple'
 };

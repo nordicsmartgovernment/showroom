@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Company, CompanyService } from '../shared/company.service';
 
 @Component({
   selector: 'app-header',
@@ -7,9 +8,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor() { }
+  company: Company;
+
+  constructor(private companyService: CompanyService) {
+  }
 
   ngOnInit(): void {
+    this.company = this.companyService.getCurrentCompany();
   }
 
 }

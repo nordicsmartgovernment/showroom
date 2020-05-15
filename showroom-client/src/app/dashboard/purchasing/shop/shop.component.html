@@ -1,23 +1,58 @@
 <h1>Welcome to {{store.name}}!</h1>
 
-<div>
+<!-- This component is a mess - it should be separated into smaller child-components. -->
+<div *ngIf="!productInCart">
   <h2>Available products</h2>
   <mat-list>
     <mat-list-item
       *ngFor="let product of store.inventory;let lastProduct = last;">
       <div mat-line>
         <p style="float:left">{{product.name}}</p>
-        <button mat-flat-button style="float:right" color="primary">
-          <mat-icon svgIcon="cart-arrow-right"></mat-icon>
+        <button mat-flat-button
+                style="float:right"
+                color="primary"
+                (click)="addToCart(product)">
+          <mat-icon svgIcon="cart-arrow-down"></mat-icon>
           Buy now
         </button>
       </div>
       <div mat-line>
-        á {{product.cost}} €
+        á {{product.price}} €
       </div>
       <mat-divider *ngIf="!lastProduct"></mat-divider>
     </mat-list-item>
   </mat-list>
+</div>
+
+<div *ngIf="productInCart" class="buy-product">
+  <h2>Buy {{productInCart.name}} á {{productInCart.price}} €</h2>
+  <div class="buy-amount">
+    <label>
+      Amount:
+      <input type="number" min="1" [(ngModel)]="amount">
+    </label>
+  </div>
+
+  <div>
+    <p>Net price: {{productInCart.price * amount}} €</p>
+    <p>VAT: {{productInCart.price * 0.25 * amount}} €</p>
+    <p>Total price: {{productInCart.price * amount + (productInCart.price * 0.25) * amount}} €.</p>
+  </div>
+
+  <div class="checkout-row">
+    <button mat-raised-button color="accent" (click)="addToCart(null)">
+      <mat-icon svgIcon="cart-off"></mat-icon>
+      Cancel
+    </button>
+    <button mat-raised-button color="primary" (click)="checkout()">
+      <mat-icon svgIcon="credit-card-outline"></mat-icon>
+      Pay by card
+    </button>
+    <button mat-raised-button color="primary" (click)="checkout()">
+      <mat-icon svgIcon="receipt"></mat-icon>
+      Pay by invoice
+    </button>
+  </div>
 </div>
 
 <div class="back-to-stores">
