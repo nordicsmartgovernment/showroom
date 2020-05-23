@@ -3,6 +3,7 @@ export interface Store {
   name: string;
   type: string;
   inventory: Product[];
+  currency: string;
   icon?: string;
 }
 

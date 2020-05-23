@@ -30,6 +30,7 @@ const STORE_1: Store = {
     { name: 'Circular Saw', price: 42 },
     { name: 'Oscillating Multitool', price: 39 }
   ],
+  currency: 'NOK',
   icon: 'hammer-screwdriver'
 };
 
@@ -41,6 +42,7 @@ const STORE_2: Store = {
     { name: 'Drywall piece', price: 95 },
     { name: 'Flooring', price: 19 },
   ],
+  currency: 'EUR',
   icon: 'hammer-wrench'
 };
 
@@ -53,5 +55,6 @@ const STORE_3: Store = {
     { name: 'Orange', price: 19 },
     { name: 'Pomelo', price: 15 },
   ],
+  currency: 'DKK',
   icon: 'food-apple'
 };

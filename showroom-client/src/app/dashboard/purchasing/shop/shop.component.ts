@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { StoreService } from '../store.service';
 import { ActivatedRoute } from '@angular/router';
-import { Product, Store } from '../store.model';
 import { SandboxService } from '../../../shared/sandbox.service';
+import { CompanyService } from '../../../shared/company.service';
+import { Product, Store } from '../../../shared/store.model';
 
 @Component({
   selector: 'app-shop',
@@ -17,7 +18,8 @@ export class ShopComponent implements OnInit {
 
   constructor(private storeService: StoreService,
               private route: ActivatedRoute,
-              private sandboxService: SandboxService) {
+              private sandboxService: SandboxService,
+              private companyService: CompanyService) {
   }
 
   ngOnInit(): void {
@@ -33,8 +35,24 @@ export class ShopComponent implements OnInit {
     this.amount = 1;
   }
 
+  netPrice(): number {
+    return this.productInCart.price * this.amount;
+  }
+
+  vatPrice(): number {
+    return this.netPrice() * 0.25;
+  }
+
+  totalPrice(): number {
+    return this.netPrice() + this.vatPrice();
+  }
+
   checkout() {
     // Send documents to sandbox here
+    this.sandboxService.postBankStatement(
+      this.totalPrice(),
+      this.companyService.getActingCompany(),
+      this.store);
   }
 
 }

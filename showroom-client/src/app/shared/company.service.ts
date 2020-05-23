@@ -5,6 +5,7 @@ export interface Company {
   id: number;
   vatId: string;
   country: string;
+  iban: string;
 }
 
 @Injectable({
@@ -17,25 +18,30 @@ export class CompanyService {
       name: 'ABC Ltd',
       id: 123456,
       vatId: 'NO123456',
-      country: 'NO'
+      country: 'NO',
+      iban: 'NO00000000012345'
     },
     {
       name: 'XYZ Corp.',
       id: 335577,
       vatId: 'FI335577',
-      country: 'FI'
+      country: 'FI',
+      iban: 'FI000000000335577'
     },
     {
       name: 'Köttbullar AB',
       id: 994422,
       vatId: 'SE31-2378',
-      country: 'SE'
+      country: 'SE',
+      iban: 'SE000000000312378'
     }
   ];
 
   private actingCompany: Company;
 
   constructor() {
+    // Just pick the first company as default
+    // Acting company is a good candidate for local storage (making it persistent across sessions)
     this.actingCompany = this.ALL_COMPANIES[0];
   }
 

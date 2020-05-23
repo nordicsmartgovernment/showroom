@@ -17,7 +17,7 @@
         </button>
       </div>
       <div mat-line>
-        á {{product.price}} €
+        á {{product.price}} {{store.currency}}
       </div>
       <mat-divider *ngIf="!lastProduct"></mat-divider>
     </mat-list-item>
@@ -34,9 +34,9 @@
   </div>
 
   <div>
-    <p>Net price: {{productInCart.price * amount}} €</p>
-    <p>VAT: {{productInCart.price * 0.25 * amount}} €</p>
-    <p>Total price: {{productInCart.price * amount + (productInCart.price * 0.25) * amount}} €.</p>
+    <p>Net price: {{netPrice()}} {{store.currency}}</p>
+    <p>VAT: {{vatPrice()}} {{store.currency}}</p>
+    <p>Total price: {{totalPrice()}} {{store.currency}}</p>
   </div>
 
   <div class="checkout-row">

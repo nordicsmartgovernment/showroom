@@ -9,9 +9,9 @@
 
   <span class="company" [matMenuTriggerFor]="menu">
     <!-- Make this look like a link, but it shouldn't go anywhere -->
-    <a href="javascript:" matTooltip="Change company">
+    <a href="javascript:" matTooltip="Change or start new company">
       <mat-icon svgIcon="account-circle"></mat-icon>
-      {{actingCompany.name}} ({{actingCompany.id}})
+      {{actingCompany.name}}
     </a>
 
     <mat-menu #menu="matMenu">
@@ -23,7 +23,7 @@
       <button mat-menu-item disabled>Country {{actingCompany.country}}, VAT ID {{actingCompany.vatId}}</button>
       <button mat-menu-item [matMenuTriggerFor]="companies">
         <mat-icon svgIcon="briefcase-upload"></mat-icon>
-        Change company to
+        Change company
       </button>
       <button mat-menu-item disabled>
         <mat-icon svgIcon="briefcase-plus"></mat-icon>
