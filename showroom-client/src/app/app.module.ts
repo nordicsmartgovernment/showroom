@@ -22,6 +22,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { OrderconfirmedComponent } from './dashboard/purchasing/shop/orderconfirmed/orderconfirmed.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     FormsModule,
     MatMenuModule,
     MatDialogModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatProgressSpinnerModule
   ],
   entryComponents: [
     OrderconfirmedComponent

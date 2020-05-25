@@ -17,6 +17,7 @@ export class ShopComponent implements OnInit {
   store: Store;
   productInCart: Product;
   amount: number;
+  loading = false;
 
   constructor(private storeService: StoreService,
               private route: ActivatedRoute,
@@ -51,15 +52,15 @@ export class ShopComponent implements OnInit {
   }
 
   checkout() {
-    const bankInfo = this.sandboxService.submitPurchase(
-      this.totalPrice(),
-      this.companyService.getActingCompany(),
-      this.store);
-
-    const dialogRef = this.dialog.open(OrderconfirmedComponent, {
-      data: bankInfo,
-      disableClose: true
-    });
+    this.loading = true;
+    this.sandboxService.submitPurchase(this.totalPrice(), this.companyService.getActingCompany(), this.store)
+      .subscribe(_ => {
+        this.loading = false;
+        this.dialog.open(OrderconfirmedComponent, {
+          data: {},
+          disableClose: true
+        });
+      });
   }
 
 }

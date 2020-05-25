@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Company } from './company.service';
 import { Store } from './store.model';
+import { Observable } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
 
 const SANDBOX_URL = 'http://35.228.14.238:8080/';
@@ -31,7 +33,7 @@ export class SandboxService {
 
   }
 
-  submitPurchase(price: number, buyer: Company, seller: Store) {
+  submitPurchase(price: number, buyer: Company, seller: Store): Observable<any[]> {
     // This template-style XML generation is a quick-fix - it would be preferable to generate from
     // objects using some library
 
@@ -53,7 +55,7 @@ export class SandboxService {
       $OtherCompanyName$: seller.name,
       $DateTimeNow$: nowString,
       $DateNow$: dateNowString,
-      $SeqNumber$: '' + Math.floor(Math.random() * 9999),
+      $SeqNumber$: this.randomNumberString(),
       $DateTimePurchaseFrom$: twoMinBeforeNowString,
       $DateTimePurchaseTo$: oneMinBeforeNowString,
       $TransactionType$: 'DBIT',
@@ -77,7 +79,7 @@ export class SandboxService {
       $OtherCompanyName$: buyer.name,
       $DateTimeNow$: nowString,
       $DateNow$: dateNowString,
-      $SeqNumber$: '' + Math.floor(Math.random() * 9999),
+      $SeqNumber$: this.randomNumberString(),
       $DateTimePurchaseFrom$: twoMinBeforeNowString,
       $DateTimePurchaseTo$: oneMinBeforeNowString,
       $TransactionType$: 'CRDT',
@@ -93,7 +95,10 @@ export class SandboxService {
     console.log('Sellers\'s bank statement:');
     console.log(sellerStatement);
 
-    return buyerInfo;
+    const buyerStatementRequest = this.postDocument(buyer.id, BANK_STATEMENT_TYPE, buyerStatement);
+    const sellerStatementRequest = this.postDocument(seller.id, BANK_STATEMENT_TYPE, sellerStatement);
+
+    return forkJoin([buyerStatementRequest, sellerStatementRequest]);
   }
 
   private getTemplate(name: string, successAction) {
@@ -104,6 +109,10 @@ export class SandboxService {
   private randomString(): string {
     // Silly code I found for generating a random string, should probably be an UUID
     return [...Array(30)].map(() => Math.random().toString(36)[2]).join('');
+  }
+
+  private randomNumberString(): string {
+    return '' + Math.floor(Math.random() * 9999);
   }
 
 }
