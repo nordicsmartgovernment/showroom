@@ -1,5 +1,6 @@
-import { Store } from './store.model';
 import { Injectable } from '@angular/core';
+import { Store } from '../../shared/store.model';
+import { BEST_POWER_TOOLS, BUILDERS_PARADISE, FRUIT_4_YOU } from '../../shared/company.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,46 +16,43 @@ export class StoreService {
   }
 
   getStore(id: string): Store {
-    return this.getStores().find(s => s.id === id);
+    return this.getStores().find(s => s.id.toString() === id);
   }
 
 }
 
 
 const STORE_1: Store = {
-  id: 'bestpowertools',
-  name: 'BestPowerTools',
+  ...BEST_POWER_TOOLS,
   type: 'Hardware store',
+  currency: 'NOK',
   inventory: [
     { name: 'Electric Drill', price: 25 },
     { name: 'Circular Saw', price: 42 },
     { name: 'Oscillating Multitool', price: 39 }
   ],
-  currency: 'NOK',
   icon: 'hammer-screwdriver'
 };
 
 const STORE_2: Store = {
-  id: 'buildersparadise',
-  name: 'Builder\'s Paradise',
+  ...BUILDERS_PARADISE,
   type: 'Building material store',
+  currency: 'EUR',
   inventory: [
     { name: 'Drywall piece', price: 95 },
     { name: 'Flooring', price: 19 },
   ],
-  currency: 'EUR',
   icon: 'hammer-wrench'
 };
 
 const STORE_3: Store = {
-  id: 'fruit4you',
-  name: 'Fruit4You',
+  ...FRUIT_4_YOU,
   type: 'Food wholesales store',
+  currency: 'DKK',
   inventory: [
     { name: 'Apple', price: 2 },
     { name: 'Orange', price: 19 },
     { name: 'Pomelo', price: 15 },
   ],
-  currency: 'DKK',
   icon: 'food-apple'
 };

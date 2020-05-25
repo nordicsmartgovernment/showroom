@@ -5,11 +5,11 @@
       <MsgId>$MessageID$</MsgId>
       <CreDtTm>$DateTimeNow$</CreDtTm>
       <MsgRcpt>
-        <Nm>$BuyerName$</Nm>
+        <Nm>$CompanyName$</Nm>
         <Id>
           <OrgId>
             <Othr>
-              <Id>$BuyerID$</Id>
+              <Id>$CompanyID$</Id>
               <SchmeNm>
                 <Cd>BANK</Cd>
               </SchmeNm>
@@ -28,16 +28,16 @@
       </FrToDt>
       <Acct>
         <Id>
-          <IBAN>$BuyerIBAN$</IBAN>
+          <IBAN>$CompanyIBAN$</IBAN>
         </Id>
         <Ccy>$Currency$</Ccy>
         <Nm>Business account</Nm>
         <Ownr>
-          <Nm>$BuyerName$</Nm>
+          <Nm>$CompanyName$</Nm>
           <Id>
             <OrgId>
               <Othr>
-                <Id>$BuyerID$</Id>
+                <Id>$CompanyID$</Id>
               </Othr>
             </OrgId>
           </Id>
@@ -63,15 +63,15 @@
       </Bal>
       <TxsSummry>
         <TtlCdtNtries>
-          <Sum>0.00</Sum>
+          <Sum>$TotalCredit$</Sum>
         </TtlCdtNtries>
         <TtlDbtNtries>
-          <Sum>$TotalPrice$</Sum>
+          <Sum>$TotalDebit$</Sum>
         </TtlDbtNtries>
       </TxsSummry>
       <Ntry>
         <Amt Ccy="$Currency$">$TotalPrice$</Amt>
-        <CdtDbtInd>DBIT</CdtDbtInd>
+        <CdtDbtInd>$TransactionType$</CdtDbtInd>
         <Sts>
           <Prtry>BOOK</Prtry>
         </Sts>
@@ -104,7 +104,7 @@
             <RltdPties>
               <Cdtr>
                 <Pty>
-                  <Nm>$SellerName$</Nm>
+                  <Nm>$OtherCompanyName$</Nm>
                 </Pty>
               </Cdtr>
             </RltdPties>

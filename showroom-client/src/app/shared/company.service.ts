@@ -8,6 +8,31 @@ export interface Company {
   iban: string;
 }
 
+export const BEST_POWER_TOOLS = {
+  id: 3891382,
+  name: 'BestPowerTools',
+  iban: 'NO000000000742783',
+  vatId: 'NO742783',
+  country: 'NO',
+};
+
+export const BUILDERS_PARADISE = {
+  id: 994023491,
+  name: 'Builder\'s Paradise',
+  type: 'Hardware store',
+  iban: 'FI000000000479234',
+  vatId: 'FI479234',
+  country: 'FI'
+};
+
+export const FRUIT_4_YOU = {
+  id: 77772231,
+  name: 'Fruit4You',
+  iban: 'DK000000000038491',
+  vatId: 'DK038491',
+  country: 'DK'
+};
+
 @Injectable({
   providedIn: 'root'
 })
@@ -34,7 +59,10 @@ export class CompanyService {
       vatId: 'SE31-2378',
       country: 'SE',
       iban: 'SE000000000312378'
-    }
+    },
+    BEST_POWER_TOOLS,
+    BUILDERS_PARADISE,
+    FRUIT_4_YOU
   ];
 
   private actingCompany: Company;

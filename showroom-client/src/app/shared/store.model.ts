@@ -1,6 +1,6 @@
-export interface Store {
-  id: string;
-  name: string;
+import { Company } from './company.service';
+
+export interface Store extends Company {
   type: string;
   inventory: Product[];
   currency: string;

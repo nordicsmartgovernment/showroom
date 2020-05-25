@@ -1,0 +1,28 @@
+<h1 mat-dialog-title>Order confirmed!</h1>
+
+<mat-dialog-content>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Technical order details
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ul>
+      <li *ngFor="let infoItem of info">
+        {{infoItem.k}}: {{infoItem.val}}
+      </li>
+    </ul>
+
+  </mat-expansion-panel>
+
+</mat-dialog-content>
+
+<div mat-dialog-actions>
+  <button
+    mat-raised-button
+    color="primary"
+    [routerLink]="['/purchasing']"
+    (click)="this.dialogRef.close()">
+    Return to store selection
+  </button>
+</div>

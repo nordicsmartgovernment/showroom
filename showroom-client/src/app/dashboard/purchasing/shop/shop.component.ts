@@ -4,6 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { SandboxService } from '../../../shared/sandbox.service';
 import { CompanyService } from '../../../shared/company.service';
 import { Product, Store } from '../../../shared/store.model';
+import { OrderconfirmedComponent } from './orderconfirmed/orderconfirmed.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-shop',
@@ -19,7 +21,8 @@ export class ShopComponent implements OnInit {
   constructor(private storeService: StoreService,
               private route: ActivatedRoute,
               private sandboxService: SandboxService,
-              private companyService: CompanyService) {
+              private companyService: CompanyService,
+              public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -48,11 +51,15 @@ export class ShopComponent implements OnInit {
   }
 
   checkout() {
-    // Send documents to sandbox here
-    this.sandboxService.postBankStatement(
+    const bankInfo = this.sandboxService.submitPurchase(
       this.totalPrice(),
       this.companyService.getActingCompany(),
       this.store);
+
+    const dialogRef = this.dialog.open(OrderconfirmedComponent, {
+      data: bankInfo,
+      disableClose: true
+    });
   }
 
 }

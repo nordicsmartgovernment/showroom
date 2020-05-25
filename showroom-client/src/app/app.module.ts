@@ -19,6 +19,9 @@ import { ShopsComponent } from './dashboard/purchasing/shops/shops.component';
 import { MatListModule } from '@angular/material/list';
 import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
+import { OrderconfirmedComponent } from './dashboard/purchasing/shop/orderconfirmed/orderconfirmed.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
   declarations: [
@@ -27,7 +30,8 @@ import { MatMenuModule } from '@angular/material/menu';
     DashboardComponent,
     PurchasingComponent,
     ShopComponent,
-    ShopsComponent
+    ShopsComponent,
+    OrderconfirmedComponent
   ],
   imports: [
     HttpClientModule,
@@ -42,7 +46,12 @@ import { MatMenuModule } from '@angular/material/menu';
     MatIconModule,
     MatListModule,
     FormsModule,
-    MatMenuModule
+    MatMenuModule,
+    MatDialogModule,
+    MatExpansionModule
+  ],
+  entryComponents: [
+    OrderconfirmedComponent
   ],
   providers: [MatIconRegistry],
   bootstrap: [AppComponent]
