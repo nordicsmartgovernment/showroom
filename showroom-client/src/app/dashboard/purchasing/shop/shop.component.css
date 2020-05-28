@@ -1,0 +1,23 @@
+mat-list {
+  max-width: 400px;
+}
+
+.back-to-stores {
+  margin-top: 50px;
+}
+
+input {
+  width: 30px;
+}
+
+.buy-amount {
+  margin-bottom: 20px;
+}
+
+.buy-product button {
+  margin-right: 20px;
+}
+
+.checkout-row {
+  margin-top: 50px;
+}

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="Finvoice.xsl"?>
+<Finvoice Version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SellerPartyDetails> <!-- Seller info. these can be taken from the 'parties' catalogue, see the comments there -->
+    <SellerPartyIdentifier>11111111</SellerPartyIdentifier> <!-- $companyID -->
+    <SellerOrganisationName>Food wholesales shop co.</SellerOrganisationName> <!-- $companyName -->
+    <SellerOrganisationTaxCode>DK11111111</SellerOrganisationTaxCode> <!-- $vatID -->
+    <SellerPostalAddressDetails>
+      <SellerStreetName>København SV</SellerStreetName> <!-- $street -->
+      <SellerTownName>Copenhagen</SellerTownName> <!-- $city -->
+      <SellerPostCodeIdentifier>2450</SellerPostCodeIdentifier> <!-- $postCode -->
+      <CountryCode>DK</CountryCode> <!-- $country -->
+    </SellerPostalAddressDetails>
+  </SellerPartyDetails>
+
+  <BuyerPartyDetails> <!-- Buyer info. these can be taken from the 'parties' catalogue, see the comments there -->
+    <BuyerPartyIdentifier>$CompanyID$</BuyerPartyIdentifier> <!-- $companyID -->
+    <BuyerOrganisationName>$CompanyName$</BuyerOrganisationName> <!-- $companyName -->
+    <BuyerOrganisationTaxCode>$vatID$</BuyerOrganisationTaxCode> <!-- $vatID -->
+    <BuyerPostalAddressDetails>
+      <BuyerStreetName>Langelinie Alle 17</BuyerStreetName> <!-- $street -->
+      <BuyerTownName>København Ø</BuyerTownName> <!-- $city -->
+      <BuyerPostCodeIdentifier>2100</BuyerPostCodeIdentifier> <!-- $postCode -->
+      <CountryCode>DK</CountryCode> <!-- $country -->
+    </BuyerPostalAddressDetails>
+  </BuyerPartyDetails>
+
+  <InvoiceDetails>
+    <InvoiceTypeCode>INV01</InvoiceTypeCode> <!--static-->
+    <InvoiceTypeText>INVOICE</InvoiceTypeText> <!--static-->
+    <OriginCode>Original</OriginCode> <!--static-->
+    <InvoiceNumber>1100</InvoiceNumber> <!--needs to be created, can be a random number/string-->
+    <InvoiceDate Format="CCYYMMDD">20170526</InvoiceDate> <!--$currentDate-->
+
+    <InvoiceTotalVatExcludedAmount AmountCurrencyIdentifier="EUR">37,50
+    </InvoiceTotalVatExcludedAmount> <!-- $purchasedQuantity * $price-->
+    <InvoiceTotalVatIncludedAmount AmountCurrencyIdentifier="EUR">46,88
+    </InvoiceTotalVatIncludedAmount> <!-- $vatRate/100* $price * $purchasedQuantity + $price * $purchasedQuantity -->
+    <AccountDimensionText>2490
+    </AccountDimensionText> <!--static, for now. $accountID This is the accounting reference and we can use static ones for all purchases but we still need to take the country of the buyer into account, perhaps some small mapping table will help -->
+    <VatSpecificationDetails>
+      <VatBaseAmount AmountCurrencyIdentifier="EUR">37,50</VatBaseAmount> <!-- $price * $purchasedQuantity-->
+      <VatRatePercent>25,00</VatRatePercent> <!-- $vatRate -->
+      <VatCode>S</VatCode> <!--static -->
+      <VatRateAmount AmountCurrencyIdentifier="EUR">9,38
+      </VatRateAmount> <!-- $vatRate/100* $price * $purchasedQuantity-->
+
+    </VatSpecificationDetails>
+    <PaymentTermsDetails>
+      <PaymentTermsFreeText>14 days net</PaymentTermsFreeText><!--static-->
+      <InvoiceDueDate Format="CCYYMMDD">20170609</InvoiceDueDate> <!--$currentDate + 14d-->
+      <PaymentOverDueFineDetails>
+        <PaymentOverDueFineFreeText>1,5 %</PaymentOverDueFineFreeText><!--static-->
+        <PaymentOverDueFinePercent>1,5</PaymentOverDueFinePercent><!--static-->
+      </PaymentOverDueFineDetails>
+    </PaymentTermsDetails>
+  </InvoiceDetails>
+  <InvoiceRow> <!--all details see in eCatalogue sample -->
+    <ArticleIdentifier>8085250</ArticleIdentifier> <!-- $sellerItemID-->
+    <ArticleGroupIdentifier>50101634</ArticleGroupIdentifier> <!-- $commodityCode-->
+    <ArticleName>Oranges</ArticleName> <!-- $itemName-->
+    <EanCode>83111500</EanCode> <!-- $standardItemID -->
+    <DeliveredQuantity QuantityUnitCode="KG">15</DeliveredQuantity> <!-- $purchasedQuantity, for now-->
+    <OrderedQuantity QuantityUnitCode="KG">15</OrderedQuantity> <!-- $purchasedQuantity -->
+    <UnitPriceAmount AmountCurrencyIdentifier="DKK">2,5</UnitPriceAmount> <!-- $price-->
+    <RowVatRatePercent>25,00</RowVatRatePercent>
+    <RowVatCode>S</RowVatCode> <!--static -->
+    <RowVatAmount AmountCurrencyIdentifier="DKK">9,38</RowVatAmount> <!-- $vatRate/100* $price * $purchasedQuantity-->
+    <RowVatExcludedAmount AmountCurrencyIdentifier="DKK">37,50
+    </RowVatExcludedAmount> <!-- $price * $purchasedQuantity-->
+    <RowAmount AmountCurrencyIdentifier="DKK">46,88
+    </RowAmount> <!-- $vatRate/100* $price * $purchasedQuantity + $price * $purchasedQuantity -->
+  </InvoiceRow>
+  <EpiDetails>
+    <EpiIdentificationDetails>
+      <EpiDate Format="CCYYMMDD">20170526</EpiDate> <!--$currentDate + 14d-->
+      <EpiReference/> <!--mandatory field, but can be left empty -->
+    </EpiIdentificationDetails>
+    <EpiPartyDetails>
+      <EpiBfiPartyDetails>
+      </EpiBfiPartyDetails>
+      <EpiBeneficiaryPartyDetails>
+        <EpiNameAddressDetails>Food wholesales shop co.</EpiNameAddressDetails> <!-- seller name -->
+        <EpiAccountID IdentificationSchemeName="IBAN">FI04904840131313</EpiAccountID> <!--static for now -->
+      </EpiBeneficiaryPartyDetails>
+    </EpiPartyDetails>
+    <EpiPaymentInstructionDetails>
+      <EpiPaymentInstructionId/>
+      <EpiRemittanceInfoIdentifier IdentificationSchemeName="ISO">11002
+      </EpiRemittanceInfoIdentifier> <!-- $paymentRef, can be randomized but needs to be the same one used in the invoic/receipt/order created and a bankStatement message to match the payment to the goods sold / purchased -->
+      <EpiInstructedAmount AmountCurrencyIdentifier="DKK">46,88
+      </EpiInstructedAmount><!-- $vatRate/100* $price * $purchasedQuantity + $price * $purchasedQuantity -->
+      <EpiCharge ChargeOption="SHA">SHA</EpiCharge> <!--static -->
+      <EpiDateOptionDate Format="CCYYMMDD">20170609</EpiDateOptionDate>  <!--$currentDate -->
+    </EpiPaymentInstructionDetails>
+
+  </EpiDetails>
+</Finvoice>

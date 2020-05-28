@@ -6,6 +6,15 @@ mat-toolbar {
   background: radial-gradient(circle at bottom left, rgb(226, 93, 94) 10%, rgb(32, 31, 75) 50%);
 }
 
-span {
+mat-toolbar * {
   color: white;
+  text-decoration: none;
+}
+
+.fill-remaining-space {
+  flex: 1 1 auto;
+}
+
+.company {
+  font-size: 20px;
 }
