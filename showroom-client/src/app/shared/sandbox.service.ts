@@ -163,7 +163,7 @@ export class SandboxService {
 
     // TODO Include all requests when the documents are fully generated
     // return forkJoin([buyerStatementRequest, sellerStatementRequest, buyerDocumentRequest, sellerDocumentRequest]);
-    return forkJoin([buyerStatementRequest, sellerStatementRequest);
+    return forkJoin([buyerStatementRequest, sellerStatementRequest]);
   }
 
   private getTemplate(name: string, successAction) {
