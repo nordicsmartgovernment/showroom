@@ -7,8 +7,7 @@ import { forkJoin } from 'rxjs';
 
 
 const SANDBOX_URL = 'http://35.228.14.238:8080/';
-const TRANSACTIONS_PATH = 'transactions';
-const DOCUMENTS_PATH = 'document';
+const DOCUMENTS_PATH = 'document/';
 const BANK_STATEMENT_TYPE = 'application/vnd.nordicsmartgovernment.bank-statement';
 const RECEIPT_TYPE = 'application/vnd.nordicsmartgovernment.receipt';
 const INVOICE_TYPE = 'application/vnd.nordicsmartgovernment.sales-invoice';
@@ -37,15 +36,10 @@ export class SandboxService {
     this.getTemplate('finvoice_eReceiptTemplate.xml', template => this.eReceiptTemplate = template);
   }
 
-  getCompanyIds() {
-    return this.http.get(SANDBOX_URL + TRANSACTIONS_PATH);
-  }
-
   postDocument(companyId: number, documentType: string, payload: string) {
-    return this.http.post(SANDBOX_URL + DOCUMENTS_PATH, payload, {
+    return this.http.post(SANDBOX_URL + DOCUMENTS_PATH + companyId, payload, {
       headers: new HttpHeaders({ 'Content-Type': documentType })
     });
-
   }
 
   submitPurchase(purchase: PurchaseDescription, buyer: Company, seller: Store): Observable<any[]> {
