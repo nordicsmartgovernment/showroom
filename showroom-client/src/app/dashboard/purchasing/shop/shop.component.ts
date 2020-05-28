@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StoreService } from '../store.service';
 import { ActivatedRoute } from '@angular/router';
-import { SandboxService } from '../../../shared/sandbox.service';
+import { PurchaseDescription, SandboxService } from '../../../shared/sandbox.service';
 import { CompanyService } from '../../../shared/company.service';
 import { Product, Store } from '../../../shared/store.model';
 import { OrderconfirmedComponent } from './orderconfirmed/orderconfirmed.component';
@@ -51,16 +51,27 @@ export class ShopComponent implements OnInit {
     return this.netPrice() + this.vatPrice();
   }
 
-  checkout() {
+  checkout(card: boolean) {
     this.loading = true;
-    this.sandboxService.submitPurchase(this.totalPrice(), this.companyService.getActingCompany(), this.store)
-      .subscribe(_ => {
-        this.loading = false;
-        this.dialog.open(OrderconfirmedComponent, {
-          data: {},
-          disableClose: true
-        });
+
+    const purchase: PurchaseDescription = {
+      paidByCard: card,
+      totalPriceExclVat: this.netPrice(),
+      vatPrice: this.vatPrice(),
+      totalPriceInclVat: this.totalPrice(),
+      amount: this.amount
+    };
+
+    const openConfirmation = _ => {
+      this.loading = false;
+      this.dialog.open(OrderconfirmedComponent, {
+        data: { paidByCard: card},
+        disableClose: true
       });
+    };
+
+    this.sandboxService.submitPurchase(purchase, this.companyService.getActingCompany(), this.store)
+      .subscribe(openConfirmation);
   }
 
 }

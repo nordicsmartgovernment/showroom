@@ -10,6 +10,17 @@ const SANDBOX_URL = 'http://35.228.14.238:8080/';
 const TRANSACTIONS_PATH = 'transactions';
 const DOCUMENTS_PATH = 'document';
 const BANK_STATEMENT_TYPE = 'application/vnd.nordicsmartgovernment.bank-statement';
+const RECEIPT_TYPE = 'application/vnd.nordicsmartgovernment.receipt';
+const INVOICE_TYPE = 'application/vnd.nordicsmartgovernment.sales-invoice';
+
+
+export interface PurchaseDescription {
+  paidByCard: boolean; // If true, generate eReceipt, if false assume paid by invoice (generate eInvoice)
+  totalPriceExclVat: number;
+  vatPrice: number;
+  totalPriceInclVat: number;
+  amount: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -17,9 +28,13 @@ const BANK_STATEMENT_TYPE = 'application/vnd.nordicsmartgovernment.bank-statemen
 export class SandboxService {
 
   private bankStatementTemplate: string;
+  private eInvoiceTemplate: string;
+  private eReceiptTemplate: string;
 
   constructor(private http: HttpClient) {
     this.getTemplate('bankStatementTemplate.xml', template => this.bankStatementTemplate = template);
+    this.getTemplate('finvoice_eInvoiceTemplate.xml', template => this.eInvoiceTemplate = template);
+    this.getTemplate('finvoice_eReceiptTemplate.xml', template => this.eReceiptTemplate = template);
   }
 
   getCompanyIds() {
@@ -33,72 +48,122 @@ export class SandboxService {
 
   }
 
-  submitPurchase(price: number, buyer: Company, seller: Store): Observable<any[]> {
+  submitPurchase(purchase: PurchaseDescription, buyer: Company, seller: Store): Observable<any[]> {
     // This template-style XML generation is a quick-fix - it would be preferable to generate from
     // objects using some library
 
     const now = new Date();
-    const nowString = now.toISOString();
-    const twoMinBeforeNowString = new Date(now.getTime() - 120000).toISOString();
-    const oneMinBeforeNowString = new Date(now.getTime() - 60000).toISOString();
-    const dateNowString = nowString.substr(0, 10);
+    const nowISOString = now.toISOString();
+    const twoMinBeforeNowISOString = new Date(now.getTime() - 120000).toISOString();
+    const oneMinBeforeNowISOString = new Date(now.getTime() - 60000).toISOString();
+    const dateNowISOString = nowISOString.substr(0, 10);
 
     // These two be provided, needs to be the same in multiple documents
     const invoiceId = this.randomString();
     const paymentReference = this.randomString();
 
-    const buyerInfo = {
+
+    // Buyer bank statement
+    const buyerStatementInfo = {
       $MessageID$: this.randomString(),
       $CompanyName$: buyer.name,
       $CompanyID$: buyer.id.toString(),
       $CompanyIBAN$: buyer.iban,
       $OtherCompanyName$: seller.name,
-      $DateTimeNow$: nowString,
-      $DateNow$: dateNowString,
+      $DateTimeNow$: nowISOString,
+      $DateNow$: dateNowISOString,
       $SeqNumber$: this.randomNumberString(),
-      $DateTimePurchaseFrom$: twoMinBeforeNowString,
-      $DateTimePurchaseTo$: oneMinBeforeNowString,
+      $DateTimePurchaseFrom$: twoMinBeforeNowISOString,
+      $DateTimePurchaseTo$: oneMinBeforeNowISOString,
       $TransactionType$: 'DBIT',
-      $TotalDebit$: '' + price,
+      $TotalDebit$: '' + purchase.totalPriceInclVat,
       $TotalCredit$: '0.00',
-      $TotalPrice$: '' + price,
+      $TotalPrice$: '' + purchase.totalPriceInclVat,
       $Currency$: seller.currency,
       $InvoiceID$: invoiceId,
-      $PaymentReference$: paymentReference,
+      $PaymentReference$: paymentReference
     };
 
-    const buyerStatement = populateTemplate(this.bankStatementTemplate, buyerInfo);
+    const buyerStatement = populateTemplate(this.bankStatementTemplate, buyerStatementInfo);
     console.log('Buyer\'s bank statement:');
     console.log(buyerStatement);
+    const buyerStatementRequest = this.postDocument(buyer.id, BANK_STATEMENT_TYPE, buyerStatement);
 
-    const sellerInfo = {
+
+    // Seller bank statement
+    const sellerStatementInfo = {
       $MessageID$: this.randomString(),
       $CompanyName$: seller.name,
       $CompanyID$: seller.id.toString(),
       $CompanyIBAN$: seller.iban,
       $OtherCompanyName$: buyer.name,
-      $DateTimeNow$: nowString,
-      $DateNow$: dateNowString,
+      $DateTimeNow$: nowISOString,
+      $DateNow$: dateNowISOString,
       $SeqNumber$: this.randomNumberString(),
-      $DateTimePurchaseFrom$: twoMinBeforeNowString,
-      $DateTimePurchaseTo$: oneMinBeforeNowString,
+      $DateTimePurchaseFrom$: twoMinBeforeNowISOString,
+      $DateTimePurchaseTo$: oneMinBeforeNowISOString,
       $TransactionType$: 'CRDT',
       $TotalDebit$: '0.00',
-      $TotalCredit$: '' + price,
-      $TotalPrice$: '' + price,
+      $TotalCredit$: '' + purchase.totalPriceInclVat,
+      $TotalPrice$: '' + purchase.totalPriceInclVat,
       $Currency$: seller.currency,
       $InvoiceID$: invoiceId,
-      $PaymentReference$: paymentReference,
+      $PaymentReference$: paymentReference
     };
 
-    const sellerStatement = populateTemplate(this.bankStatementTemplate, sellerInfo);
+    const sellerStatement = populateTemplate(this.bankStatementTemplate, sellerStatementInfo);
     console.log('Sellers\'s bank statement:');
     console.log(sellerStatement);
-
-    const buyerStatementRequest = this.postDocument(buyer.id, BANK_STATEMENT_TYPE, buyerStatement);
     const sellerStatementRequest = this.postDocument(seller.id, BANK_STATEMENT_TYPE, sellerStatement);
 
-    return forkJoin([buyerStatementRequest, sellerStatementRequest]);
+    // TODO fill in all information in these templates
+    // Depending on payment type, "document" is either an eInvoice or an eReceipt
+    let buyerDocumentRequest;
+    let sellerDocumentRequest;
+
+    if (purchase.paidByCard) { // eReceipt
+
+      const receiptInfo = {
+        $CompanyName$: buyer.name,
+        $CompanyID$: buyer.id.toString(),
+        $CompanyVatID$: buyer.vatId,
+        $CompanyCountry$: buyer.country,
+        $OtherCompanyName$: seller.name,
+        $OtherCompanyID$: seller.id.toString(),
+        $OtherCompanyVatID$: seller.vatId,
+        $OtherCompanyCountry$: seller.country,
+        $InvoiceID$: invoiceId,
+        $Currency$: seller.currency,
+        $PriceExclVat$: purchase.totalPriceExclVat.toString().replace('.', ','),
+        $VatPrice$: purchase.vatPrice.toString().replace('.', ','),
+        $PriceInclVat$: purchase.totalPriceInclVat.toString().replace('.', ','),
+      };
+
+      const receipt = populateTemplate(this.eReceiptTemplate, receiptInfo);
+
+      console.log('eReceipt:');
+      console.log(receipt);
+
+      buyerDocumentRequest = this.postDocument(buyer.id, RECEIPT_TYPE, receipt);
+      sellerDocumentRequest = this.postDocument(seller.id, RECEIPT_TYPE, receipt);
+    } else { // eInvoice
+
+      const invoiceInfo = {
+        $InvoiceID$: invoiceId
+      };
+
+      const invoice = populateTemplate(this.eInvoiceTemplate, invoiceInfo);
+
+      console.log('eInvoice:');
+      console.log(invoice);
+
+      buyerDocumentRequest = this.postDocument(buyer.id, INVOICE_TYPE, invoice);
+      sellerDocumentRequest = this.postDocument(seller.id, INVOICE_TYPE, invoice);
+    }
+
+    // TODO Include all requests when the documents are fully generated
+    // return forkJoin([buyerStatementRequest, sellerStatementRequest, buyerDocumentRequest, sellerDocumentRequest]);
+    return forkJoin([buyerStatementRequest, sellerStatementRequest);
   }
 
   private getTemplate(name: string, successAction) {
@@ -107,7 +172,7 @@ export class SandboxService {
   }
 
   private randomString(): string {
-    // Silly code I found for generating a random string, should probably be an UUID
+    // Silly code I found for generating a random string, should probably be e.g. an UUID
     return [...Array(30)].map(() => Math.random().toString(36)[2]).join('');
   }
 

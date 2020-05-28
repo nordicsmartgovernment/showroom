@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet href="Finvoice.xsl" type="text/xsl"?>
+<Finvoice Version="2.01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <MessageTransmissionDetails>
+    <MessageSenderDetails>
+      <FromIdentifier>$OtherCompanyID$</FromIdentifier> <!-- seller companyID -->
+      <FromIntermediator>NONE</FromIntermediator> <!--static -->
+    </MessageSenderDetails>
+    <MessageReceiverDetails>
+      <ToIdentifier>NSG receipt holder</ToIdentifier> <!--static -->
+      <ToIntermediator>NONE</ToIntermediator> <!--static -->
+    </MessageReceiverDetails>
+    <MessageDetails>
+      <MessageIdentifier>ElectronicReceipt</MessageIdentifier> <!--static -->
+      <MessageTimeStamp>061019111614</MessageTimeStamp> <!-- $currentDateTime -->
+      <ImplementationCode>ECRT</ImplementationCode> <!--static -->
+    </MessageDetails>
+  </MessageTransmissionDetails>
+
+  <SellerPartyDetails> <!-- Seller info. these can be taken from the 'parties' catalogue, see the comments there -->
+    <SellerPartyIdentifier>$OtherCompanyID$</SellerPartyIdentifier> <!-- $companyID -->
+    <SellerOrganisationName>$OtherCompanyName$</SellerOrganisationName> <!-- $companyName -->
+    <SellerOrganisationTaxCode>$OtherCompanyVatID$</SellerOrganisationTaxCode> <!-- $vatID -->
+    <SellerPostalAddressDetails>
+      <SellerStreetName>København SV</SellerStreetName> <!-- $street -->
+      <SellerTownName>Copenhagen</SellerTownName> <!-- $city -->
+      <SellerPostCodeIdentifier>2450</SellerPostCodeIdentifier> <!-- $postCode -->
+      <CountryCode>$OtherCompanyCountry$</CountryCode> <!-- $country -->
+    </SellerPostalAddressDetails>
+  </SellerPartyDetails>
+
+  <BuyerPartyDetails> <!-- Buyer info. these can be taken from the 'parties' catalogue, see the comments there -->
+    <BuyerPartyIdentifier>$CompanyID$</BuyerPartyIdentifier> <!-- $companyID -->
+    <BuyerOrganisationName>$CompanyName$</BuyerOrganisationName> <!-- $companyName -->
+    <BuyerOrganisationTaxCode>$CompanyVatID$</BuyerOrganisationTaxCode> <!-- $vatID -->
+    <BuyerPostalAddressDetails>
+      <BuyerStreetName>Langelinie Alle 17</BuyerStreetName> <!-- $street -->
+      <BuyerTownName>København Ø</BuyerTownName> <!-- $city -->
+      <BuyerPostCodeIdentifier>2100</BuyerPostCodeIdentifier> <!-- $postCode -->
+      <CountryCode>$CompanyCountry$</CountryCode> <!-- $country -->
+    </BuyerPostalAddressDetails>
+  </BuyerPartyDetails>
+
+  <InvoiceDetails>
+    <InvoiceTypeCode>REC01</InvoiceTypeCode> <!--static -->
+    <InvoiceTypeCodeUN>632</InvoiceTypeCodeUN> <!--static -->
+    <InvoiceTypeText>Electronic receipt</InvoiceTypeText> <!--static -->
+    <OriginCode>Original</OriginCode> <!--static -->
+    <InvoiceNumber>$InvoiceID$</InvoiceNumber>
+    <InvoiceDate Format="CCYYMMDD">20190624</InvoiceDate><!--$currentDate-->
+    <SellersBuyerIdentifier>NA</SellersBuyerIdentifier> <!--static -->
+    <InvoiceTotalVatExcludedAmount AmountCurrencyIdentifier="$Currency$">$PriceExclVat$</InvoiceTotalVatExcludedAmount>
+    <InvoiceTotalVatAmount AmountCurrencyIdentifier="$Currency$">$VatPrice$</InvoiceTotalVatAmount>
+    <InvoiceTotalVatIncludedAmount AmountCurrencyIdentifier="$Currency$">$PriceInclVat$</InvoiceTotalVatIncludedAmount>
+    <VatSpecificationDetails>
+      <VatBaseAmount AmountCurrencyIdentifier="$Currency$">$PriceExclVat$</VatBaseAmount>
+      <VatRatePercent>25,00</VatRatePercent> <!-- $vatRate -->
+      <VatCode>S</VatCode> <!--static -->
+      <VatRateAmount AmountCurrencyIdentifier="$Currency$">$VatPrice$</VatRateAmount>
+    </VatSpecificationDetails>
+  </InvoiceDetails>
+
+  <PaymentStatusDetails>
+    <PaymentStatusCode>PAID</PaymentStatusCode> <!--static -->
+  </PaymentStatusDetails>
+
+  <InvoiceRow> <!--all details see in eCatalogue sample -->
+    <ArticleIdentifier>8085250</ArticleIdentifier> <!-- $sellerItemID-->
+    <ArticleGroupIdentifier>50101634</ArticleGroupIdentifier> <!-- $commodityCode-->
+    <ArticleName>Oranges</ArticleName> <!-- $itemName-->
+    <EanCode>83111500</EanCode> <!-- $standardItemID -->
+    <DeliveredQuantity QuantityUnitCode="KG">15</DeliveredQuantity> <!-- $purchasedQuantity, for now-->
+    <OrderedQuantity QuantityUnitCode="KG">15</OrderedQuantity> <!-- $purchasedQuantity -->
+    <UnitPriceAmount AmountCurrencyIdentifier="DKK">2,5</UnitPriceAmount> <!-- $price-->
+    <RowVatRatePercent>25,00</RowVatRatePercent>
+    <RowVatCode>S</RowVatCode> <!--static -->
+    <RowVatAmount AmountCurrencyIdentifier="DKK">9,38</RowVatAmount> <!-- $vatRate/100* $price * $purchasedQuantity-->
+    <RowVatExcludedAmount AmountCurrencyIdentifier="DKK">37,50
+    </RowVatExcludedAmount> <!-- $price * $purchasedQuantity-->
+    <RowAmount AmountCurrencyIdentifier="DKK">46,88
+    </RowAmount> <!-- $vatRate/100* $price * $purchasedQuantity + $price * $purchasedQuantity -->
+  </InvoiceRow>
+
+  <InvoiceRow> <!-- All of this can be static apart from the last row, SubRowAmount -->
+    <SubInvoiceRow>
+      <SubIdentifier>PAYMENT</SubIdentifier>
+      <SubArticleIdentifier>Kortti</SubArticleIdentifier>
+      <SubArticleName>MAKSUTAPA</SubArticleName>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00000">CardMaskedNumber</SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue>524342xxxxxx1401</SubRowDefinitionValue>
+      </SubRowDefinitionDetails>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00001">ReferenceNumber</SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue>151222010038</SubRowDefinitionValue>
+      </SubRowDefinitionDetails>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00002">TimeStamp</SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue>151222100715</SubRowDefinitionValue>
+      </SubRowDefinitionDetails>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00003">RequestedAmount</SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue>755,90</SubRowDefinitionValue>
+      </SubRowDefinitionDetails>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00004">AuthorizationCode</SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue/>
+      </SubRowDefinitionDetails>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00005">MerchantNumber</SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue/>
+      </SubRowDefinitionDetails>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00006">AuthorizingTermID</SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue/>
+      </SubRowDefinitionDetails>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00007">VerifiedByPINFlag</SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue/>
+      </SubRowDefinitionDetails>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00008">TenderAuthorizationMethodType
+        </SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue>ChipPin</SubRowDefinitionValue>
+      </SubRowDefinitionDetails>
+      <SubRowDefinitionDetails>
+        <SubRowDefinitionHeaderText DefinitionCode="CARD00009">CreditCardCompanyCode</SubRowDefinitionHeaderText>
+        <SubRowDefinitionValue>L5</SubRowDefinitionValue>
+      </SubRowDefinitionDetails>
+      <SubRowAmount AmountCurrencyIdentifier="EUR">46,88
+      </SubRowAmount> <!-- $vatRate/100* $price * $purchasedQuantity + $price * $purchasedQuantity -->
+
+    </SubInvoiceRow>
+  </InvoiceRow>
+  <EpiDetails>
+    <EpiIdentificationDetails>
+      <EpiDate Format="CCYYMMDD">20170526</EpiDate> <!--$currentDate -->
+      <EpiReference/> <!--mandatory field, but can be left empty -->
+    </EpiIdentificationDetails>
+    <EpiPartyDetails>
+      <EpiBfiPartyDetails>
+      </EpiBfiPartyDetails>
+      <EpiBeneficiaryPartyDetails>
+        <EpiNameAddressDetails>Food wholesales shop co.</EpiNameAddressDetails> <!-- seller name -->
+        <EpiAccountID IdentificationSchemeName="IBAN">FI04904840131313</EpiAccountID> <!--static for now -->
+      </EpiBeneficiaryPartyDetails>
+    </EpiPartyDetails>
+    <EpiPaymentInstructionDetails>
+      <EpiPaymentInstructionId/>
+      <EpiRemittanceInfoIdentifier IdentificationSchemeName="ISO">11002
+      </EpiRemittanceInfoIdentifier> <!-- $paymentRef, can be randomized but needs to be the same one used in the invoic/receipt/order created and a bankStatement message to match the payment to the goods sold / purchased -->
+      <EpiInstructedAmount AmountCurrencyIdentifier="DKK">46,88
+      </EpiInstructedAmount><!-- $vatRate/100* $price * $purchasedQuantity + $price * $purchasedQuantity -->
+      <EpiCharge ChargeOption="SHA">SHA</EpiCharge> <!--static -->
+      <EpiDateOptionDate Format="CCYYMMDD">20170609</EpiDateOptionDate>  <!--$currentDate -->
+    </EpiPaymentInstructionDetails>
+  </EpiDetails>
+</Finvoice>
