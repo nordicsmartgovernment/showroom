@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { forkJoin } from 'rxjs';
 
 
-const SANDBOX_URL = 'http://35.228.14.238:8080/';
+const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
 const DOCUMENTS_PATH = 'document/';
 const BANK_STATEMENT_TYPE = 'application/vnd.nordicsmartgovernment.bank-statement';
 const RECEIPT_TYPE = 'application/vnd.nordicsmartgovernment.receipt';

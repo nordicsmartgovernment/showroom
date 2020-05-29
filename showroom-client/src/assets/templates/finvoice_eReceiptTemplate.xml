@@ -127,9 +127,7 @@
         <SubRowDefinitionHeaderText DefinitionCode="CARD00009">CreditCardCompanyCode</SubRowDefinitionHeaderText>
         <SubRowDefinitionValue>L5</SubRowDefinitionValue>
       </SubRowDefinitionDetails>
-      <SubRowAmount AmountCurrencyIdentifier="EUR">46,88
-      </SubRowAmount> <!-- $vatRate/100* $price * $purchasedQuantity + $price * $purchasedQuantity -->
-
+      <SubRowAmount AmountCurrencyIdentifier="$Currency$">$PriceInclVat$</SubRowAmount>
     </SubInvoiceRow>
   </InvoiceRow>
   <EpiDetails>
