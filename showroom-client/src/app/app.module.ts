@@ -23,6 +23,7 @@ import { OrderconfirmedComponent } from './dashboard/purchasing/shop/orderconfir
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { OrangebooksComponent } from './dashboard/orangebooks/orangebooks.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     PurchasingComponent,
     ShopComponent,
     ShopsComponent,
-    OrderconfirmedComponent
+    OrderconfirmedComponent,
+    OrangebooksComponent
   ],
   imports: [
     HttpClientModule,
