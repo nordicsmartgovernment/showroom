@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Company } from './company.service';
-import { Store } from './store.model';
-import { Observable } from 'rxjs';
-import { forkJoin } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Company} from './company.service';
+import {Store} from './store.model';
+import {Observable} from 'rxjs';
+import {forkJoin} from 'rxjs';
+import {parse, j2xParser as Parser} from 'fast-xml-parser';
+import {EInvoiceModel} from './xmlmodels/eInvoice/eInvoice.model';
 
 
 const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
@@ -32,13 +34,52 @@ export class SandboxService {
 
   constructor(private http: HttpClient) {
     this.getTemplate('bankStatementTemplate.xml', template => this.bankStatementTemplate = template);
-    this.getTemplate('finvoice_eInvoiceTemplate.xml', template => this.eInvoiceTemplate = template);
+    this.getTemplate('finvoice_eInvoiceTemplate.xml', template => {
+      this.eInvoiceTemplate = template;
+      // EXPERIMENTAL
+
+      const parsed = parse(this.eInvoiceTemplate, {
+        parseAttributeValue: true,
+        ignoreAttributes: false,
+        attributeNamePrefix: '__',
+        textNodeName: '_text_',
+      });
+      console.log(parsed);
+      const backToXml = new Parser({
+        ignoreAttributes: false,
+        attributeNamePrefix: '__',
+        textNodeName: '_text_',
+      })
+        .parse(parsed);
+      console.log(backToXml);
+
+      const eInvoiceModel = new EInvoiceModel();
+      eInvoiceModel.buyerPartyDetailsModel.buyerOrganisationName = 'testOrganisation';
+      eInvoiceModel.buyerPartyDetailsModel.buyerOrganisationTaxCode = 'testTaxCode';
+      eInvoiceModel.buyerPartyDetailsModel.buyerPartyIdentifier = 'testPartyIdentifier';
+      eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerPostCodeIdentifier = 1234;
+      eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerStreetName = 'testStreet';
+      eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerTownName = 'testTown';
+      const backToXml2 = new Parser({
+        ignoreAttributes: false,
+        attributeNamePrefix: '__',
+        textNodeName: '_text_',
+      })
+        .parse(eInvoiceModel.parsableObject());
+      console.log(backToXml2);
+
+
+      // EXPERIMENTAL
+      }
+    );
+
+
     this.getTemplate('finvoice_eReceiptTemplate.xml', template => this.eReceiptTemplate = template);
   }
 
   postDocument(companyId: number, documentType: string, payload: string) {
     return this.http.post(SANDBOX_URL + DOCUMENTS_PATH + companyId, payload, {
-      headers: new HttpHeaders({ 'Content-Type': documentType })
+      headers: new HttpHeaders({'Content-Type': documentType})
     });
   }
 
@@ -161,7 +202,7 @@ export class SandboxService {
   }
 
   private getTemplate(name: string, successAction) {
-    this.http.get('assets/templates/' + name, { responseType: 'text' })
+    this.http.get('assets/templates/' + name, {responseType: 'text'})
       .subscribe(successAction);
   }
 
