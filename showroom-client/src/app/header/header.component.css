@@ -1,5 +1,6 @@
 mat-toolbar {
-  height: 100px;
+  height: 100%;
+  width: 100%;
   font-size: 25px;
   font-weight: lighter;
   background: rgb(226, 93, 94);

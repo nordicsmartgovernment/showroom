@@ -1,15 +1,14 @@
 <div class="dashboard-wrapper">
   <mat-grid-list cols="3" rowHeight="3:1">
 
-    <mat-grid-tile *ngFor="let card of cards" [matTooltip]="card.description">
-      <button
-        mat-raised-button
-        color="primary"
-        [disabled]="!card.active"
-        [routerLink]="['/' + card.route]">
-        {{card.title}}
-      </button>
-    </mat-grid-tile>
+    <button
+      *ngFor="let card of cards" [disabled]="!card.active"
+      [matTooltip]="card.description"
+      [routerLink]="['/' + card.route]"
+      color="primary"
+      mat-raised-button>
+      {{card.title}}
+    </button>
 
   </mat-grid-list>
 </div>
