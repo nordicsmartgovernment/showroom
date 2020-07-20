@@ -5,106 +5,62 @@ import {Product} from '../../store.model';
 
 export class InvoiceDetailsModel {
 
-  accountDimensionText: string;
-  invoiceDate = new AppXmlDate();
-  invoiceNumber: number;
-  invoiceTotalVatExcludedAmount = new CurrencyAmount();
-  invoiceTotalVatIncludedAmount = new CurrencyAmount();
-  invoiceTypeCode: string;
-  invoiceTypeText: string;
-  originCode: string;
-  paymentTermsDetails = new PaymentTermsDetails();
-  vatSpecificationDetails = new VatSpecificationDetails();
-
-  parsableObject() {
-    return {
-      InvoiceTypeCode: this.invoiceTypeCode,
-      InvoiceTypeText: this.invoiceTypeText,
-      OriginCode: this.originCode,
-      InvoiceNumber: this.invoiceNumber,
-      InvoiceDate: this.invoiceDate.parsableObject(),
-      InvoiceTotalVatExcludedAmount: this.invoiceTotalVatExcludedAmount.parsableObject(),
-      InvoiceTotalVatIncludedAmount: this.invoiceTotalVatIncludedAmount.parsableObject(),
-      AccountDimensionText: this.accountDimensionText,
-      VatSpecificationDetails: this.vatSpecificationDetails.parsableObject(),
-      PaymentTermsDetails: this.paymentTermsDetails.parsableObject(),
-    };
-  }
+  InvoiceTypeCode: string;
+  InvoiceTypeText: string;
+  OriginCode: string;
+  InvoiceNumber: number;
+  InvoiceDate = new AppXmlDate();
+  InvoiceTotalVatExcludedAmount = new CurrencyAmount();
+  InvoiceTotalVatIncludedAmount = new CurrencyAmount();
+  AccountDimensionText: string;
+  VatSpecificationDetails = new VatSpecificationDetails();
+  PaymentTermsDetails = new PaymentTermsDetails();
 
   generate(purchase: PurchaseDescription, product: Product, currency: string) {
-    this.invoiceTypeCode = 'INV01';
-    this.invoiceTypeText = 'INVOICE';
-    this.originCode = 'Original';
-    this.invoiceNumber = Math.ceil(Math.random() * 10000);
-    this.invoiceDate.setToCurrentDate();
-    this.invoiceTotalVatExcludedAmount.amount = purchase.totalPriceExclVat;
-    this.invoiceTotalVatExcludedAmount.currencyIdentifier = currency;
-    this.invoiceTotalVatIncludedAmount.amount = purchase.totalPriceInclVat;
-    this.invoiceTotalVatIncludedAmount.currencyIdentifier = currency;
+    this.InvoiceTypeCode = 'INV01';
+    this.InvoiceTypeText = 'INVOICE';
+    this.OriginCode = 'Original';
+    this.InvoiceNumber = Math.ceil(Math.random() * 10000);
+    this.InvoiceDate.setToCurrentDate();
+    this.InvoiceTotalVatExcludedAmount.set(purchase.totalPriceExclVat, currency);
+    this.InvoiceTotalVatIncludedAmount.set(purchase.totalPriceInclVat, currency);
     // TODO generate:
     // static, for now. $accountID This is the accounting reference and we can use static ones for all purchases but
     // we still need to take the country of the buyer into account, perhaps some small mapping table will help.
-    this.accountDimensionText = '2490';
-    this.vatSpecificationDetails.generate(purchase, product, currency);
-    this.paymentTermsDetails.generate();
+    this.AccountDimensionText = '2490';
+    this.VatSpecificationDetails.generate(purchase, product, currency);
+    this.PaymentTermsDetails.generate();
   }
 }
 
 class PaymentTermsDetails {
-  invoiceDueDate = new AppXmlDate();
-  private paymentOverDueFineDetails = new PaymentOverDueFineDetails();
-  private paymentTermsFreeText: string;
-
-
-  parsableObject() {
-    return {
-      InvoiceDueDate: this.invoiceDueDate.parsableObject(),
-      PaymentOverDueFineDetails: this.paymentOverDueFineDetails.parsableObject(),
-      PaymentTermsFreeText: this.paymentTermsFreeText,
-    };
-  }
+  PaymentTermsFreeText: string;
+  InvoiceDueDate = new AppXmlDate();
+  PaymentOverDueFineDetails = new PaymentOverDueFineDetails();
 
   generate() {
-    this.paymentTermsFreeText = '14 days net';
-    this.invoiceDueDate.setToRelativeDaysFromCurrent(14);
-    this.paymentOverDueFineDetails.paymentOverDueFineFreeText = '1,5 %';
-    this.paymentOverDueFineDetails.paymentOverDueFinePercent = '1,5';
+    this.PaymentTermsFreeText = '14 days net';
+    this.InvoiceDueDate.setToRelativeDaysFromCurrent(14);
+    this.PaymentOverDueFineDetails.PaymentOverDueFineFreeText = '1,5 %';
+    this.PaymentOverDueFineDetails.PaymentOverDueFinePercent = '1,5';
   }
 }
 
 class PaymentOverDueFineDetails {
-  paymentOverDueFineFreeText: string;
-  paymentOverDueFinePercent: string;
-
-  parsableObject() {
-    return {
-      PaymentOverDueFineFreeText: this.paymentOverDueFineFreeText,
-      PaymentOverDueFinePercent: this.paymentOverDueFinePercent
-    };
-  }
+  PaymentOverDueFineFreeText: string;
+  PaymentOverDueFinePercent: string;
 }
 
 class VatSpecificationDetails {
-  vatBaseAmount = new CurrencyAmount();
-  vatRateAmount = new CurrencyAmount();
-  private vatCode: string;
-  private vatRatePercent: string;
-
-  parsableObject() {
-    return {
-      vatBaseAmount: this.vatBaseAmount.parsableObject(),
-      vatCode: this.vatCode,
-      vatRateAmount: this.vatRateAmount.parsableObject(),
-      vatRatePercent: this.vatRatePercent,
-    };
-  }
+  VatBaseAmount = new CurrencyAmount();
+  VatRatePercent: string;
+  VatCode: string;
+  VatRateAmount = new CurrencyAmount();
 
   generate(purchase: PurchaseDescription, product: Product, currency: string) {
-    this.vatBaseAmount.amount = purchase.totalPriceExclVat;
-    this.vatBaseAmount.currencyIdentifier = currency;
-    this.vatRatePercent = `${product.vatRate},00`;
-    this.vatCode = 'S';
-    this.vatRateAmount.amount = purchase.vatPrice;
-    this.vatRateAmount.currencyIdentifier = currency;
+    this.VatBaseAmount.set(purchase.totalPriceExclVat, currency);
+    this.VatRatePercent = `${product.vatRate},00`;
+    this.VatCode = 'S';
+    this.VatRateAmount.set(purchase.vatPrice, currency);
   }
 }

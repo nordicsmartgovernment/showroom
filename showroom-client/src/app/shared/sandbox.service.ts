@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {Company} from './company.service';
 import {Product, Store} from './store.model';
 import {forkJoin, Observable} from 'rxjs';
-import {j2xParser as Parser, parse} from 'fast-xml-parser';
-import {EInvoiceModel} from './xmlmodels/eInvoice/eInvoice.model';
+import {j2xParser as ObjToXmlParser, parse} from 'fast-xml-parser';
+import {Finvoice} from './xmlmodels/eInvoice/eInvoice.model';
 import {BuyerPartyDetailsModel, SellerPartyDetailsModel} from './xmlmodels/details.model';
 
 
@@ -29,36 +29,30 @@ export interface PurchaseDescription {
 export class SandboxService {
 
   private bankStatementTemplate: string;
-  private eInvoiceTemplate: string;
   private eReceiptTemplate: string;
-  private readonly xmlParserOptions = {
+  private readonly xmlWriterOptions = {
     ignoreAttributes: false,
     attributeNamePrefix: '__',
     textNodeName: '_text_',
+    type: Finvoice
+  };
+  private readonly xmlReaderOptions = {
+    ignoreAttributes: false,
+    attributeNamePrefix: '__',
+    textNodeName: '_text_',
+    type: Finvoice,
+    parseAttributeValue: true,
   };
 
   constructor(private http: HttpClient) {
     this.getTemplate('bankStatementTemplate.xml', template => this.bankStatementTemplate = template);
-    this.getTemplate('finvoice_eInvoiceTemplate.xml', template => {
-        this.eInvoiceTemplate = template;
-        // EXPERIMENTAL
-
-        const eInvoiceModel = new EInvoiceModel();
-        eInvoiceModel.buyerPartyDetailsModel.buyerOrganisationName = 'testOrganisation';
-        eInvoiceModel.buyerPartyDetailsModel.buyerOrganisationTaxCode = 'testTaxCode';
-        eInvoiceModel.buyerPartyDetailsModel.buyerPartyIdentifier = 'testPartyIdentifier';
-        eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerPostCodeIdentifier = '1234';
-        eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerStreetName = 'testStreet';
-        eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerTownName = 'testTown';
-        console.log(this.objectToXml(eInvoiceModel));
-
-
-        // EXPERIMENTAL
-      }
-    );
 
 
     this.getTemplate('finvoice_eReceiptTemplate.xml', template => this.eReceiptTemplate = template);
+  }
+
+  private static randomNumberString(): string {
+    return '' + Math.floor(Math.random() * 9999);
   }
 
   postDocument(companyId: number, documentType: string, payload: string) {
@@ -91,7 +85,7 @@ export class SandboxService {
       $OtherCompanyName$: seller.name,
       $DateTimeNow$: nowISOString,
       $DateNow$: dateNowISOString,
-      $SeqNumber$: this.randomNumberString(),
+      $SeqNumber$: SandboxService.randomNumberString(),
       $DateTimePurchaseFrom$: twoMinBeforeNowISOString,
       $DateTimePurchaseTo$: oneMinBeforeNowISOString,
       $TransactionType$: 'DBIT',
@@ -118,7 +112,7 @@ export class SandboxService {
       $OtherCompanyName$: buyer.name,
       $DateTimeNow$: nowISOString,
       $DateNow$: dateNowISOString,
-      $SeqNumber$: this.randomNumberString(),
+      $SeqNumber$: SandboxService.randomNumberString(),
       $DateTimePurchaseFrom$: twoMinBeforeNowISOString,
       $DateTimePurchaseTo$: oneMinBeforeNowISOString,
       $TransactionType$: 'CRDT',
@@ -169,11 +163,12 @@ export class SandboxService {
       buyerDocumentRequest = this.postDocument(buyer.id, RECEIPT_TYPE, receipt);
       sellerDocumentRequest = this.postDocument(seller.id, RECEIPT_TYPE, receipt);
     } else { // eInvoice
-      const eInvoiceModel = new EInvoiceModel();
-      eInvoiceModel.buyerPartyDetailsModel = buyerPartyDetails;
-      eInvoiceModel.sellerPartyDetailsModel = sellerPartyDetails;
+      const finvoice = new Finvoice();
+      const eInvoiceModel = finvoice.Finvoice;
+      eInvoiceModel.BuyerPartyDetails = buyerPartyDetails;
+      eInvoiceModel.SellerPartyDetails = sellerPartyDetails;
       eInvoiceModel.generate(purchase, product, seller, paymentReference);
-      const eInvoiceXmlString = this.objectToXml(eInvoiceModel.parsableObject());
+      const eInvoiceXmlString = this.objectToXml(finvoice);
 
       console.log('eInvoice:');
       console.log(eInvoiceXmlString);
@@ -188,8 +183,12 @@ export class SandboxService {
   }
 
   private objectToXml(eInvoiceModel: any): string {
-    return new Parser(this.xmlParserOptions)
+    return new ObjToXmlParser(this.xmlWriterOptions)
       .parse(eInvoiceModel);
+  }
+
+  private xmlToObject(xmlString: string): Finvoice {
+    return (parse(xmlString, this.xmlReaderOptions, true) as Finvoice);
   }
 
   private getTemplate(name: string, successAction) {
@@ -200,10 +199,6 @@ export class SandboxService {
   private randomString(): string {
     // Silly code I found for generating a random string, should probably be e.g. an UUID
     return [...Array(30)].map(() => Math.random().toString(36)[2]).join('');
-  }
-
-  private randomNumberString(): string {
-    return '' + Math.floor(Math.random() * 9999);
   }
 
 }

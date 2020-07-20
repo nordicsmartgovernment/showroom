@@ -1,28 +1,23 @@
 import {formatDate} from '@angular/common';
 
 export class CurrencyAmount {
-  currencyIdentifier: string;
-  amount: number;
+  // tslint:disable-next-line:variable-name
+  __AmountCurrencyidentifier: string;
+  // tslint:disable-next-line:variable-name
+  _text_: string;
 
-  parsableObject() {
-    return {
-      __AmountCurrencyidentifier: this.currencyIdentifier,
-      _text_: this.amount.toFixed(2).replace('.', ','),
-    };
+  set(amount: number, currencyIdentifier: string) {
+    this._text_ = amount.toFixed(2).replace('.', ',');
+    this.__AmountCurrencyidentifier = currencyIdentifier;
   }
 }
 
 
 export class AppXmlDate {
-  format = 'CCYYMMDD';
-  date: string;
-
-  parsableObject() {
-    return {
-      _text_: this.date,
-      __Format: this.format
-    };
-  }
+  // tslint:disable-next-line:variable-name
+  __Format = 'CCYYMMDD';
+  // tslint:disable-next-line:variable-name
+  _text_: string;
 
   setToCurrentDate() {
     this.setDate(new Date());
@@ -35,8 +30,7 @@ export class AppXmlDate {
   }
 
   private setDate(date: Date) {
-    this.date = formatDate(date, 'yyyyMMdd', 'en-en');
-    console.log(this.date);
+    this._text_ = formatDate(date, 'yyyyMMdd', 'en-en');
   }
 }
 
@@ -54,13 +48,8 @@ export class Quantity {
 }
 
 export class IdentityWithScheme {
-  identificationSchemeName: string;
-  identity: string;
-
-  parsableObject() {
-    return {
-      _text_: this.identity,
-      __IdentificationSchemeName: this.identificationSchemeName
-    };
-  }
+  // tslint:disable-next-line:variable-name
+  __IdentificationSchemeName: string;
+  // tslint:disable-next-line:variable-name
+  _text_: string;
 }

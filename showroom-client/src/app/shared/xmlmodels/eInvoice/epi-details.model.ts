@@ -4,113 +4,70 @@ import {PurchaseDescription} from '../../sandbox.service';
 
 export class EpiDetailsModel {
 
-  epiIdentificationDetails = new EpiIdentificationDetails();
-  epiPartyDetails = new EpiPartyDetails();
-  epiPaymentInstructionDetails = new EpiPaymentInstructionDetails();
-
-  parsableObject() {
-    return {
-      EpiIdentificationDetails: this.epiIdentificationDetails.parsableObject(),
-      EpiPartyDetails: this.epiPartyDetails.parsableObject(),
-      EpiPaymentInstructionDetails: this.epiPaymentInstructionDetails.parsableObject(),
-    };
-  }
+  EpiIdentificationDetails = new EpiIdentificationDetails();
+  EpiPartyDetails = new EpiPartyDetails();
+  EpiPaymentInstructionDetails = new EpiPaymentInstructionDetails();
 
   generate(product: Product, purchase: PurchaseDescription, seller: Store, paymentReference: string) {
-    this.epiIdentificationDetails.generate();
-    this.epiPartyDetails.generate(seller);
-    this.epiPaymentInstructionDetails.generate(purchase, paymentReference, seller.currency);
+    this.EpiIdentificationDetails.generate();
+    this.EpiPartyDetails.generate(seller);
+    this.EpiPaymentInstructionDetails.generate(purchase, paymentReference, seller.currency);
   }
 }
 
 class EpiIdentificationDetails {
-  epiDate = new AppXmlDate();
-  epiReference: string;
-
-  parsableObject() {
-    return {
-      EpiDate: this.epiDate.parsableObject(),
-      EpiReference: this.epiReference,
-    };
-  }
+  EpiDate = new AppXmlDate();
+  EpiReference: string;
 
   generate() {
-    this.epiReference = '';
-    this.epiDate.setToRelativeDaysFromCurrent(14);
+    this.EpiReference = '';
+    this.EpiDate.setToRelativeDaysFromCurrent(14);
   }
 }
 
 class EpiPartyDetails {
-  epiBfiPartyDetails: string;
-  epiBeneficiaryPartyDetails = new EpiBeneficiaryPartyDetails();
-
-  parsableObject() {
-    return {
-      EpiBeneficiaryPartyDetails: this.epiBeneficiaryPartyDetails.parsableObject(),
-      EpiBfiPartyDetails: this.epiBfiPartyDetails,
-    };
-  }
+  EpiBfiPartyDetails: string;
+  EpiBeneficiaryPartyDetails = new EpiBeneficiaryPartyDetails();
 
   generate(seller: Store) {
-    this.epiBfiPartyDetails = '';
-    this.epiBeneficiaryPartyDetails.generate(seller.name);
+    this.EpiBfiPartyDetails = '';
+    this.EpiBeneficiaryPartyDetails.generate(seller.name);
   }
 }
 
 class EpiBeneficiaryPartyDetails {
-  epiNameAddressDetails: string;
-  epiAccountID = new IdentityWithScheme();
-
-  parsableObject() {
-    return {
-      EpiAccountID: this.epiAccountID.parsableObject(),
-      EpiNameAddressDetails: this.epiNameAddressDetails,
-    };
-  }
+  EpiNameAddressDetails: string;
+  EpiAccountID = new IdentityWithScheme();
 
   generate(sellerName: string) {
-    this.epiNameAddressDetails = sellerName;
-    this.epiAccountID.identificationSchemeName = 'IBAN';
-    this.epiAccountID.identity = 'FI04904840131313';
+    this.EpiNameAddressDetails = sellerName;
+    this.EpiAccountID.__IdentificationSchemeName = 'IBAN';
+    this.EpiAccountID._text_ = 'FI04904840131313';
   }
 }
 
 
 class EpiPaymentInstructionDetails {
-  epiCharge = new EpiCharge();
-  epiDateOptionDate = new AppXmlDate();
-  epiInstructedAmount = new CurrencyAmount();
-  epiPaymentInstructionId: string;
-  epiRemittanceInfoIdentifier = new IdentityWithScheme();
-
-  parsableObject() {
-    return {
-      EpiPaymentInstructionId: this.epiPaymentInstructionId,
-      EpiRemittanceInfoIdentifier: this.epiRemittanceInfoIdentifier.parsableObject(),
-      EpiInstructedAmount: this.epiInstructedAmount.parsableObject(),
-      EpiCharge: this.epiCharge.parsableObject(),
-      EpiDateOptionDate: this.epiDateOptionDate.parsableObject(),
-    };
-  }
+  EpiPaymentInstructionId: string;
+  EpiRemittanceInfoIdentifier = new IdentityWithScheme();
+  EpiInstructedAmount = new CurrencyAmount();
+  EpiCharge = new EpiCharge();
+  EpiDateOptionDate = new AppXmlDate();
 
   generate(purchase: PurchaseDescription, paymentReference: string, currency: string) {
-    this.epiPaymentInstructionId = '';
-    this.epiRemittanceInfoIdentifier.identificationSchemeName = 'ISO';
-    this.epiRemittanceInfoIdentifier.identity = '11002';
-    this.epiInstructedAmount.currencyIdentifier = currency;
-    this.epiInstructedAmount.amount = purchase.totalPriceInclVat;
-    this.epiCharge.chargeOption = 'SHA';
-    this.epiDateOptionDate.setToCurrentDate();
+    this.EpiPaymentInstructionId = '';
+    this.EpiRemittanceInfoIdentifier.__IdentificationSchemeName = 'ISO';
+    this.EpiRemittanceInfoIdentifier._text_ = '11002';
+    this.EpiInstructedAmount.set(purchase.totalPriceInclVat, currency);
+    this.EpiCharge.__ChargeOption = 'SHA';
+    this.EpiCharge._text_ = 'SHA';
+    this.EpiDateOptionDate.setToCurrentDate();
   }
 }
 
 class EpiCharge {
-  // TODO are the fields always the same?
-  chargeOption: string;
-
-  parsableObject() {
-    return {
-      EpiCharge: {_text_: this.chargeOption, __ChargeOption: this.chargeOption}
-    };
-  }
+  // tslint:disable-next-line:variable-name
+  _text_: string;
+  // tslint:disable-next-line:variable-name
+  __ChargeOption: string;
 }

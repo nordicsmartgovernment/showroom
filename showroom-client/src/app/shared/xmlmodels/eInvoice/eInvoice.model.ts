@@ -5,30 +5,23 @@ import {EpiDetailsModel} from './epi-details.model';
 import {PurchaseDescription} from '../../sandbox.service';
 import {Product, Store} from '../../store.model';
 
-export class EInvoiceModel {
-  buyerPartyDetailsModel = new BuyerPartyDetailsModel();
-  sellerPartyDetailsModel = new SellerPartyDetailsModel();
-  invoiceDetails = new InvoiceDetailsModel();
-  invoiceRow = new InvoiceRowModel();
-  epiDetails = new EpiDetailsModel();
+export class Finvoice {
+  Finvoice = new EInvoiceModel();
+}
 
-  parsableObject() {
-    return {
-      Finvoice: {
-        __Version: 2,
-        BuyerPartyDetails: this.buyerPartyDetailsModel.parsableObject(),
-        SellerPartyDetails: this.sellerPartyDetailsModel.parsableObject(),
-        InvoiceDetails: this.invoiceDetails.parsableObject(),
-        InvoiceRow: this.invoiceRow.parsableObject(),
-        EpiDetails: this.epiDetails.parsableObject()
-      }
-    };
-  }
+export class EInvoiceModel {
+  // tslint:disable-next-line:variable-name
+  __Version = 2;
+  SellerPartyDetails = new SellerPartyDetailsModel();
+  BuyerPartyDetails = new BuyerPartyDetailsModel();
+  InvoiceDetails = new InvoiceDetailsModel();
+  InvoiceRow = new InvoiceRowModel();
+  EpiDetails = new EpiDetailsModel();
 
   generate(purchase: PurchaseDescription, product: Product, seller: Store, paymentReference: string) {
-    this.invoiceDetails.generate(purchase, product, seller.currency);
-    this.invoiceRow.generate(product, purchase, seller.currency);
-    this.epiDetails.generate(product, purchase, seller, paymentReference);
+    this.InvoiceDetails.generate(purchase, product, seller.currency);
+    this.InvoiceRow.generate(product, purchase, seller.currency);
+    this.EpiDetails.generate(product, purchase, seller, paymentReference);
   }
 }
 
