@@ -1,4 +1,6 @@
 import {AppXmlDate, CurrencyAmount, IdentityWithScheme} from '../common-types';
+import {Product, Store} from '../../store.model';
+import {PurchaseDescription} from '../../sandbox.service';
 
 export class EpiDetailsModel {
 
@@ -13,6 +15,12 @@ export class EpiDetailsModel {
       EpiPaymentInstructionDetails: this.epiPaymentInstructionDetails.parsableObject(),
     };
   }
+
+  generate(product: Product, purchase: PurchaseDescription, seller: Store, paymentReference: string) {
+    this.epiIdentificationDetails.generate();
+    this.epiPartyDetails.generate(seller);
+    this.epiPaymentInstructionDetails.generate(purchase, paymentReference, seller.currency);
+  }
 }
 
 class EpiIdentificationDetails {
@@ -25,17 +33,45 @@ class EpiIdentificationDetails {
       EpiReference: this.epiReference,
     };
   }
+
+  generate() {
+    this.epiReference = '';
+    this.epiDate.setToRelativeDaysFromCurrent(14);
+  }
 }
 
 class EpiPartyDetails {
-  epiAccountID = new IdentityWithScheme();
+  epiBfiPartyDetails: string;
+  epiBeneficiaryPartyDetails = new EpiBeneficiaryPartyDetails();
+
+  parsableObject() {
+    return {
+      EpiBeneficiaryPartyDetails: this.epiBeneficiaryPartyDetails.parsableObject(),
+      EpiBfiPartyDetails: this.epiBfiPartyDetails,
+    };
+  }
+
+  generate(seller: Store) {
+    this.epiBfiPartyDetails = '';
+    this.epiBeneficiaryPartyDetails.generate(seller.name);
+  }
+}
+
+class EpiBeneficiaryPartyDetails {
   epiNameAddressDetails: string;
+  epiAccountID = new IdentityWithScheme();
 
   parsableObject() {
     return {
       EpiAccountID: this.epiAccountID.parsableObject(),
       EpiNameAddressDetails: this.epiNameAddressDetails,
     };
+  }
+
+  generate(sellerName: string) {
+    this.epiNameAddressDetails = sellerName;
+    this.epiAccountID.identificationSchemeName = 'IBAN';
+    this.epiAccountID.identity = 'FI04904840131313';
   }
 }
 
@@ -49,21 +85,23 @@ class EpiPaymentInstructionDetails {
 
   parsableObject() {
     return {
-      EpiCharge: this.epiCharge.parsableObject(),
-      EpiDateOptionDate: this.epiDateOptionDate.parsableObject(),
-      EpiInstructedAmount: this.epiInstructedAmount.parsableObject(),
       EpiPaymentInstructionId: this.epiPaymentInstructionId,
       EpiRemittanceInfoIdentifier: this.epiRemittanceInfoIdentifier.parsableObject(),
+      EpiInstructedAmount: this.epiInstructedAmount.parsableObject(),
+      EpiCharge: this.epiCharge.parsableObject(),
+      EpiDateOptionDate: this.epiDateOptionDate.parsableObject(),
     };
   }
 
-  /*
-EpiCharge
-EpiDateOptionDate
-EpiInstructedAmount
-EpiPaymentInstructionId
-EpiRemittanceInfoIdentifier
-  * */
+  generate(purchase: PurchaseDescription, paymentReference: string, currency: string) {
+    this.epiPaymentInstructionId = '';
+    this.epiRemittanceInfoIdentifier.identificationSchemeName = 'ISO';
+    this.epiRemittanceInfoIdentifier.identity = '11002';
+    this.epiInstructedAmount.currencyIdentifier = currency;
+    this.epiInstructedAmount.amount = purchase.totalPriceInclVat;
+    this.epiCharge.chargeOption = 'SHA';
+    this.epiDateOptionDate.setToCurrentDate();
+  }
 }
 
 class EpiCharge {

@@ -44,7 +44,7 @@ export class ShopComponent implements OnInit {
   }
 
   vatPrice(): number {
-    return this.netPrice() * 0.25;
+    return this.netPrice() * (this.productInCart.vatRate / 100);
   }
 
   totalPrice(): number {
@@ -70,7 +70,7 @@ export class ShopComponent implements OnInit {
       });
     };
 
-    this.sandboxService.submitPurchase(purchase, this.companyService.getActingCompany(), this.store)
+    this.sandboxService.submitPurchase(purchase, this.productInCart, this.companyService.getActingCompany(), this.store)
       .subscribe(openConfirmation);
   }
 

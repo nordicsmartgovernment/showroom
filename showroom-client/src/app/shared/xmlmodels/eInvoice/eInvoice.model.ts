@@ -2,6 +2,8 @@ import {BuyerPartyDetailsModel, SellerPartyDetailsModel} from '../details.model'
 import {InvoiceDetailsModel} from './invoice-details.model';
 import {InvoiceRowModel} from './invoice-row.model';
 import {EpiDetailsModel} from './epi-details.model';
+import {PurchaseDescription} from '../../sandbox.service';
+import {Product, Store} from '../../store.model';
 
 export class EInvoiceModel {
   buyerPartyDetailsModel = new BuyerPartyDetailsModel();
@@ -21,6 +23,12 @@ export class EInvoiceModel {
         EpiDetails: this.epiDetails.parsableObject()
       }
     };
+  }
+
+  generate(purchase: PurchaseDescription, product: Product, seller: Store, paymentReference: string) {
+    this.invoiceDetails.generate(purchase, product, seller.currency);
+    this.invoiceRow.generate(product, purchase, seller.currency);
+    this.epiDetails.generate(product, purchase, seller, paymentReference);
   }
 }
 

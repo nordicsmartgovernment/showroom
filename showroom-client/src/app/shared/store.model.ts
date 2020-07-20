@@ -8,6 +8,12 @@ export interface Store extends Company {
 }
 
 export interface Product {
-  name: string;
+  itemName: string;
   price: number;
+  sellerItemID: string;
+  standardItemID: string;
+  originCountry: string;
+  commodityCode: string;
+  vatRate: number;
+  quantityCode: string;
 }

@@ -6,6 +6,9 @@ export interface Company {
   vatId: string;
   country: string;
   iban: string;
+  postCodeIdentifier: string;
+  streetName: string;
+  townName: string;
 }
 
 export const BEST_POWER_TOOLS = {
@@ -14,15 +17,21 @@ export const BEST_POWER_TOOLS = {
   iban: 'NO000000000742783',
   vatId: 'NO742783',
   country: 'NO',
+  postCodeIdentifier: '0660',
+  streetName: 'Verktøygata 1',
+  townName: 'Oslo',
 };
 
 export const BUILDERS_PARADISE = {
   id: 994023491,
-  name: 'Builder\'s Paradise',
+  name: 'Rakentajan paratiisi',
   type: 'Hardware store',
   iban: 'FI000000000479234',
   vatId: 'FI479234',
-  country: 'FI'
+  country: 'FI',
+  postCodeIdentifier: '01510',
+  streetName: 'Laamannintie 1',
+  townName: 'Helsingfors',
 };
 
 export const FRUIT_4_YOU = {
@@ -30,7 +39,10 @@ export const FRUIT_4_YOU = {
   name: 'Fruit4You',
   iban: 'DK000000000038491',
   vatId: 'DK038491',
-  country: 'DK'
+  country: 'DK',
+  postCodeIdentifier: '8000',
+  streetName: 'Viborgvej 2',
+  townName: 'Århus',
 };
 
 @Injectable({
@@ -44,21 +56,30 @@ export class CompanyService {
       id: 123456,
       vatId: 'NO123456',
       country: 'NO',
-      iban: 'NO00000000012345'
+      iban: 'NO00000000012345',
+      postCodeIdentifier: '0660',
+      streetName: 'Verktøygata 2',
+      townName: 'Oslo',
     },
     {
       name: 'XYZ Corp.',
       id: 335577,
       vatId: 'FI335577',
       country: 'FI',
-      iban: 'FI000000000335577'
+      iban: 'FI000000000335577',
+      postCodeIdentifier: '01510',
+      streetName: 'Laamannintie 2',
+      townName: 'Helsingfors',
     },
     {
       name: 'Köttbullar AB',
       id: 994422,
       vatId: 'SE31-2378',
       country: 'SE',
-      iban: 'SE000000000312378'
+      iban: 'SE000000000312378',
+      postCodeIdentifier: '11640',
+      streetName: 'Nytorgsgatan 1',
+      townName: 'Stockholm',
     },
     BEST_POWER_TOOLS,
     BUILDERS_PARADISE,

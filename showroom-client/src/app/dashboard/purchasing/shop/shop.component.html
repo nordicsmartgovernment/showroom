@@ -12,7 +12,7 @@
       <mat-list-item
         *ngFor="let product of store.inventory;let lastProduct = last;">
         <div mat-line>
-          <p style="float:left">{{product.name}}</p>
+          <p style="float:left">{{product.itemName}}</p>
           <button mat-flat-button
                   style="float:right"
                   color="primary"
@@ -30,7 +30,7 @@
   </div>
 
   <div *ngIf="productInCart" class="buy-product">
-    <h2>Buy {{productInCart.name}} á {{productInCart.price}} €</h2>
+    <h2>Buy {{productInCart.itemName}} á {{productInCart.price}} €</h2>
     <div class="buy-amount">
       <label>
         Amount:

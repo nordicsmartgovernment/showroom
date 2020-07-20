@@ -1,17 +1,19 @@
 import {CurrencyAmount, Quantity} from '../common-types';
+import {PurchaseDescription} from '../../sandbox.service';
+import {Product} from '../../store.model';
 
 export class InvoiceRowModel {
-  articleGroupIdentifier: number;
-  articleIdentifier: number;
+  articleGroupIdentifier: string;
+  articleIdentifier: string;
   articleName: string;
   deliveredQuantity = new Quantity();
-  eanCode: number;
+  eanCode: string;
   orderedQuantity = new Quantity();
   rowAmount = new CurrencyAmount();
   rowVatAmount = new CurrencyAmount();
   rowVatCode: string;
   rowVatExcludedAmount = new CurrencyAmount();
-  rowVatRatePercent: string;
+  rowVatRatePercent: number;
   unitPriceAmount = new CurrencyAmount();
 
   parsableObject() {
@@ -31,6 +33,26 @@ export class InvoiceRowModel {
     };
   }
 
+  generate(product: Product, purchase: PurchaseDescription, currency: string) {
+    this.articleGroupIdentifier = product.sellerItemID;
+    this.articleIdentifier = product.commodityCode;
+    this.articleName = product.itemName;
+    this.eanCode = product.standardItemID;
+    this.deliveredQuantity.quantity = purchase.amount;
+    this.deliveredQuantity.quantityUnitCode = product.quantityCode;
+    this.orderedQuantity.quantity = purchase.amount;
+    this.orderedQuantity.quantityUnitCode = product.quantityCode;
+    this.unitPriceAmount.currencyIdentifier = currency;
+    this.unitPriceAmount.amount = product.price;
+    this.rowVatRatePercent = product.vatRate;
+    this.rowVatCode = 'S';
+    this.rowVatAmount.currencyIdentifier = currency;
+    this.rowVatAmount.amount = purchase.vatPrice;
+    this.rowVatExcludedAmount.currencyIdentifier = currency;
+    this.rowVatExcludedAmount.amount = purchase.totalPriceExclVat;
+    this.rowAmount.currencyIdentifier = currency;
+    this.rowAmount.amount = purchase.totalPriceInclVat;
+  }
 }
 
 /*

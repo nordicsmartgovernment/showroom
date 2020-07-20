@@ -1,18 +1,20 @@
+import {formatDate} from '@angular/common';
+
 export class CurrencyAmount {
   currencyIdentifier: string;
-  amount: string;
+  amount: number;
 
   parsableObject() {
     return {
       __AmountCurrencyidentifier: this.currencyIdentifier,
-      _text_: this.amount
+      _text_: this.amount.toFixed(2).replace('.', ','),
     };
   }
 }
 
 
 export class AppXmlDate {
-  format = 'CCMMYYDD';
+  format = 'CCYYMMDD';
   date: string;
 
   parsableObject() {
@@ -20,6 +22,21 @@ export class AppXmlDate {
       _text_: this.date,
       __Format: this.format
     };
+  }
+
+  setToCurrentDate() {
+    this.setDate(new Date());
+  }
+
+  setToRelativeDaysFromCurrent(days: number) {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+    this.setDate(date);
+  }
+
+  private setDate(date: Date) {
+    this.date = formatDate(date, 'yyyyMMdd', 'en-en');
+    console.log(this.date);
   }
 }
 

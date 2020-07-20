@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Company} from './company.service';
-import {Store} from './store.model';
-import {Observable} from 'rxjs';
-import {forkJoin} from 'rxjs';
-import {parse, j2xParser as Parser} from 'fast-xml-parser';
+import {Product, Store} from './store.model';
+import {forkJoin, Observable} from 'rxjs';
+import {j2xParser as Parser, parse} from 'fast-xml-parser';
 import {EInvoiceModel} from './xmlmodels/eInvoice/eInvoice.model';
+import {BuyerPartyDetailsModel, SellerPartyDetailsModel} from './xmlmodels/details.model';
 
 
 const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
@@ -31,45 +31,29 @@ export class SandboxService {
   private bankStatementTemplate: string;
   private eInvoiceTemplate: string;
   private eReceiptTemplate: string;
+  private readonly xmlParserOptions = {
+    ignoreAttributes: false,
+    attributeNamePrefix: '__',
+    textNodeName: '_text_',
+  };
 
   constructor(private http: HttpClient) {
     this.getTemplate('bankStatementTemplate.xml', template => this.bankStatementTemplate = template);
     this.getTemplate('finvoice_eInvoiceTemplate.xml', template => {
-      this.eInvoiceTemplate = template;
-      // EXPERIMENTAL
+        this.eInvoiceTemplate = template;
+        // EXPERIMENTAL
 
-      const parsed = parse(this.eInvoiceTemplate, {
-        parseAttributeValue: true,
-        ignoreAttributes: false,
-        attributeNamePrefix: '__',
-        textNodeName: '_text_',
-      });
-      console.log(parsed);
-      const backToXml = new Parser({
-        ignoreAttributes: false,
-        attributeNamePrefix: '__',
-        textNodeName: '_text_',
-      })
-        .parse(parsed);
-      console.log(backToXml);
-
-      const eInvoiceModel = new EInvoiceModel();
-      eInvoiceModel.buyerPartyDetailsModel.buyerOrganisationName = 'testOrganisation';
-      eInvoiceModel.buyerPartyDetailsModel.buyerOrganisationTaxCode = 'testTaxCode';
-      eInvoiceModel.buyerPartyDetailsModel.buyerPartyIdentifier = 'testPartyIdentifier';
-      eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerPostCodeIdentifier = 1234;
-      eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerStreetName = 'testStreet';
-      eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerTownName = 'testTown';
-      const backToXml2 = new Parser({
-        ignoreAttributes: false,
-        attributeNamePrefix: '__',
-        textNodeName: '_text_',
-      })
-        .parse(eInvoiceModel.parsableObject());
-      console.log(backToXml2);
+        const eInvoiceModel = new EInvoiceModel();
+        eInvoiceModel.buyerPartyDetailsModel.buyerOrganisationName = 'testOrganisation';
+        eInvoiceModel.buyerPartyDetailsModel.buyerOrganisationTaxCode = 'testTaxCode';
+        eInvoiceModel.buyerPartyDetailsModel.buyerPartyIdentifier = 'testPartyIdentifier';
+        eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerPostCodeIdentifier = '1234';
+        eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerStreetName = 'testStreet';
+        eInvoiceModel.buyerPartyDetailsModel.buyerPostalAddressDetails.buyerTownName = 'testTown';
+        console.log(this.objectToXml(eInvoiceModel));
 
 
-      // EXPERIMENTAL
+        // EXPERIMENTAL
       }
     );
 
@@ -78,12 +62,12 @@ export class SandboxService {
   }
 
   postDocument(companyId: number, documentType: string, payload: string) {
-    return this.http.post(SANDBOX_URL + DOCUMENTS_PATH + companyId, payload, {
-      headers: new HttpHeaders({'Content-Type': documentType})
-    });
+    /*    return this.http.post(SANDBOX_URL + DOCUMENTS_PATH + companyId, payload, {
+          headers: new HttpHeaders({'Content-Type': documentType})
+        });*/
   }
 
-  submitPurchase(purchase: PurchaseDescription, buyer: Company, seller: Store): Observable<any[]> {
+  submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Store): Observable<any[]> {
     // This template-style XML generation is a quick-fix - it would be preferable to generate from
     // objects using some library
 
@@ -156,6 +140,9 @@ export class SandboxService {
     let buyerDocumentRequest;
     let sellerDocumentRequest;
 
+    const buyerPartyDetails = new BuyerPartyDetailsModel(buyer);
+    const sellerPartyDetails = new SellerPartyDetailsModel(seller);
+
     if (purchase.paidByCard) { // eReceipt
 
       const receiptInfo = {
@@ -182,23 +169,27 @@ export class SandboxService {
       buyerDocumentRequest = this.postDocument(buyer.id, RECEIPT_TYPE, receipt);
       sellerDocumentRequest = this.postDocument(seller.id, RECEIPT_TYPE, receipt);
     } else { // eInvoice
-
-      const invoiceInfo = {
-        $InvoiceID$: invoiceId
-      };
-
-      const invoice = populateTemplate(this.eInvoiceTemplate, invoiceInfo);
+      const eInvoiceModel = new EInvoiceModel();
+      eInvoiceModel.buyerPartyDetailsModel = buyerPartyDetails;
+      eInvoiceModel.sellerPartyDetailsModel = sellerPartyDetails;
+      eInvoiceModel.generate(purchase, product, seller, paymentReference);
+      const eInvoiceXmlString = this.objectToXml(eInvoiceModel.parsableObject());
 
       console.log('eInvoice:');
-      console.log(invoice);
+      console.log(eInvoiceXmlString);
 
-      buyerDocumentRequest = this.postDocument(buyer.id, INVOICE_TYPE, invoice);
-      sellerDocumentRequest = this.postDocument(seller.id, INVOICE_TYPE, invoice);
+      buyerDocumentRequest = this.postDocument(buyer.id, INVOICE_TYPE, eInvoiceXmlString);
+      sellerDocumentRequest = this.postDocument(seller.id, INVOICE_TYPE, eInvoiceXmlString);
     }
 
     // TODO Include all requests when the documents are fully generated
     // return forkJoin([buyerStatementRequest, sellerStatementRequest, buyerDocumentRequest, sellerDocumentRequest]);
     return forkJoin([buyerStatementRequest, sellerStatementRequest]);
+  }
+
+  private objectToXml(eInvoiceModel: any): string {
+    return new Parser(this.xmlParserOptions)
+      .parse(eInvoiceModel);
   }
 
   private getTemplate(name: string, successAction) {
