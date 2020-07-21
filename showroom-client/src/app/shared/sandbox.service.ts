@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Company} from './company.service';
 import {Product, Store} from './store.model';
 import {forkJoin, Observable} from 'rxjs';
@@ -56,9 +56,9 @@ export class SandboxService {
   }
 
   postDocument(companyId: number, documentType: string, payload: string) {
-    /*    return this.http.post(SANDBOX_URL + DOCUMENTS_PATH + companyId, payload, {
-          headers: new HttpHeaders({'Content-Type': documentType})
-        });*/
+    return this.http.post(SANDBOX_URL + DOCUMENTS_PATH + companyId, payload, {
+      headers: new HttpHeaders({'Content-Type': documentType})
+    });
   }
 
   submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Store): Observable<any[]> {

@@ -1,0 +1,131 @@
+<h1>Apply for credit</h1>
+
+<form #form="ngForm" (ngSubmit)="onSubmit(form)" *ngIf="activePage===LOAN_FORM" class="form-group" ngForm>
+  <div class="container">
+
+  </div>
+  <div class="row">
+    <div class="col-5">
+      <label for="amount">Amount(€):</label>
+    </div>
+    <div class="col-7">
+      <input
+        #amount=ngModel
+        class="form-control"
+        id="amount"
+        min="1"
+        name="amount"
+        ngModel
+        pattern="^[1-9]+[0-9]*$" required
+        type="number">
+      <div *ngIf="amount.touched && amount.invalid" class="invalid-feedback">Please fill in a positive number over 1
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-5">
+      <label for="paybackTime">Preferred payback time (years):</label>
+    </div>
+    <div class="col-7">
+      <input
+        #paybackTime=ngModel
+        class="form-control"
+        id="paybackTime"
+        min="1"
+        name="paybackTime"
+        ngModel
+        pattern="^[1-9]+[0-9]*$" required
+        type="number">
+      <div *ngIf="paybackTime.touched && paybackTime.invalid" class="invalid-feedback">Please fill in a positive number
+        over 1
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-5">
+      <label for="purpose">Purpose:</label>
+    </div>
+    <div class="col-7">
+      <textarea
+        #purpose=ngModel
+        class="form-control"
+        cols="40"
+        id="purpose"
+        name="purpose"
+        ngModel
+        required
+        rows="5"
+        type="text">
+        </textarea>
+      <div *ngIf="purpose.touched && purpose.invalid" class="invalid-feedback">Please enter a purpose for your loan
+        application
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col float-right">
+      <button [disabled]="form.invalid" class="btn btn-primary float-right" type="submit">Choose credit institution</button>
+    </div>
+    <div class="clearfix"></div>
+  </div>
+</form>
+<div *ngIf="activePage===DISPLAY_BANKS">
+  <h2>Credit institutions available for requests for quotation</h2>
+  <h2>Credit details: amount: {{formContent.amount}}€, payback: {{formContent.paybackTime}}years</h2>
+  <div
+    *ngFor="let bank of banks; let i = index"
+    [class]="i%2===0?'dark-row row': 'light-row row'"
+    class="row">
+    <div class="col-8">
+      <p class="bank">{{bank}}</p>
+    </div>
+    <div class="col-4 float-right">
+      <button (click)="onRequestQuotation(bank)" class="btn btn-primary">Request for quotation</button>
+    </div>
+  </div>
+  <div class="row navigation-row">
+    <button
+      (click)="navigateTo(LOAN_FORM)"
+      class="btn btn-light float-left"
+      style="margin-left: 0">Go back
+    </button>
+  </div>
+</div>
+<div class="div" *ngIf="activePage===REQUEST_DATA">
+  <h2>"{{selectedBank}}" is requesting access to your business data to analyze your credit application</h2>
+  <div class="row navigation-row">
+    <button
+      (click)="navigateTo(LOAN_FORM)"
+      class="btn btn-danger float-left">Reject
+    </button>
+
+    <button
+      (click)="navigateTo(GET_OFFERS)"
+      class="btn btn-primary float-right">Grant access
+    </button>
+  </div>
+</div>
+<div *ngIf="activePage===GET_OFFERS">
+  <h2>"{{selectedBank}}" has responded to your request for quotation:
+    <br> Offered loan: {{formContent.amount}}€
+    <br> Payback time: {{formContent.paybackTime}}y
+    <br> interest: {{interest}}% p.a.
+  </h2>
+  <div class="row navigation-row">
+    <button
+      (click)="navigateTo(LOAN_FORM)"
+      class="btn btn-danger float-left">Reject offer
+    </button>
+
+    <button
+      (click)="navigateTo(DISPLAY_RESULT)"
+      class="btn btn-primary float-right">Accept Offer
+    </button>
+  </div>
+</div>
+<div  *ngIf="activePage===DISPLAY_RESULT">
+  <h2>Notification:
+  <br> {{formContent.amount}}€ from  "{{selectedBank}}" has been deposited to your account.
+  </h2>
+</div>
