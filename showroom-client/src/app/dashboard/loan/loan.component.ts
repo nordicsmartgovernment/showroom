@@ -1,5 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {NgForm, NgModel} from '@angular/forms';
+import {NgForm} from '@angular/forms';
+import {SandboxService} from '../../shared/sandbox.service';
+import {CompanyService} from '../../shared/company.service';
 
 @Component({
   selector: 'app-loan',
@@ -22,7 +24,7 @@ export class LoanComponent implements OnInit {
   selectedBank: string;
   interest: string = (Math.random() * 10 + 10).toFixed(2);
 
-  constructor() {
+  constructor(private sandboxService: SandboxService, private companyService: CompanyService) {
   }
 
   ngOnInit(): void {
@@ -40,5 +42,10 @@ export class LoanComponent implements OnInit {
 
   navigateTo(page: string) {
     this.activePage = page;
+  }
+
+  onAcceptOffer() {
+    this.navigateTo(this.DISPLAY_RESULT);
+    this.sandboxService.submitLoan(this.companyService.getActingCompany(), this.formContent.amount, this.selectedBank);
   }
 }

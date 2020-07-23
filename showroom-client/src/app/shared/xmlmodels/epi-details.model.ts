@@ -1,6 +1,6 @@
-import {AppXmlDate, CurrencyAmount, IdentityWithScheme} from '../common-types';
-import {Product, Store} from '../../store.model';
-import {PurchaseDescription} from '../../sandbox.service';
+import {AppXmlDate, CurrencyAmount, IdentityWithScheme} from './common-types';
+import {Product, Store} from '../store.model';
+import {PurchaseDescription} from '../sandbox.service';
 
 export class EpiDetailsModel {
 

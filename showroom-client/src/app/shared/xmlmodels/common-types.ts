@@ -1,4 +1,6 @@
 import {formatDate} from '@angular/common';
+import {PurchaseDescription} from '../sandbox.service';
+import {Product} from '../store.model';
 
 export class CurrencyAmount {
   // tslint:disable-next-line:variable-name
@@ -52,4 +54,18 @@ export class IdentityWithScheme {
   __IdentificationSchemeName: string;
   // tslint:disable-next-line:variable-name
   _text_: string;
+}
+
+export class VatSpecificationDetails {
+  VatBaseAmount = new CurrencyAmount();
+  VatRatePercent: string;
+  VatCode: string;
+  VatRateAmount = new CurrencyAmount();
+
+  generate(purchase: PurchaseDescription, product: Product, currency: string) {
+    this.VatBaseAmount.set(purchase.totalPriceExclVat, currency);
+    this.VatRatePercent = `${product.vatRate},00`;
+    this.VatCode = 'S';
+    this.VatRateAmount.set(purchase.vatPrice, currency);
+  }
 }

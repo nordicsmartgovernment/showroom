@@ -4,15 +4,16 @@ import {Company} from './company.service';
 import {Product, Store} from './store.model';
 import {forkJoin, Observable} from 'rxjs';
 import {j2xParser as ObjToXmlParser, parse} from 'fast-xml-parser';
-import {Finvoice} from './xmlmodels/eInvoice/eInvoice.model';
-import {BuyerPartyDetailsModel, SellerPartyDetailsModel} from './xmlmodels/details.model';
+import {EInvoice} from './xmlmodels/eInvoice/eInvoice.model';
+import {EReceipt} from './xmlmodels/eReceipt/e-receipt.model';
 
 
 const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
 const DOCUMENTS_PATH = 'document/';
 const BANK_STATEMENT_TYPE = 'application/vnd.nordicsmartgovernment.bank-statement';
 const RECEIPT_TYPE = 'application/vnd.nordicsmartgovernment.receipt';
-const INVOICE_TYPE = 'application/vnd.nordicsmartgovernment.sales-invoice';
+const PURCHASE_INVOICE_TYPE = 'application/vnd.nordicsmartgovernment.purchase-invoice';
+const SALES_INVOICE_TYPE = 'application/vnd.nordicsmartgovernment.sales-invoice';
 
 
 export interface PurchaseDescription {
@@ -34,13 +35,13 @@ export class SandboxService {
     ignoreAttributes: false,
     attributeNamePrefix: '__',
     textNodeName: '_text_',
-    type: Finvoice
+    type: EInvoice
   };
   private readonly xmlReaderOptions = {
     ignoreAttributes: false,
     attributeNamePrefix: '__',
     textNodeName: '_text_',
-    type: Finvoice,
+    type: EInvoice,
     parseAttributeValue: true,
   };
 
@@ -59,6 +60,41 @@ export class SandboxService {
     return this.http.post(SANDBOX_URL + DOCUMENTS_PATH + companyId, payload, {
       headers: new HttpHeaders({'Content-Type': documentType})
     });
+  }
+
+  submitLoan(loanRecipient: Company, loanAmount: number, bankName: string) {
+    const invoiceId = this.randomString();
+    const paymentReference = this.randomString();
+    const now = new Date();
+    const nowISOString = now.toISOString();
+    const twoMinBeforeNowISOString = new Date(now.getTime() - 120000).toISOString();
+    const oneMinBeforeNowISOString = new Date(now.getTime() - 60000).toISOString();
+    const dateNowISOString = nowISOString.substr(0, 10);
+
+    const loanRecipientInfo = {
+      $MessageID$: this.randomString(),
+      $CompanyName$: loanRecipient.name,
+      $CompanyID$: loanRecipient.id.toString(),
+      $CompanyIBAN$: loanRecipient.iban,
+      $OtherCompanyName$: bankName,
+      $DateTimeNow$: nowISOString,
+      $DateNow$: dateNowISOString,
+      $SeqNumber$: SandboxService.randomNumberString(),
+      $DateTimePurchaseFrom$: twoMinBeforeNowISOString,
+      $DateTimePurchaseTo$: oneMinBeforeNowISOString,
+      $TransactionType$: 'CRDT',
+      $TotalDebit$: '0.00',
+      $TotalCredit$: '' + loanAmount,
+      $TotalPrice$: '' + loanAmount,
+      $Currency$: 'EUR',
+      $InvoiceID$: invoiceId,
+      $PaymentReference$: paymentReference
+    };
+
+    const buyerStatement = populateTemplate(this.bankStatementTemplate, loanRecipientInfo);
+    console.log('Loan recipients bank statement:');
+    console.log(buyerStatement);
+    this.postDocument(loanRecipient.id, BANK_STATEMENT_TYPE, buyerStatement);
   }
 
   submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Store): Observable<any[]> {
@@ -129,57 +165,40 @@ export class SandboxService {
     console.log(sellerStatement);
     const sellerStatementRequest = this.postDocument(seller.id, BANK_STATEMENT_TYPE, sellerStatement);
 
-    // TODO fill in all information in these templates
-    // Depending on payment type, "document" is either an eInvoice or an eReceipt
     let buyerDocumentRequest;
     let sellerDocumentRequest;
 
-    const buyerPartyDetails = new BuyerPartyDetailsModel(buyer);
-    const sellerPartyDetails = new SellerPartyDetailsModel(seller);
-
+    // TODO fill in all information in these templates
+    // Depending on payment type, "document" is either an eInvoice or an eReceipt
     if (purchase.paidByCard) { // eReceipt
 
-      const receiptInfo = {
-        $CompanyName$: buyer.name,
-        $CompanyID$: buyer.id.toString(),
-        $CompanyVatID$: buyer.vatId,
-        $CompanyCountry$: buyer.country,
-        $OtherCompanyName$: seller.name,
-        $OtherCompanyID$: seller.id.toString(),
-        $OtherCompanyVatID$: seller.vatId,
-        $OtherCompanyCountry$: seller.country,
-        $InvoiceID$: invoiceId,
-        $Currency$: seller.currency,
-        $PriceExclVat$: purchase.totalPriceExclVat.toString().replace('.', ','),
-        $VatPrice$: purchase.vatPrice.toString().replace('.', ','),
-        $PriceInclVat$: purchase.totalPriceInclVat.toString().replace('.', ','),
-      };
-
-      const receipt = populateTemplate(this.eReceiptTemplate, receiptInfo);
+      const eReceipt = new EReceipt();
+      const eReceiptModel = eReceipt.Finvoice;
+      eReceiptModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
+      const eReceiptXmlString = this.objectToXml(eReceipt);
 
       console.log('eReceipt:');
-      console.log(receipt);
+      console.log(eReceiptXmlString);
 
-      buyerDocumentRequest = this.postDocument(buyer.id, RECEIPT_TYPE, receipt);
-      sellerDocumentRequest = this.postDocument(seller.id, RECEIPT_TYPE, receipt);
+      buyerDocumentRequest = this.postDocument(buyer.id, RECEIPT_TYPE, eReceiptXmlString);
+      sellerDocumentRequest = this.postDocument(seller.id, RECEIPT_TYPE, eReceiptXmlString);
     } else { // eInvoice
-      const finvoice = new Finvoice();
+      const finvoice = new EInvoice();
       const eInvoiceModel = finvoice.Finvoice;
-      eInvoiceModel.BuyerPartyDetails = buyerPartyDetails;
-      eInvoiceModel.SellerPartyDetails = sellerPartyDetails;
-      eInvoiceModel.generate(purchase, product, seller, paymentReference);
+      eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
       const eInvoiceXmlString = this.objectToXml(finvoice);
 
       console.log('eInvoice:');
       console.log(eInvoiceXmlString);
 
-      buyerDocumentRequest = this.postDocument(buyer.id, INVOICE_TYPE, eInvoiceXmlString);
-      sellerDocumentRequest = this.postDocument(seller.id, INVOICE_TYPE, eInvoiceXmlString);
+
+      buyerDocumentRequest = this.postDocument(buyer.id, PURCHASE_INVOICE_TYPE, eInvoiceXmlString);
+      sellerDocumentRequest = this.postDocument(seller.id, SALES_INVOICE_TYPE, eInvoiceXmlString);
     }
 
     // TODO Include all requests when the documents are fully generated
     // return forkJoin([buyerStatementRequest, sellerStatementRequest, buyerDocumentRequest, sellerDocumentRequest]);
-    return forkJoin([buyerStatementRequest, sellerStatementRequest]);
+    return forkJoin([buyerStatementRequest, sellerStatementRequest, buyerDocumentRequest, sellerDocumentRequest]);
   }
 
   private objectToXml(eInvoiceModel: any): string {
@@ -187,8 +206,8 @@ export class SandboxService {
       .parse(eInvoiceModel);
   }
 
-  private xmlToObject(xmlString: string): Finvoice {
-    return (parse(xmlString, this.xmlReaderOptions, true) as Finvoice);
+  private xmlToObject(xmlString: string): any {
+    return (parse(xmlString, this.xmlReaderOptions, true) as EInvoice);
   }
 
   private getTemplate(name: string, successAction) {
