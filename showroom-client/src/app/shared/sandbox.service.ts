@@ -94,7 +94,7 @@ export class SandboxService {
     const buyerStatement = populateTemplate(this.bankStatementTemplate, loanRecipientInfo);
     console.log('Loan recipients bank statement:');
     console.log(buyerStatement);
-    this.postDocument(loanRecipient.id, BANK_STATEMENT_TYPE, buyerStatement);
+    return this.postDocument(loanRecipient.id, BANK_STATEMENT_TYPE, buyerStatement);
   }
 
   submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Store): Observable<any[]> {

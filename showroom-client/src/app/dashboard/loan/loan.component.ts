@@ -46,6 +46,7 @@ export class LoanComponent implements OnInit {
 
   onAcceptOffer() {
     this.navigateTo(this.DISPLAY_RESULT);
-    this.sandboxService.submitLoan(this.companyService.getActingCompany(), this.formContent.amount, this.selectedBank);
+    this.sandboxService.submitLoan(this.companyService.getActingCompany(), this.formContent.amount, this.selectedBank)
+      .subscribe(response => console.log(response));
   }
 }
