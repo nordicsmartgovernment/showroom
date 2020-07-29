@@ -2,7 +2,7 @@ import { Company } from './company.service';
 
 export interface Store extends Company {
   type: string;
-  inventory: Product[];
+  storeInventory: Product[];
   currency: string;
   icon?: string;
 }

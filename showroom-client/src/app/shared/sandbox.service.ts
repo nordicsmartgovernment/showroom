@@ -220,17 +220,12 @@ export class SandboxService {
 
   async getPurchasesForActingCompany() {
     const invoicePurchases = await this.getInventoryItemFromInvoice(PURCHASE_INVOICE_TYPE).toPromise();
-    const receiptPurchases = await this.getInventoryItemFromReceipt().toPromise();
+    const receiptPurchases = await this.getInventoryItemFromReceipt(true).toPromise();
 
     // Filter out weird purchases
     return invoicePurchases.concat(receiptPurchases)
       .filter(purchase => {
-        return purchase &&
-          purchase.amountUnit &&
-          purchase.amount &&
-          purchase.amount >= 0 &&
-          purchase.price &&
-          purchase.price >= 0;
+        return this.filterValidProduct(purchase);
       });
   }
 
@@ -245,6 +240,26 @@ export class SandboxService {
         headers: new HttpHeaders()
           .set('accept', 'application/xml')
       });
+  }
+
+  async getSalesForActingCompany() {
+    const invoiceSales = await this.getInventoryItemFromInvoice(SALES_INVOICE_TYPE).toPromise();
+    const receiptSales = await this.getInventoryItemFromReceipt(false).toPromise();
+
+    // Filter out weird purchases
+    return invoiceSales.concat(receiptSales)
+      .filter(sale => {
+        return this.filterValidProduct(sale);
+      });
+  }
+
+  private filterValidProduct(product: InventoryProduct) {
+    return product &&
+      product.amountUnit &&
+      product.amount &&
+      product.amount >= 0 &&
+      product.price &&
+      product.price >= 0;
   }
 
   private getInventoryItemFromInvoice(documentType: string): Observable<InventoryProduct[]> {
@@ -297,7 +312,7 @@ export class SandboxService {
     return [...Array(30)].map(() => Math.random().toString(36)[2]).join('');
   }
 
-  private getInventoryItemFromReceipt(): Observable<InventoryProduct[]> {
+  private getInventoryItemFromReceipt(isBuyer: boolean): Observable<InventoryProduct[]> {
     return this.getBusinessDocuments(RECEIPT_TYPE)
       .pipe(
         map(documents => {
@@ -311,8 +326,7 @@ export class SandboxService {
             const xmlString = atob(item.original);
             const receipt = parse(xmlString, this.xmlReaderOptions) as EReceipt;
 
-            if (receipt.Finvoice.BuyerPartyDetails.BuyerPartyIdentifier.toString()
-              === this.companyService.getActingCompany().id.toString()) {
+            if (isBuyer && this.isBuyer(receipt) || !isBuyer && this.isSeller(receipt)) {
               const invoiceRow = receipt.Finvoice.InvoiceRow.filter(row => row.ArticleName !== null)[0];
               const inventoryProduct = new InventoryProduct(
                 invoiceRow.ArticleName,
@@ -333,6 +347,16 @@ export class SandboxService {
         })
       );
 
+  }
+
+  private isBuyer(receipt: EReceipt) {
+    return receipt.Finvoice.BuyerPartyDetails.BuyerPartyIdentifier.toString()
+      === this.companyService.getActingCompany().id.toString();
+  }
+
+  private isSeller(receipt: EReceipt) {
+    return receipt.Finvoice.SellerPartyDetails.SellerPartyIdentifier.toString()
+      === this.companyService.getActingCompany().id.toString();
   }
 }
 

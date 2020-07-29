@@ -8,11 +8,6 @@ h3 {
   margin: 10px 10px 20px;
 }
 
-.container {
-  display: flex;
-}
-
-
 .inventory {
   padding: 10px;
   flex-grow: 4
@@ -22,8 +17,12 @@ h3 {
   font-size: 80%;
 }
 
-button {
-  font-size: 70%;
+.btn-primary {
+  font-size: 50%;
+  margin: 10px;
+}
+
+.navigate-back {
   margin: 10px;
 }
 
@@ -44,10 +43,6 @@ button {
 .description-row {
   border-bottom: 1px solid #908fa5;
   border-bottom-width: thin;
-}
-
-button {
-  font-size: 50%;
 }
 
 .col {

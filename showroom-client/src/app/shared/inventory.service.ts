@@ -73,6 +73,23 @@ export class InventoryService {
     this.pushInventoryChangedEvent();
   }
 
+  removeFromInventory(product: InventoryProduct) {
+    const existingProduct = this.inventoryArray.filter(el => el.name === product.name);
+
+    // merge with existing inventory item.
+    if (existingProduct.length === 1) {
+      const inventoryProduct = existingProduct[0];
+      // remove the item if the amount is reduced to zero or below
+      if (inventoryProduct.amount - product.amount <= 0) {
+        this.inventoryArray = this.inventoryArray.filter(el => el.name === inventoryProduct.name);
+      }
+
+      inventoryProduct.price -= product.price;
+      inventoryProduct.amount -= product.amount;
+      this.pushInventoryChangedEvent();
+    }
+  }
+
   private pushInventoryChangedEvent() {
     this.inventoryChanged.next(this.inventoryArray);
     this.companyService.saveCompanies();

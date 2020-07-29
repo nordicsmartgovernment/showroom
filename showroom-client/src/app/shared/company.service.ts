@@ -13,7 +13,7 @@ export class Company {
   townName: string;
   inventory: InventoryProduct[] = [];
 
-  constructor({id, name, vatId, country, iban, postCodeIdentifier, streetName, townName}
+  constructor({id, name, vatId, country, iban, postCodeIdentifier, streetName, townName, inventory}
                 : {
                 id: number,
                 name: string,
@@ -22,7 +22,8 @@ export class Company {
                 iban: string,
                 postCodeIdentifier: string,
                 streetName: string,
-                townName: string
+                townName: string,
+                inventory?: InventoryProduct[],
               },
   ) {
     this.id = id;
@@ -33,6 +34,9 @@ export class Company {
     this.postCodeIdentifier = postCodeIdentifier;
     this.streetName = streetName;
     this.townName = townName;
+    if (inventory) {
+      this.inventory = inventory;
+    }
   }
 }
 
@@ -45,8 +49,20 @@ export const BEST_POWER_TOOLS = new Company({
   postCodeIdentifier: '0660',
   streetName: 'Verktøygata 1',
   townName: 'Oslo',
+  inventory: [
+    new InventoryProduct('Circular Saw', 100, 'PCS', 5250, 'NOK', 20200729)
+  ]
 });
-
+/*
+      itemName: 'Circular Saw',
+      price: 42,
+      commodityCode: '23231200',
+      originCountry: 'NO',
+      sellerItemID: '8085254',
+      standardItemID: '83111504',
+      vatRate: 25,
+      quantityCode: 'PCS'
+* */
 export const BUILDERS_PARADISE = new Company({
   id: 994023491,
   name: 'Rakentajan paratiisi',

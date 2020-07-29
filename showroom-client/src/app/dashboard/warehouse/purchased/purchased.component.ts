@@ -2,6 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {SandboxService} from '../../../shared/sandbox.service';
 import {InventoryProduct, InventoryService} from '../../../shared/inventory.service';
 import {Company, CompanyService} from '../../../shared/company.service';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-purchased',
@@ -17,6 +18,8 @@ export class PurchasedComponent implements OnInit, OnDestroy {
   private purchaseFilter: string[] = [];
 
   constructor(private sandboxService: SandboxService,
+              private router: Router,
+              private route: ActivatedRoute,
               private inventoryService: InventoryService,
               private companyService: CompanyService) {
   }
@@ -62,5 +65,9 @@ export class PurchasedComponent implements OnInit, OnDestroy {
   private filterPurchases(inventoryProducts: InventoryProduct[]): InventoryProduct[] {
     return inventoryProducts
       .filter(product => !this.purchaseFilter.includes(this.actingCompany.id + product.invoiceId));
+  }
+
+  navigateBack() {
+    this.router.navigate(['/warehouse']);
   }
 }

@@ -10,7 +10,7 @@
     <h2>Available products</h2>
     <mat-list>
       <mat-list-item
-        *ngFor="let product of store.inventory;let lastProduct = last;">
+        *ngFor="let product of store.storeInventory;let lastProduct = last;">
         <div mat-line>
           <p style="float:left">{{product.itemName}}</p>
           <button mat-flat-button

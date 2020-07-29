@@ -26,7 +26,7 @@ const STORE_1: Store = {
   ...BEST_POWER_TOOLS,
   type: 'Hardware store',
   currency: 'NOK',
-  inventory: [
+  storeInventory: [
     {
       itemName: 'Electric Drill',
       price: 25,
@@ -65,7 +65,7 @@ const STORE_2: Store = {
   ...BUILDERS_PARADISE,
   type: 'Building material store',
   currency: 'EUR',
-  inventory: [
+  storeInventory: [
     {
       itemName: 'Drywall piece',
       price: 95,
@@ -94,7 +94,7 @@ const STORE_3: Store = {
   ...FRUIT_4_YOU,
   type: 'Food wholesales store',
   currency: 'DKK',
-  inventory: [
+  storeInventory: [
     {
       itemName: 'Apple',
       price: 2,
