@@ -6,10 +6,11 @@ export class CurrencyAmount {
   // tslint:disable-next-line:variable-name
   __AmountCurrencyidentifier: string;
   // tslint:disable-next-line:variable-name
-  _text_: string;
+  _text_: number;
 
   set(amount: number, currencyIdentifier: string) {
-    this._text_ = amount.toFixed(2).replace('.', ',');
+    // Round down to two decimal places
+    this._text_ = Math.round(amount * 100) / 100;
     this.__AmountCurrencyidentifier = currencyIdentifier;
   }
 }
@@ -19,7 +20,7 @@ export class AppXmlDate {
   // tslint:disable-next-line:variable-name
   __Format = 'CCYYMMDD';
   // tslint:disable-next-line:variable-name
-  _text_: string;
+  _text_: number;
 
   setToCurrentDate() {
     this.setDate(new Date());
@@ -32,21 +33,13 @@ export class AppXmlDate {
   }
 
   private setDate(date: Date) {
-    this._text_ = formatDate(date, 'yyyyMMdd', 'en-en');
+    this._text_ = parseInt(formatDate(date, 'yyyyMMdd', 'en-en'), 10);
   }
 }
 
 export class Quantity {
   quantityUnitCode: string;
   quantity: number;
-
-  parsableObject() {
-    return {
-      _text_: this.quantity,
-      __IdentificationSchemeName: this.quantityUnitCode
-    };
-  }
-
 }
 
 export class IdentityWithScheme {
@@ -64,7 +57,7 @@ export class VatSpecificationDetails {
 
   generate(purchase: PurchaseDescription, product: Product, currency: string) {
     this.VatBaseAmount.set(purchase.totalPriceExclVat, currency);
-    this.VatRatePercent = `${product.vatRate},00`;
+    this.VatRatePercent = `${product.vatRate}.00`;
     this.VatCode = 'S';
     this.VatRateAmount.set(purchase.vatPrice, currency);
   }

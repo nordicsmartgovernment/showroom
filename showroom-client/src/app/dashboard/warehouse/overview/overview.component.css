@@ -1,0 +1,56 @@
+* {
+  font-size: 24px;
+}
+
+h3 {
+  font-weight: 400;
+  font-size: 150%;
+}
+
+.container {
+  display: flex;
+}
+
+
+.inventory {
+  padding: 10px;
+  flex-grow: 4
+}
+
+.inventory p {
+  font-size: 80%;
+}
+
+button {
+  font-size: 70%;
+  margin: 10px;
+}
+
+.inventory{
+  border: 1px solid #908fa5;
+}
+
+.rightButtonMenu {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.inventory-row , .description-row {
+  margin: 5px 20px;
+}
+
+.description-row {
+  border-bottom: 1px solid #908fa5;
+  border-bottom-width: thin;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.col p {
+  margin: 0;
+}

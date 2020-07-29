@@ -25,6 +25,11 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrangebooksComponent } from './dashboard/orangebooks/orangebooks.component';
 import { LoanComponent } from './dashboard/loan/loan.component';
+import { WarehouseComponent } from './dashboard/warehouse/warehouse.component';
+import { PurchasedComponent } from './dashboard/warehouse/purchased/purchased.component';
+import { SoldComponent } from './dashboard/warehouse/sold/sold.component';
+import { InventoryComponent } from './dashboard/warehouse/inventory/inventory.component';
+import { OverviewComponent } from './dashboard/warehouse/overview/overview.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +41,12 @@ import { LoanComponent } from './dashboard/loan/loan.component';
     ShopsComponent,
     OrderconfirmedComponent,
     OrangebooksComponent,
-    LoanComponent
+    LoanComponent,
+    WarehouseComponent,
+    PurchasedComponent,
+    SoldComponent,
+    InventoryComponent,
+    OverviewComponent
   ],
   imports: [
     HttpClientModule,

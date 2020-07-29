@@ -1,11 +1,13 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Company} from './company.service';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {Company, CompanyService} from './company.service';
 import {Product, Store} from './store.model';
 import {forkJoin, Observable} from 'rxjs';
 import {j2xParser as ObjToXmlParser, parse} from 'fast-xml-parser';
 import {EInvoice} from './xmlmodels/eInvoice/eInvoice.model';
 import {EReceipt} from './xmlmodels/eReceipt/e-receipt.model';
+import {InventoryProduct} from './inventory.service';
+import {map} from 'rxjs/operators';
 
 
 const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
@@ -35,18 +37,16 @@ export class SandboxService {
     ignoreAttributes: false,
     attributeNamePrefix: '__',
     textNodeName: '_text_',
-    type: EInvoice
   };
   private readonly xmlReaderOptions = {
     ignoreAttributes: false,
     attributeNamePrefix: '__',
     textNodeName: '_text_',
-    type: EInvoice,
     parseAttributeValue: true,
   };
 
-  constructor(private http: HttpClient) {
-    this.getTemplate('bankStatementTemplate.xml', template => this.bankStatementTemplate = template);
+  constructor(private http: HttpClient, private companyService: CompanyService) {
+    this.getTemplate('bankStatementPurchaseTemplate.xml', template => this.bankStatementTemplate = template);
 
 
     this.getTemplate('finvoice_eReceiptTemplate.xml', template => this.eReceiptTemplate = template);
@@ -54,6 +54,23 @@ export class SandboxService {
 
   private static randomNumberString(): string {
     return '' + Math.floor(Math.random() * 9999);
+  }
+
+  private static getDocumentStrings(documents: ArrayBuffer) {
+    const documentXml = new TextDecoder('utf-8').decode(documents);
+
+    const parsed = parse(documentXml);
+    let items = [];
+    if (parsed.ArrayList === null || parsed.ArrayList.item === null) {
+      return [];
+    }
+
+    if (typeof parsed.ArrayList.item[Symbol.iterator] === 'function') {
+      items = parsed.ArrayList.item;
+    } else {
+      items.push(parsed.ArrayList.item);
+    }
+    return items;
   }
 
   postDocument(companyId: number, documentType: string, payload: string) {
@@ -201,6 +218,66 @@ export class SandboxService {
     return forkJoin([buyerStatementRequest, sellerStatementRequest, buyerDocumentRequest, sellerDocumentRequest]);
   }
 
+  async getPurchasesForActingCompany() {
+    const invoicePurchases = await this.getInventoryItemFromInvoice(PURCHASE_INVOICE_TYPE).toPromise();
+    const receiptPurchases = await this.getInventoryItemFromReceipt().toPromise();
+
+    // Filter out weird purchases
+    return invoicePurchases.concat(receiptPurchases)
+      .filter(purchase => {
+        return purchase &&
+          purchase.amountUnit &&
+          purchase.amount &&
+          purchase.amount >= 0 &&
+          purchase.price &&
+          purchase.price >= 0;
+      });
+  }
+
+  getBusinessDocuments(documentType: string) {
+    const actingCompanyId = this.companyService.getActingCompany().id;
+    return this.http
+      .get(SANDBOX_URL + DOCUMENTS_PATH + actingCompanyId, {
+        responseType: 'arraybuffer',
+        params: new HttpParams()
+          .set('companyId', '' + actingCompanyId)
+          .set('documentTypes', '' + documentType),
+        headers: new HttpHeaders()
+          .set('accept', 'application/xml')
+      });
+  }
+
+  private getInventoryItemFromInvoice(documentType: string): Observable<InventoryProduct[]> {
+    return this.getBusinessDocuments(documentType)
+      .pipe(
+        map(documents => {
+          const inventoryProducts: InventoryProduct[] = [];
+          if (!documents) {
+            return inventoryProducts;
+          }
+
+          const items = SandboxService.getDocumentStrings(documents);
+          for (const item of items) {
+            const xmlString = atob(item.original);
+            const purchaseInvoice = parse(xmlString, this.xmlReaderOptions) as EInvoice;
+            const finvoice = purchaseInvoice.Finvoice;
+            const inventoryProduct = new InventoryProduct(
+              finvoice.InvoiceRow.ArticleName,
+              finvoice.InvoiceRow.DeliveredQuantity.quantity,
+              finvoice.InvoiceRow.DeliveredQuantity.quantityUnitCode,
+              finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
+              finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyidentifier,
+              finvoice.InvoiceDetails.PaymentTermsDetails.InvoiceDueDate._text_
+            );
+            inventoryProduct.setInvoiceId(finvoice.InvoiceDetails.InvoiceNumber);
+            inventoryProducts.push(
+              inventoryProduct);
+          }
+          return inventoryProducts;
+        })
+      );
+  }
+
   private objectToXml(eInvoiceModel: any): string {
     return new ObjToXmlParser(this.xmlWriterOptions)
       .parse(eInvoiceModel);
@@ -220,6 +297,43 @@ export class SandboxService {
     return [...Array(30)].map(() => Math.random().toString(36)[2]).join('');
   }
 
+  private getInventoryItemFromReceipt(): Observable<InventoryProduct[]> {
+    return this.getBusinessDocuments(RECEIPT_TYPE)
+      .pipe(
+        map(documents => {
+          const inventoryProducts = [];
+          if (!documents) {
+            return inventoryProducts;
+          }
+
+          const items = SandboxService.getDocumentStrings(documents);
+          for (const item of items) {
+            const xmlString = atob(item.original);
+            const receipt = parse(xmlString, this.xmlReaderOptions) as EReceipt;
+
+            if (receipt.Finvoice.BuyerPartyDetails.BuyerPartyIdentifier.toString()
+              === this.companyService.getActingCompany().id.toString()) {
+              const invoiceRow = receipt.Finvoice.InvoiceRow.filter(row => row.ArticleName !== null)[0];
+              const inventoryProduct = new InventoryProduct(
+                invoiceRow.ArticleName,
+                invoiceRow.DeliveredQuantity.quantity,
+                invoiceRow.DeliveredQuantity.quantityUnitCode,
+                receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
+                receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyidentifier,
+                receipt.Finvoice.InvoiceDetails.InvoiceDate._text_
+              );
+              inventoryProduct.setInvoiceId(receipt.Finvoice.InvoiceDetails.InvoiceNumber);
+
+              inventoryProducts.push(
+                inventoryProduct
+              );
+            }
+          }
+          return inventoryProducts;
+        })
+      );
+
+  }
 }
 
 function populateTemplate(template: string, info: { [id: string]: string }): string {

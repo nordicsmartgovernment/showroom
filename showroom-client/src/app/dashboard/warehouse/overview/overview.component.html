@@ -1,0 +1,39 @@
+<div class="container">
+  <div class="inventory">
+    <h3>Inventory monitor</h3>
+    <div class="row description-row">
+      <div class="col col-sm-6">
+        <p>Product</p>
+      </div>
+      <div class="col col-sm-3">
+        <p>Amount</p>
+      </div>
+      <div class="col col-sm-3">
+        <p>Price</p>
+      </div>
+    </div>
+    <div class="row inventory-row" *ngFor="let i of inventory; let index = index"
+         [classList]="index%2===0? 'row inventory-row dark-row' : 'row inventory-row light-row'">
+      <div class="col col-sm-6">
+        <p>{{i.name}}</p>
+      </div>
+      <div class="col col-sm-3">
+        <p>{{i.amount}} {{i.amountUnit}}</p>
+      </div>
+      <div class="col col-sm-3">
+        <p>{{i.price}} {{i.currency}}</p>
+      </div>
+    </div>
+  </div>
+  <div class="rightButtonMenu">
+    <button class="btn btn-primary"
+            type="button"
+            (click)="navigateTo('purchased')">Register purchased products to inventory</button>
+    <button class="btn btn-primary"
+            type="button"
+            (click)="navigateTo('sold')">Register sold products to inventory</button>
+    <button class="btn btn-primary"
+            type="button"
+            (click)="navigateTo('inventory')">Do inventory</button>
+  </div>
+</div>

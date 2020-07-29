@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
+import {Subject} from 'rxjs';
+import {InventoryProduct} from './inventory.service';
 
-export interface Company {
+export class Company {
   name: string;
   id: number;
   vatId: string;
@@ -9,9 +11,32 @@ export interface Company {
   postCodeIdentifier: string;
   streetName: string;
   townName: string;
+  inventory: InventoryProduct[] = [];
+
+  constructor({id, name, vatId, country, iban, postCodeIdentifier, streetName, townName}
+                : {
+                id: number,
+                name: string,
+                vatId: string,
+                country: string,
+                iban: string,
+                postCodeIdentifier: string,
+                streetName: string,
+                townName: string
+              },
+  ) {
+    this.id = id;
+    this.name = name;
+    this.iban = iban;
+    this.vatId = vatId;
+    this.country = country;
+    this.postCodeIdentifier = postCodeIdentifier;
+    this.streetName = streetName;
+    this.townName = townName;
+  }
 }
 
-export const BEST_POWER_TOOLS = {
+export const BEST_POWER_TOOLS = new Company({
   id: 3891382,
   name: 'BestPowerTools',
   iban: 'NO000000000742783',
@@ -20,21 +45,20 @@ export const BEST_POWER_TOOLS = {
   postCodeIdentifier: '0660',
   streetName: 'Verktøygata 1',
   townName: 'Oslo',
-};
+});
 
-export const BUILDERS_PARADISE = {
+export const BUILDERS_PARADISE = new Company({
   id: 994023491,
   name: 'Rakentajan paratiisi',
-  type: 'Hardware store',
   iban: 'FI000000000479234',
   vatId: 'FI479234',
   country: 'FI',
   postCodeIdentifier: '01510',
   streetName: 'Laamannintie 1',
   townName: 'Helsingfors',
-};
+});
 
-export const FRUIT_4_YOU = {
+export const FRUIT_4_YOU = new Company({
   id: 77772231,
   name: 'Fruit4You',
   iban: 'DK000000000038491',
@@ -43,15 +67,17 @@ export const FRUIT_4_YOU = {
   postCodeIdentifier: '8000',
   streetName: 'Viborgvej 2',
   townName: 'Århus',
-};
+});
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompanyService {
+  actingCompanyChanged = new Subject<Company>();
+  private readonly COMPANY_STORAGE_KEY = 'companies';
 
   private ALL_COMPANIES = [
-    {
+    new Company({
       name: 'ABC Ltd',
       id: 123456,
       vatId: 'NO123456',
@@ -60,8 +86,8 @@ export class CompanyService {
       postCodeIdentifier: '0660',
       streetName: 'Verktøygata 2',
       townName: 'Oslo',
-    },
-    {
+    }),
+    new Company({
       name: 'XYZ Corp.',
       id: 335577,
       vatId: 'FI335577',
@@ -70,8 +96,8 @@ export class CompanyService {
       postCodeIdentifier: '01510',
       streetName: 'Laamannintie 2',
       townName: 'Helsingfors',
-    },
-    {
+    }),
+    new Company({
       name: 'Köttbullar AB',
       id: 994422,
       vatId: 'SE31-2378',
@@ -80,7 +106,7 @@ export class CompanyService {
       postCodeIdentifier: '11640',
       streetName: 'Nytorgsgatan 1',
       townName: 'Stockholm',
-    },
+    }),
     BEST_POWER_TOOLS,
     BUILDERS_PARADISE,
     FRUIT_4_YOU
@@ -89,6 +115,7 @@ export class CompanyService {
   private actingCompany: Company;
 
   constructor() {
+    this.restoreCompanies();
     // Just pick the first company as default
     // Acting company is a good candidate for local storage (making it persistent across sessions)
     this.actingCompany = this.ALL_COMPANIES[0];
@@ -101,10 +128,22 @@ export class CompanyService {
 
   actAsCompany(id: number) {
     this.actingCompany = this.ALL_COMPANIES.find(c => c.id === id);
+    this.actingCompanyChanged.next(this.actingCompany);
   }
 
   getAllCompanies(): Company[] {
     return this.ALL_COMPANIES.slice();
+  }
+
+  saveCompanies() {
+    localStorage.setItem(this.COMPANY_STORAGE_KEY, JSON.stringify(this.ALL_COMPANIES));
+  }
+
+  restoreCompanies() {
+    const storedCompanies = localStorage.getItem(this.COMPANY_STORAGE_KEY);
+    if (storedCompanies && storedCompanies !== '{}') {
+      this.ALL_COMPANIES = JSON.parse(storedCompanies);
+    }
   }
 
 }
