@@ -5,6 +5,7 @@ import {InvoiceDetailsReceiptModel} from './invoice-details-receipt.model';
 import {InvoiceRowModel} from '../Invoice-row.model';
 import {EpiDetailsModel} from '../epi-details.model';
 import {Company} from '../../company.service';
+import {MessageDetailsModel} from './message-details.model';
 
 export class EReceipt {
   Finvoice = new EReceiptModel();
@@ -13,6 +14,7 @@ export class EReceipt {
 export class EReceiptModel {
   // tslint:disable-next-line:variable-name
   __Version = 2;
+  MessageTransmissionDetails = new MessageDetailsModel();
   SellerPartyDetails = new SellerPartyDetailsModel();
   BuyerPartyDetails = new BuyerPartyDetailsModel();
   InvoiceDetails = new InvoiceDetailsReceiptModel();
@@ -27,6 +29,7 @@ export class EReceiptModel {
            paymentReference: string,
            invoiceId: string,
            buyer: Company) {
+    this.MessageTransmissionDetails.generate(seller.id);
     this.PaymentStatusDetails.PaymentStatusCode = 'PAID';
     this.InvoiceDetails.generate(purchase, product, seller.currency, invoiceId);
     this.EpiDetails.generate(product, purchase, seller, paymentReference);
@@ -36,7 +39,7 @@ export class EReceiptModel {
     const invoiceRow = new InvoiceRowModel();
     invoiceRow.generate(product, purchase, seller.currency);
     const invoiceSubRow = new InvoiceRowModel();
-    invoiceRow.generateSubInvoiceRow(purchase, seller.currency);
+    invoiceSubRow.generateSubInvoiceRow(purchase, seller.currency);
     this.InvoiceRow.push(
       invoiceRow,
       invoiceSubRow,
@@ -45,5 +48,5 @@ export class EReceiptModel {
 }
 
 class PaymentStatusDetails {
-  PaymentStatusCode: string;
+  PaymentStatusCode = '';
 }

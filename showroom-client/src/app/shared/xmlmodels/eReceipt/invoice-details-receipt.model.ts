@@ -4,13 +4,13 @@ import {Product} from '../../store.model';
 
 export class InvoiceDetailsReceiptModel {
 
-  InvoiceTypeCode: string; //
-  InvoiceTypeCodeUN: string; //
-  InvoiceTypeText: string; //
-  OriginCode: string; //
-  InvoiceNumber: string; //
+  InvoiceTypeCode = ''; //
+  InvoiceTypeCodeUN = ''; //
+  InvoiceTypeText = ''; //
+  OriginCode = ''; //
+  InvoiceNumber = ''; //
   InvoiceDate = new AppXmlDate(); //
-  SellersBuyerIdentifier: string; //
+  SellersBuyerIdentifier = ''; //
   InvoiceTotalVatExcludedAmount = new CurrencyAmount();
   InvoiceTotalVatAmount = new CurrencyAmount();
   InvoiceTotalVatIncludedAmount = new CurrencyAmount();

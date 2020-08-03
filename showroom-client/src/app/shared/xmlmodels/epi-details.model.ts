@@ -17,7 +17,7 @@ export class EpiDetailsModel {
 
 class EpiIdentificationDetails {
   EpiDate = new AppXmlDate();
-  EpiReference: string;
+  EpiReference = '';
 
   generate() {
     this.EpiReference = '';
@@ -26,7 +26,7 @@ class EpiIdentificationDetails {
 }
 
 class EpiPartyDetails {
-  EpiBfiPartyDetails: string;
+  EpiBfiPartyDetails = '';
   EpiBeneficiaryPartyDetails = new EpiBeneficiaryPartyDetails();
 
   generate(seller: Store) {
@@ -36,7 +36,7 @@ class EpiPartyDetails {
 }
 
 class EpiBeneficiaryPartyDetails {
-  EpiNameAddressDetails: string;
+  EpiNameAddressDetails = '';
   EpiAccountID = new IdentityWithScheme();
 
   generate(sellerName: string) {
@@ -48,7 +48,7 @@ class EpiBeneficiaryPartyDetails {
 
 
 class EpiPaymentInstructionDetails {
-  EpiPaymentInstructionId: string;
+  EpiPaymentInstructionId = '';
   EpiRemittanceInfoIdentifier = new IdentityWithScheme();
   EpiInstructedAmount = new CurrencyAmount();
   EpiCharge = new EpiCharge();
@@ -67,7 +67,7 @@ class EpiPaymentInstructionDetails {
 
 class EpiCharge {
   // tslint:disable-next-line:variable-name
-  _text_: string;
+  _text_ = '';
   // tslint:disable-next-line:variable-name
-  __ChargeOption: string;
+  __ChargeOption = '';
 }

@@ -4,14 +4,14 @@ import {Product} from '../store.model';
 
 export class CurrencyAmount {
   // tslint:disable-next-line:variable-name
-  __AmountCurrencyidentifier: string;
+  __AmountCurrencyIdentifier = '';
   // tslint:disable-next-line:variable-name
-  _text_: number;
+  _text_ = 0;
 
   set(amount: number, currencyIdentifier: string) {
     // Round down to two decimal places
     this._text_ = Math.round(amount * 100) / 100;
-    this.__AmountCurrencyidentifier = currencyIdentifier;
+    this.__AmountCurrencyIdentifier = currencyIdentifier;
   }
 }
 
@@ -20,7 +20,7 @@ export class AppXmlDate {
   // tslint:disable-next-line:variable-name
   __Format = 'CCYYMMDD';
   // tslint:disable-next-line:variable-name
-  _text_: number;
+  _text_ = 0;
 
   setToCurrentDate() {
     this.setDate(new Date());
@@ -38,21 +38,23 @@ export class AppXmlDate {
 }
 
 export class Quantity {
-  quantityUnitCode: string;
-  quantity: number;
+  // tslint:disable-next-line:variable-name
+  __QuantityUnitCode = '';
+  // tslint:disable-next-line:variable-name
+  _text_ = 0;
 }
 
 export class IdentityWithScheme {
   // tslint:disable-next-line:variable-name
-  __IdentificationSchemeName: string;
+  __IdentificationSchemeName = '';
   // tslint:disable-next-line:variable-name
-  _text_: string;
+  _text_ = '';
 }
 
 export class VatSpecificationDetails {
   VatBaseAmount = new CurrencyAmount();
-  VatRatePercent: string;
-  VatCode: string;
+  VatRatePercent = '';
+  VatCode = '';
   VatRateAmount = new CurrencyAmount();
 
   generate(purchase: PurchaseDescription, product: Product, currency: string) {

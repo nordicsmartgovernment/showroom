@@ -5,14 +5,14 @@ import {Product} from '../../store.model';
 
 export class InvoiceDetailsModel {
 
-  InvoiceTypeCode: string;
-  InvoiceTypeText: string;
-  OriginCode: string;
-  InvoiceNumber: string;
+  InvoiceTypeCode = '';
+  InvoiceTypeText = '';
+  OriginCode = '';
+  InvoiceNumber = '';
   InvoiceDate = new AppXmlDate();
   InvoiceTotalVatExcludedAmount = new CurrencyAmount();
   InvoiceTotalVatIncludedAmount = new CurrencyAmount();
-  AccountDimensionText: string;
+  AccountDimensionText = '';
   VatSpecificationDetails = new VatSpecificationDetails();
   PaymentTermsDetails = new PaymentTermsDetails();
 
@@ -34,7 +34,7 @@ export class InvoiceDetailsModel {
 }
 
 class PaymentTermsDetails {
-  PaymentTermsFreeText: string;
+  PaymentTermsFreeText = '';
   InvoiceDueDate = new AppXmlDate();
   PaymentOverDueFineDetails = new PaymentOverDueFineDetails();
 
@@ -47,6 +47,6 @@ class PaymentTermsDetails {
 }
 
 class PaymentOverDueFineDetails {
-  PaymentOverDueFineFreeText: string;
-  PaymentOverDueFinePercent: string;
+  PaymentOverDueFineFreeText = '';
+  PaymentOverDueFinePercent = '';
 }

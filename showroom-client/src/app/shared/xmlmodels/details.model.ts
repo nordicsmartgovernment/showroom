@@ -1,9 +1,9 @@
 import {Company} from '../company.service';
 
 export class BuyerPartyDetailsModel {
-  BuyerPartyIdentifier: string;
-  BuyerOrganisationName: string;
-  BuyerOrganisationTaxCode: string;
+  BuyerPartyIdentifier = '';
+  BuyerOrganisationName = '';
+  BuyerOrganisationTaxCode = '';
   BuyerPostalAddressDetails = new BuyerPostalAddressDetails();
 
   constructor(buyer?: Company) {
@@ -21,16 +21,16 @@ export class BuyerPartyDetailsModel {
 }
 
 class BuyerPostalAddressDetails {
-  BuyerStreetName: string;
-  BuyerTownName: string;
-  BuyerPostCodeIdentifier: string;
-  CountryCode: string;
+  BuyerStreetName = '';
+  BuyerTownName = '';
+  BuyerPostCodeIdentifier = '';
+  CountryCode = '';
 }
 
 export class SellerPartyDetailsModel {
-  SellerPartyIdentifier: string;
-  SellerOrganisationName: string;
-  SellerOrganisationTaxCode: string;
+  SellerPartyIdentifier = '';
+  SellerOrganisationName = '';
+  SellerOrganisationTaxCode = '';
   SellerPostalAddressDetails = new SellerPostalAddressDetails();
 
   constructor(seller?: Company) {
@@ -48,9 +48,9 @@ export class SellerPartyDetailsModel {
 }
 
 class SellerPostalAddressDetails {
-  SellerStreetName: string;
-  SellerTownName: string;
-  SellerPostCodeIdentifier: string;
-  CountryCode: string;
+  SellerStreetName = '';
+  SellerTownName = '';
+  SellerPostCodeIdentifier = '';
+  CountryCode = '';
 }
 

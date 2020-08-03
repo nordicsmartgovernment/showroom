@@ -37,6 +37,7 @@ export class SandboxService {
     ignoreAttributes: false,
     attributeNamePrefix: '__',
     textNodeName: '_text_',
+    format: true,
   };
   private readonly xmlReaderOptions = {
     ignoreAttributes: false,
@@ -47,8 +48,6 @@ export class SandboxService {
 
   constructor(private http: HttpClient, private companyService: CompanyService) {
     this.getTemplate('bankStatementPurchaseTemplate.xml', template => this.bankStatementTemplate = template);
-
-
     this.getTemplate('finvoice_eReceiptTemplate.xml', template => this.eReceiptTemplate = template);
   }
 
@@ -278,10 +277,10 @@ export class SandboxService {
             const finvoice = purchaseInvoice.Finvoice;
             const inventoryProduct = new InventoryProduct(
               finvoice.InvoiceRow.ArticleName,
-              finvoice.InvoiceRow.DeliveredQuantity.quantity,
-              finvoice.InvoiceRow.DeliveredQuantity.quantityUnitCode,
+              finvoice.InvoiceRow.DeliveredQuantity._text_,
+              finvoice.InvoiceRow.DeliveredQuantity.__QuantityUnitCode,
               finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
-              finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyidentifier,
+              finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
               finvoice.InvoiceDetails.PaymentTermsDetails.InvoiceDueDate._text_
             );
             inventoryProduct.setInvoiceId(finvoice.InvoiceDetails.InvoiceNumber);
@@ -326,10 +325,10 @@ export class SandboxService {
               const invoiceRow = receipt.Finvoice.InvoiceRow.filter(row => row.ArticleName !== null)[0];
               const inventoryProduct = new InventoryProduct(
                 invoiceRow.ArticleName,
-                invoiceRow.DeliveredQuantity.quantity,
-                invoiceRow.DeliveredQuantity.quantityUnitCode,
+                invoiceRow.DeliveredQuantity._text_,
+                invoiceRow.DeliveredQuantity.__QuantityUnitCode,
                 receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
-                receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyidentifier,
+                receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
                 receipt.Finvoice.InvoiceDetails.InvoiceDate._text_
               );
               inventoryProduct.setInvoiceId(receipt.Finvoice.InvoiceDetails.InvoiceNumber);

@@ -18,20 +18,26 @@ export class InvoiceRowModel {
   SubInvoiceRow: SubInvoiceRow;
 
   generate(product: Product, purchase: PurchaseDescription, currency: string) {
+    this.ArticleIdentifier = '';
+    this.ArticleGroupIdentifier = '';
+    this.ArticleName = '';
+    this.EanCode = '';
     this.DeliveredQuantity = new Quantity();
     this.OrderedQuantity = new Quantity();
     this.UnitPriceAmount = new CurrencyAmount();
-    this.RowAmount = new CurrencyAmount();
-    this.RowVatExcludedAmount = new CurrencyAmount();
+    this.RowVatRatePercent = 0;
+    this.RowVatCode = '';
     this.RowVatAmount = new CurrencyAmount();
+    this.RowVatExcludedAmount = new CurrencyAmount();
+    this.RowAmount = new CurrencyAmount();
     this.ArticleGroupIdentifier = product.sellerItemID;
     this.ArticleIdentifier = product.commodityCode;
     this.ArticleName = product.itemName;
     this.EanCode = product.standardItemID;
-    this.DeliveredQuantity.quantity = purchase.amount;
-    this.DeliveredQuantity.quantityUnitCode = product.quantityCode;
-    this.OrderedQuantity.quantity = purchase.amount;
-    this.OrderedQuantity.quantityUnitCode = product.quantityCode;
+    this.DeliveredQuantity._text_ = purchase.amount;
+    this.DeliveredQuantity.__QuantityUnitCode = product.quantityCode;
+    this.OrderedQuantity._text_ = purchase.amount;
+    this.OrderedQuantity.__QuantityUnitCode = product.quantityCode;
     this.UnitPriceAmount.set(product.price, currency);
     this.RowVatRatePercent = product.vatRate;
     this.RowVatCode = 'S';
@@ -49,9 +55,9 @@ export class InvoiceRowModel {
 
 
 class SubInvoiceRow {
-  SubIdentifier: string;
-  SubArticleIdentifier: string;
-  SubArticleName: string;
+  SubIdentifier = '';
+  SubArticleIdentifier = '';
+  SubArticleName = '';
   SubRowDefinitionDetails: SubRowDefinitionDetail[] = [];
   SubRowAmount = new CurrencyAmount();
 
@@ -87,9 +93,9 @@ class SubRowDefinitionDetail {
 
 class SubRowDefinitionHeaderText {
   // tslint:disable-next-line:variable-name
-  __DefinitionCode: string;
+  __DefinitionCode = '';
   // tslint:disable-next-line:variable-name
-  _text_: string;
+  _text_ = '';
 
   constructor(definitionCode: string, subRowDefinitionHeaderText: string) {
     this.__DefinitionCode = definitionCode;

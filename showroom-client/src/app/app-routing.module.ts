@@ -25,13 +25,15 @@ const routes = [
   },
   {path: ORANGEBOOKS_ROUTE, component: OrangebooksComponent},
   {path: LOAN_ROUTE, component: LoanComponent},
-  {path: WAREHOUSE_ROUTE, component: WarehouseComponent,
-  children: [
-    {path: '', component: OverviewComponent},
-    {path: 'sold', component: SoldComponent},
-    {path: 'purchased', component: PurchasedComponent},
-    {path: 'inventory', component: InventoryComponent},
-  ] },
+  {
+    path: WAREHOUSE_ROUTE, component: WarehouseComponent,
+    children: [
+      {path: '', component: OverviewComponent},
+      {path: 'sold', component: SoldComponent},
+      {path: 'purchased', component: PurchasedComponent},
+      {path: 'inventory', component: InventoryComponent},
+    ]
+  },
 ];
 
 @NgModule({
