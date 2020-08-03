@@ -1,8 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {SandboxService} from '../../../shared/sandbox.service';
-import {InventoryProduct, InventoryService} from '../../../shared/inventory.service';
+import {InventoryService} from '../../../shared/inventory.service';
 import {Company, CompanyService} from '../../../shared/company.service';
 import {ActivatedRoute, Router} from '@angular/router';
+import {InventoryProduct} from '../../../shared/inventory.model';
 
 @Component({
   selector: 'app-sold',

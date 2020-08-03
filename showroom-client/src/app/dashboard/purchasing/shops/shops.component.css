@@ -1,3 +1,18 @@
 mat-card-title, mat-card-subtitle{
   white-space: nowrap;
 }
+
+.cards {
+  display: inline-flex;
+  justify-content: space-evenly;
+}
+
+mat-card {
+  margin: 20px;
+  flex-grow: 2;
+  flex-shrink: 2;
+}
+
+mat-card:first-child:last-child {
+  margin-left: 0;
+}

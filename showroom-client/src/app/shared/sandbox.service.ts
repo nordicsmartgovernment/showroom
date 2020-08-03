@@ -6,8 +6,8 @@ import {forkJoin, Observable} from 'rxjs';
 import {j2xParser as ObjToXmlParser, parse} from 'fast-xml-parser';
 import {EInvoice} from './xmlmodels/eInvoice/eInvoice.model';
 import {EReceipt} from './xmlmodels/eReceipt/e-receipt.model';
-import {InventoryProduct} from './inventory.service';
 import {map} from 'rxjs/operators';
+import {InventoryProduct} from './inventory.model';
 
 
 const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
@@ -71,6 +71,15 @@ export class SandboxService {
       items.push(parsed.ArrayList.item);
     }
     return items;
+  }
+
+  private static filterValidProduct(product: InventoryProduct) {
+    return product &&
+      product.amountUnit &&
+      product.amount &&
+      product.amount >= 0 &&
+      product.price &&
+      product.price >= 0;
   }
 
   postDocument(companyId: number, documentType: string, payload: string) {
@@ -225,7 +234,7 @@ export class SandboxService {
     // Filter out weird purchases
     return invoicePurchases.concat(receiptPurchases)
       .filter(purchase => {
-        return this.filterValidProduct(purchase);
+        return SandboxService.filterValidProduct(purchase);
       });
   }
 
@@ -249,17 +258,8 @@ export class SandboxService {
     // Filter out weird purchases
     return invoiceSales.concat(receiptSales)
       .filter(sale => {
-        return this.filterValidProduct(sale);
+        return SandboxService.filterValidProduct(sale);
       });
-  }
-
-  private filterValidProduct(product: InventoryProduct) {
-    return product &&
-      product.amountUnit &&
-      product.amount &&
-      product.amount >= 0 &&
-      product.price &&
-      product.price >= 0;
   }
 
   private getInventoryItemFromInvoice(documentType: string): Observable<InventoryProduct[]> {
@@ -296,10 +296,6 @@ export class SandboxService {
   private objectToXml(eInvoiceModel: any): string {
     return new ObjToXmlParser(this.xmlWriterOptions)
       .parse(eInvoiceModel);
-  }
-
-  private xmlToObject(xmlString: string): any {
-    return (parse(xmlString, this.xmlReaderOptions, true) as EInvoice);
   }
 
   private getTemplate(name: string, successAction) {

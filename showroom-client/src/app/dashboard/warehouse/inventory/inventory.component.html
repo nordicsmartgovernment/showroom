@@ -1,1 +1,38 @@
-<p>inventory works!</p>
+<div class="inventory">
+  <h3>Manage inventory</h3>
+  <div class="row description-row">
+    <div class="col col-sm-4">
+      <p>Product</p>
+    </div>
+    <div class="col col-sm-4">
+      <p>Amount</p>
+    </div>
+    <div class="col col-sm-4">
+      <p>Price</p>
+    </div>
+  </div>
+  <div *ngFor="let i of inventory; let index = index" [classList]="index%2===0? 'row inventory-row dark-row' : 'row inventory-row light-row'"
+       class="row inventory-row">
+    <div class="col col-sm-4">
+      <p>{{i.name}}</p>
+    </div>
+    <div class="col col-sm-4">
+      <div class="select-amount">
+        <button class="btn btn-sm" (click)="onSubtractAmount(i)">-</button>
+        <!--suppress HtmlFormInputWithoutLabel -->
+        <input type="number"
+               [ngModel]="i.amount"
+               (ngModelChange)="onInputChanged(i, $event)"
+               min="1">
+        <button class="btn btn-sm" (click)="onAddAmount(i)">+</button>
+      </div>
+    </div>
+    <div class="col col-sm-4">
+      <p>{{i.price}} {{i.currency}}</p>
+    </div>
+  </div>
+
+</div>
+<button class="btn btn-secondary navigate-back"
+        type="button"
+        (click)="navigateBack()">Go back</button>

@@ -1,7 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {SandboxService} from '../../../shared/sandbox.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {InventoryProduct, InventoryService} from '../../../shared/inventory.service';
+import {InventoryService} from '../../../shared/inventory.service';
+import {InventoryProduct} from '../../../shared/inventory.model';
 
 @Component({
   selector: 'app-overview',
@@ -10,7 +11,6 @@ import {InventoryProduct, InventoryService} from '../../../shared/inventory.serv
 })
 export class OverviewComponent implements OnInit {
   inventory: InventoryProduct[];
-  PURCHASE_INVENTORY_KEY = 'inventory';
 
   constructor(private sandboxService: SandboxService,
               private router: Router,
@@ -19,10 +19,6 @@ export class OverviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const savedInventory = localStorage.getItem(this.PURCHASE_INVENTORY_KEY);
-    if (savedInventory) {
-      this.inventory = JSON.parse(savedInventory);
-    }
     this.inventory = this.inventoryService.inventory;
     this.inventoryService.inventoryChanged
       .subscribe(change => {

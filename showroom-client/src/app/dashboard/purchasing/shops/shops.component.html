@@ -1,7 +1,7 @@
 <h1>Available stores</h1>
 <mat-grid-list cols="3">
 
-  <mat-grid-tile *ngFor="let store of stores">
+  <div *ngFor="let store of stores" class="cards">
     <mat-card>
       <mat-card-header>
         <mat-icon mat-card-avatar [svgIcon]="store.icon"></mat-icon>
@@ -15,6 +15,6 @@
         </button>
       </mat-card-actions>
     </mat-card>
-  </mat-grid-tile>
+  </div>
 
 </mat-grid-list>

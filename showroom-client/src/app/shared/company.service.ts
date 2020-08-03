@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
-import {InventoryProduct} from './inventory.service';
+import {InventoryProduct} from './inventory.model';
 
 export class Company {
   name: string;
