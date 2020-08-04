@@ -46,7 +46,9 @@ export class InventoryService {
       const inventoryProduct = existingProduct[0];
       // remove the item if the amount is reduced to zero or below
       if (inventoryProduct.amount - product.amount <= 0) {
-        this.inventoryArray = this.inventoryArray.filter(el => el.name === inventoryProduct.name);
+        const newInventory = [];
+        newInventory.push(this.inventoryArray.filter(el => el.name === inventoryProduct.name));
+        this.inventoryArray = newInventory;
       }
 
       inventoryProduct.price -= product.price;

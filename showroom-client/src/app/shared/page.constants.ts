@@ -9,7 +9,7 @@ export interface Page {
 
 export const PAGES: Page[] = [
   {title: 'Purchasing', active: true, description: 'eReceipt and eInvoice', route: PURCHASING_ROUTE},
-  {title: 'Window to financials', active: true, description: 'Window to financials', route: ORANGEBOOKS_ROUTE},
+  {title: 'Dashboard to financials', active: true, description: 'Dashboard to financials', route: ORANGEBOOKS_ROUTE},
   {title: 'Credit assessment', active: true , description: 'Apply for a loan', route: LOAN_ROUTE},
   {title: 'Warehouse management', active: true, description: 'Manage your wares', route: WAREHOUSE_ROUTE},
   {title: 'Ordering', active: false},
