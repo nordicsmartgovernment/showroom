@@ -83,7 +83,7 @@
         </ValDt>
         <BkTxCd>
           <Domn>
-            <Cd>PMNT</Cd>
+            <Cd>LOAN</Cd>
             <Fmly>
               <Cd>RCDT</Cd>
               <SubFmlyCd>ESCT</SubFmlyCd>

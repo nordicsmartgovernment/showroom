@@ -57,7 +57,7 @@ class EpiPaymentInstructionDetails {
   generate(purchase: PurchaseDescription, paymentReference: string, currency: string) {
     this.EpiPaymentInstructionId = '';
     this.EpiRemittanceInfoIdentifier.__IdentificationSchemeName = 'ISO';
-    this.EpiRemittanceInfoIdentifier._text_ = '11002';
+    this.EpiRemittanceInfoIdentifier._text_ = paymentReference;
     this.EpiInstructedAmount.set(purchase.totalPriceInclVat, currency);
     this.EpiCharge.__ChargeOption = 'SHA';
     this.EpiCharge._text_ = 'SHA';

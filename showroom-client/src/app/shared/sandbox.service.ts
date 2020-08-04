@@ -32,6 +32,7 @@ export interface PurchaseDescription {
 export class SandboxService {
 
   private bankStatementTemplate: string;
+  private bankLoanStatementTemplate: string;
   private eReceiptTemplate: string;
   private readonly xmlWriterOptions = {
     ignoreAttributes: false,
@@ -48,6 +49,7 @@ export class SandboxService {
 
   constructor(private http: HttpClient, private companyService: CompanyService) {
     this.getTemplate('bankStatementPurchaseTemplate.xml', template => this.bankStatementTemplate = template);
+    this.getTemplate('bankStatementLoanTemplate.xml', template => this.bankLoanStatementTemplate = template);
     this.getTemplate('finvoice_eReceiptTemplate.xml', template => this.eReceiptTemplate = template);
   }
 
@@ -116,7 +118,7 @@ export class SandboxService {
       $PaymentReference$: paymentReference
     };
 
-    const buyerStatement = populateTemplate(this.bankStatementTemplate, loanRecipientInfo);
+    const buyerStatement = populateTemplate(this.bankLoanStatementTemplate, loanRecipientInfo);
     console.log('Loan recipients bank statement:');
     console.log(buyerStatement);
     return this.postDocument(loanRecipient.id, BANK_STATEMENT_TYPE, buyerStatement);
