@@ -1,0 +1,72 @@
+<div *ngIf="activePage===CREATE_ORDER_PAGE" class="create-order">
+  <div
+    [style.background-image]="'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(' + activeStore.splashImage + ')'"
+    class="products">
+    <div *ngFor="let product of activeStore.storeProductSelection; let i = index"
+         class="product card">
+      <img [src]="product.image? product.image: 'assets/img/missing-image.jpg'"
+           alt="{{product.itemName + ' image'}}" class="product-image">
+      <h3 class="product-text">{{product.itemName}}</h3>
+      <p class=product-text>Price: {{product.price}} {{activeStore.currency}}</p>
+      <div class="amount">
+        <button (click)="adjustAmount(i, 1)" class="btn btn-light">
+          <mat-icon>arrow_drop_up</mat-icon>
+        </button>
+
+        <!--suppress HtmlFormInputWithoutLabel -->
+        <input (ngModelChange)="onInputChanged(product, orderLines[i], $event)"
+               [ngModel]="orderLines[i].amount"
+               min="0"
+               type="number">
+
+        <button (click)="adjustAmount(i, -1)"
+                class="btn btn-light">
+          <mat-icon>arrow_drop_down</mat-icon>
+        </button>
+      </div>
+
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button (click)="onNavigateBack()"
+            class="btn btn-outline-dark">Go back
+    </button>
+    <button (click)="onReviewOrder()"
+            class="btn btn-primary continue">
+      <mat-icon svgIcon="cart-outline"></mat-icon>
+      Continue
+    </button>
+  </div>
+</div>
+<div *ngIf="activePage===REVIEW_ORDER_PAGE" class="review-order">
+  <div class="order-details">
+    <h2>Review your order</h2>
+    <div *ngFor="let orderLine of getActiveOrderLines()" class="order-line">
+      <div class="div">
+        <h3 class="product-title">{{orderLine.product.itemName}}</h3>
+        <p>Amount: {{orderLine.amount}} {{orderLine.product.quantityCode}}</p>
+        <p class="product-price">Price: {{orderLine.product.price}} {{activeStore.currency}}</p>
+      </div>
+      <div class="div">
+        <p>VAT: {{orderLine.product.vatRate}} %</p>
+        <p>Total price excluding VAT: {{priceExcludingVAT(orderLine)}}</p>
+        <p>Total price including VAT: {{priceIncludingVAT(orderLine)}}</p>
+      </div>
+      <hr>
+    </div>
+    <p class="sum-total">Total SUM excl VAT {{totalSumInclVAT()}} {{activeStore.currency}}</p>
+    <p class="sum-total">Total SUM incl VAT {{totalSumExclVAT()}} {{activeStore.currency}}</p>
+  </div>
+
+
+  <div class="nav-bar">
+    <button (click)="onNavigateBackToStore()"
+            class="btn btn-outline-dark">Go back
+    </button>
+    <button (click)="onSubmitOrder()"
+            class="btn btn-primary continue">
+      Submit order
+    </button>
+  </div>
+
+</div>

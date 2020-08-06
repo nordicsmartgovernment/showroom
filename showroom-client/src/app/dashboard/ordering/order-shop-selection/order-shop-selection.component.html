@@ -1,0 +1,15 @@
+<div class="card-container">
+  <div class="card" *ngFor="let store of stores">
+    <div class="image-container">
+      <img class="card-img-top" src="{{store.splashImage}}" alt="Card image cap">
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">{{store.name}}</h5>
+      <p class="card-text">{{store.type}}</p>
+      <p class="card-text">{{store.description}}</p>
+      <div class="button-holder">
+        <button class="btn btn-primary" (click)="onGoToStore(store.id)">Go to shop</button>
+      </div>
+    </div>
+  </div>
+</div>

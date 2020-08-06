@@ -2,11 +2,15 @@ mat-grid-tile a {
   text-decoration: none;
 }
 
+.dashboard-wrapper {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 button {
   height: 50px;
   width: 200px;
   margin: 5px;
-  display: inline-block;
-  align-content: center;
 
 }

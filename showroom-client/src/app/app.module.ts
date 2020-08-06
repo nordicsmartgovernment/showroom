@@ -30,6 +30,11 @@ import { PurchasedComponent } from './dashboard/warehouse/purchased/purchased.co
 import { SoldComponent } from './dashboard/warehouse/sold/sold.component';
 import { InventoryComponent } from './dashboard/warehouse/inventory/inventory.component';
 import { OverviewComponent } from './dashboard/warehouse/overview/overview.component';
+import { SalesComponent } from './dashboard/sales/sales.component';
+import {ScrollingModule} from '@angular/cdk/scrolling';
+import { OrderingComponent } from './dashboard/ordering/ordering.component';
+import { OrderShopComponent } from './dashboard/ordering/order-shop/order-shop.component';
+import { OrderShopSelectionComponent } from './dashboard/ordering/order-shop-selection/order-shop-selection.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +51,11 @@ import { OverviewComponent } from './dashboard/warehouse/overview/overview.compo
     PurchasedComponent,
     SoldComponent,
     InventoryComponent,
-    OverviewComponent
+    OverviewComponent,
+    SalesComponent,
+    OrderingComponent,
+    OrderShopComponent,
+    OrderShopSelectionComponent
   ],
   imports: [
     HttpClientModule,
@@ -64,7 +73,8 @@ import { OverviewComponent } from './dashboard/warehouse/overview/overview.compo
     MatMenuModule,
     MatDialogModule,
     MatExpansionModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    ScrollingModule
   ],
   entryComponents: [
     OrderconfirmedComponent

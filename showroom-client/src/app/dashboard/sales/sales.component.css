@@ -1,0 +1,72 @@
+* {
+  font-size: 24px;
+}
+
+h3 {
+  font-weight: 400;
+  font-size: 150%;
+  margin: 10px 10px 20px;
+}
+
+.inventory {
+  padding: 10px;
+  flex-grow: 4
+}
+
+.inventory p {
+  font-size: 80%;
+}
+
+.btn-primary {
+  font-size: 50%;
+  margin: 10px;
+}
+
+.navigate-back {
+  margin: 10px;
+}
+
+.inventory{
+  border: 1px solid #908fa5;
+}
+
+.rightButtonMenu {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.inventory-row , .description-row {
+  margin: 5px 20px;
+}
+
+.description-row {
+  border-bottom: 1px solid #908fa5;
+  border-bottom-width: thin;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.col p {
+  margin: 0;
+}
+.overflow-scrollable {
+  overflow: auto;
+}
+
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_asc_disabled:after,
+table.dataTable thead .sorting_asc_disabled:before,
+table.dataTable thead .sorting_desc:after,
+table.dataTable thead .sorting_desc:before,
+table.dataTable thead .sorting_desc_disabled:after,
+table.dataTable thead .sorting_desc_disabled:before {
+  bottom: .5em;
+}

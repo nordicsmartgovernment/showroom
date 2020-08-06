@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Store} from '../../shared/store.model';
-import {BEST_POWER_TOOLS, BUILDERS_PARADISE, FRUIT_4_YOU} from '../../shared/company.service';
+import {Store} from './store.model';
+import {BEST_POWER_TOOLS, BUILDERS_PARADISE, FRUIT_4_YOU} from './company.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +26,7 @@ const STORE_1: Store = {
   ...BEST_POWER_TOOLS,
   type: 'Hardware store',
   currency: 'NOK',
-  storeInventory: [
+  storeProductSelection: [
     {
       itemName: 'Electric Drill',
       price: 25,
@@ -58,14 +58,16 @@ const STORE_1: Store = {
       quantityCode: 'PCS'
     }
   ],
-  icon: 'hammer-screwdriver'
+  icon: 'hammer-screwdriver',
+  splashImage: 'assets/img/stores/best-power-tools/shop-splash.jpg',
+  description: 'Are your tools breaking when you walk out the store? Come get some proper tools!',
 };
 
 const STORE_2: Store = {
   ...BUILDERS_PARADISE,
   type: 'Building material store',
   currency: 'EUR',
-  storeInventory: [
+  storeProductSelection: [
     {
       itemName: 'Drywall piece',
       price: 95,
@@ -74,7 +76,7 @@ const STORE_2: Store = {
       sellerItemID: '8085256',
       standardItemID: '83111506',
       vatRate: 25,
-      quantityCode: 'PCS'
+      quantityCode: 'PCS',
     },
     {
       itemName: 'Flooring',
@@ -87,14 +89,16 @@ const STORE_2: Store = {
       quantityCode: 'SQM'
     },
   ],
-  icon: 'hammer-wrench'
+  icon: 'hammer-wrench',
+  splashImage: 'assets/img/stores/builders-paradise/shop-splash.jpg',
+  description: 'Are you a builder? Get solid materials at a good price.'
 };
 
 const STORE_3: Store = {
   ...FRUIT_4_YOU,
   type: 'Food wholesales store',
   currency: 'DKK',
-  storeInventory: [
+  storeProductSelection: [
     {
       itemName: 'Apple',
       price: 2,
@@ -123,8 +127,11 @@ const STORE_3: Store = {
       sellerItemID: '8085210',
       standardItemID: '83111510',
       vatRate: 15,
-      quantityCode: 'KGS'
+      quantityCode: 'KGS',
+      image: 'assets/img/stores/fruit4u/products/pink-pomelo.jpg'
     },
   ],
-  icon: 'food-apple'
+  icon: 'food-apple',
+  splashImage: 'assets/img/stores/fruit4u/shop-splash.jpg',
+  description: 'Want to get healthy? Here is some fruit 4 you',
 };

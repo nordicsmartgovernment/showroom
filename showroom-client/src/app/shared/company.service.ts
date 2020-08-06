@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
 import {InventoryProduct} from './inventory.model';
+import {Order} from '../dashboard/ordering/order-shop/order-shop.component';
 
 export class Company {
   name: string;
@@ -11,6 +12,7 @@ export class Company {
   postCodeIdentifier: string;
   streetName: string;
   townName: string;
+  orders: Order[] = [];
   inventory: InventoryProduct[] = [];
 
   constructor({id, name, vatId, country, iban, postCodeIdentifier, streetName, townName, inventory}
@@ -53,16 +55,6 @@ export const BEST_POWER_TOOLS = new Company({
     new InventoryProduct('Circular Saw', 100, 'PCS', 5250, 'NOK', 20200729)
   ]
 });
-/*
-      itemName: 'Circular Saw',
-      price: 42,
-      commodityCode: '23231200',
-      originCountry: 'NO',
-      sellerItemID: '8085254',
-      standardItemID: '83111504',
-      vatRate: 25,
-      quantityCode: 'PCS'
-* */
 export const BUILDERS_PARADISE = new Company({
   id: 994023491,
   name: 'Rakentajan paratiisi',
