@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { StoreService } from '../../../shared/store.service';
-import { ActivatedRoute } from '@angular/router';
-import { PurchaseDescription, SandboxService } from '../../../shared/sandbox.service';
-import { CompanyService } from '../../../shared/company.service';
-import { Product, Store } from '../../../shared/store.model';
-import { OrderconfirmedComponent } from './orderconfirmed/orderconfirmed.component';
-import { MatDialog } from '@angular/material/dialog';
+import {Component, OnInit} from '@angular/core';
+import {StoreService} from '../../../shared/store.service';
+import {ActivatedRoute} from '@angular/router';
+import {PurchaseDescription, SandboxService} from '../../../shared/sandbox.service';
+import {CompanyService} from '../../../shared/company.service';
+import {Product, Store} from '../../../shared/store.model';
+import {OrderconfirmedComponent} from './orderconfirmed/orderconfirmed.component';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-shop',
@@ -51,7 +51,17 @@ export class ShopComponent implements OnInit {
     return this.netPrice() + this.vatPrice();
   }
 
+  onInputChanged(newAmount: number) {
+    if (typeof newAmount !== 'number' || !newAmount || newAmount < 1) {
+      newAmount = 1;
+    }
+    this.amount = newAmount;
+  }
+
   checkout(card: boolean) {
+    if (!this.amount || this.amount < 1) {
+      return;
+    }
     this.loading = true;
 
     const purchase: PurchaseDescription = {

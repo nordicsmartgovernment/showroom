@@ -34,7 +34,8 @@
     <div class="buy-amount">
       <label>
         Amount:
-        <input type="number" min="1" [(ngModel)]="amount">
+        <input type="number" min="1" [(ngModel)]="amount"
+               (ngModelChange)="onInputChanged($event)">
       </label>
     </div>
 

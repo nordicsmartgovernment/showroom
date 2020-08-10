@@ -32,7 +32,7 @@
   background-repeat: no-repeat;
   background-position: center center;
   background-attachment: fixed;
-  display:flex;
+  display: flex;
   justify-content: flex-start;
   flex-direction: column;
   overflow: auto;
@@ -40,16 +40,21 @@
 
 .product {
   background-color: #ffffff;
-  opacity: 90%;
+  opacity: 0.9;
   margin: 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+/* not(:hover) required because css optimizer removes opacity here */
+.product:not(:hover) {
+  opacity: 0.9;
   transition: opacity 0.5s;
 }
 
 .product:hover {
-  opacity: 100%;
+  opacity: 1;
 }
 
 .product-image {
@@ -88,6 +93,7 @@ input[type=number] {
 input {
   text-align: center;
 }
+
 .amount input {
   margin-right: 5px;
   margin-left: 5px;
