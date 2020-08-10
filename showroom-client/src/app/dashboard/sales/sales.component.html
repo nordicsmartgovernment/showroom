@@ -1,12 +1,11 @@
-<h3>Add purchased items to inventory</h3>
-<div style="overflow:auto">
-</div>
-<div class="overflow-scrollable">
-  <table class="table table-striped table-bordered table-sm" id="dtDynamicVerticalScrollExample">
+<div class="orders-review" *ngIf="activePage === REVIEW_SALES_PAGE">
+  <h3>Review incoming orders</h3>
+  <div style="overflow:auto">
+  </div>
+  <table class="table table-striped table-bordered table-sm">
     <thead>
     <tr>
-      <th class="th-sm">Product</th>
-      <th class="th-sm">Amount</th>
+      <th class="th-sm">OrderLines</th>
       <th class="th-sm">Price</th>
       <th class="th-sm">Customer</th>
       <th class="th-sm">Shipping address</th>
@@ -14,17 +13,48 @@
     </thead>
     <tbody>
     <tr *ngFor="let i of salesOrders; let index = index">
-      <td>{{i.product}}</td>
-      <td>{{i.amount}}</td>
-      <td>{{i.price}}</td>
-      <td>{{i.customer}}</td>
-      <td>{{i.shippingAddress}}</td>
+      <td class="order-lines">
+        <table class="table table-striped table-bordered table-sm order-lines-table">
+          <tbody>
+          <tr *ngFor="let orderLine of i.orderLines">
+            <td>{{orderLine.product.itemName}}</td>
+            <td>{{orderLine.amount}}</td>
+          </tr>
+          </tbody>
+        </table>
+      </td>
+      <td><p class="table-text">{{getBuyer(i.buyer).name}} ({{getBuyer(i.buyer).id}})
+        <p></td>
+      <td>
+        <p class="table-text">{{getBuyer(i.buyer).streetName}}, {{getBuyer(i.buyer).postCodeIdentifier}}, {{getBuyer(i.buyer).townName}}
+        <p>
+      </td>
+      <td>
+        <button class="btn btn-primary" (click)="onReviewOrder(index)">Accept and finalize order</button>
+        <button class="btn btn-danger" (click)="onRejectOrder(index)">Reject</button>
+      </td>
     </tr>
     </tbody>
   </table>
 </div>
+<div class="order-review" *ngIf="activePage === REVIEW_SALE_PAGE">
+  <h3>Sales details</h3>
+  <h2>Order Lines:</h2>
+  <div *ngFor="let orderLine of selectedOrder.orderLines">
+    <p>{{orderDisplayText(orderLine)}}</p>
+    <hr>
+  </div>
+  <p>Amount net: {{totalSumExclVAT()}} {{actingStore.currency}}</p>
+  <p>VAT: {{totalVAT()}} {{actingStore.currency}}</p>
+  <p>Amount total: {{totalSumInclVAT()}} {{actingStore.currency}}</p>
 
-
-<button class="btn btn-outline-dark navigate-back"
-        type="button">Go back
-</button>
+  <div class="nav-bar">
+    <button (click)="onNavigateBackFromOrder()"
+            class="btn btn-outline-dark">Go back
+    </button>
+    <button (click)="onAcceptOrder()"
+            class="btn btn-primary continue">
+      Submit order
+    </button>
+  </div>
+</div>

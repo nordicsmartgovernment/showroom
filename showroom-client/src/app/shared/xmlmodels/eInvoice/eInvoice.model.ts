@@ -27,7 +27,7 @@ export class EInvoiceModel {
            buyer: Company) {
     this.InvoiceDetails.generate(purchase, product, seller.currency, invoiceId);
     this.InvoiceRow.generate(product, purchase, seller.currency);
-    this.EpiDetails.generate(product, purchase, seller, paymentReference);
+    this.EpiDetails.generate(purchase, seller, paymentReference);
     this.BuyerPartyDetails = new BuyerPartyDetailsModel(buyer);
     this.SellerPartyDetails = new SellerPartyDetailsModel(seller);
   }

@@ -32,7 +32,7 @@ export class EReceiptModel {
     this.MessageTransmissionDetails.generate(seller.id);
     this.PaymentStatusDetails.PaymentStatusCode = 'PAID';
     this.InvoiceDetails.generate(purchase, product, seller.currency, invoiceId);
-    this.EpiDetails.generate(product, purchase, seller, paymentReference);
+    this.EpiDetails.generate(purchase, seller, paymentReference);
     this.EpiDetails.EpiIdentificationDetails.EpiDate.setToCurrentDate();
     this.BuyerPartyDetails = new BuyerPartyDetailsModel(buyer);
     this.SellerPartyDetails = new SellerPartyDetailsModel(seller);

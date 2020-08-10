@@ -4,11 +4,13 @@ import {StoreService} from '../../../shared/store.service';
 import {Product, Store} from '../../../shared/store.model';
 import {CompanyService} from '../../../shared/company.service';
 import {v4 as UUIDv4} from 'uuid';
+import {priceExcludingVAT, priceIncludingVAT, totalSumExclVAT, totalSumInclVAT} from '../../../shared/utils/vatUtil';
 
 export interface Order {
   orderLines: OrderLine[];
   orderId: string;
   buyer?: number;
+  seller?: number;
 }
 
 export interface OrderLine {
@@ -25,7 +27,7 @@ export class OrderShopComponent implements OnInit {
   readonly CREATE_ORDER_PAGE = 'createOrder';
   readonly REVIEW_ORDER_PAGE = 'reviewOrder';
   order: Order;
-  orderLines: OrderLine[] = [];
+  orderLines: OrderLine[];
   activePage = this.CREATE_ORDER_PAGE;
   activeStore: Store;
 
@@ -37,6 +39,7 @@ export class OrderShopComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.orderLines = [];
     this.activeStore = this.storeService.getStore(this.route.snapshot.params.id);
     this.order = {
       orderLines: this.orderLines,
@@ -45,7 +48,7 @@ export class OrderShopComponent implements OnInit {
     for (const product of this.activeStore.storeProductSelection) {
       this.orderLines.push({
         product,
-        amount: 0
+        amount: 0,
       });
     }
   }
@@ -61,7 +64,6 @@ export class OrderShopComponent implements OnInit {
     if (amount + this.orderLines[orderLineNumber].amount >= 0) {
       this.orderLines[orderLineNumber].amount += amount;
     }
-
   }
 
   onNavigateBack() {
@@ -77,31 +79,19 @@ export class OrderShopComponent implements OnInit {
   }
 
   priceIncludingVAT(orderLine: OrderLine): number {
-    let displayAmount = orderLine.amount * orderLine.product.price * (1 + orderLine.product.vatRate / 100);
-    displayAmount = Math.round(displayAmount * 100) / 100;
-    return displayAmount;
+    return priceIncludingVAT(orderLine);
   }
 
   priceExcludingVAT(orderLine: OrderLine): number {
-    let displayAmount = orderLine.amount * orderLine.product.price;
-    displayAmount = Math.round(displayAmount * 100) / 100;
-    return displayAmount;
+    return priceExcludingVAT(orderLine);
   }
 
   totalSumInclVAT(): number {
-    let sum = 0;
-    for (const orderLine of this.orderLines) {
-      sum += this.priceIncludingVAT(orderLine);
-    }
-    return sum;
+    return totalSumInclVAT(this.order);
   }
 
   totalSumExclVAT(): number {
-    let sum = 0;
-    for (const orderLine of this.orderLines) {
-      sum += this.priceExcludingVAT(orderLine);
-    }
-    return sum;
+    return totalSumExclVAT(this.order);
   }
 
   onNavigateBackToStore() {
@@ -109,8 +99,10 @@ export class OrderShopComponent implements OnInit {
   }
 
   onSubmitOrder() {
+    this.order.orderLines = this.order.orderLines.filter(orderLine => orderLine.amount > 0);
     this.order.buyer = this.companyService.getActingCompany().id;
-    this.activeStore.orders.push(this.order);
+    this.order.seller = this.activeStore.id;
+    this.companyService.getCompany(this.route.snapshot.params.id.toString()).orders.push(this.order);
     this.companyService.saveCompanies();
     this.onNavigateBack();
   }

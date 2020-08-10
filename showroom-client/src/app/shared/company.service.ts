@@ -143,6 +143,13 @@ export class CompanyService {
     return this.ALL_COMPANIES.slice();
   }
 
+  getCompany(id: string | number): Company {
+    if (typeof id === 'number') {
+      id = id.toString();
+    }
+    return this.getAllCompanies().find(s => s.id.toString() === id);
+  }
+
   saveCompanies() {
     localStorage.setItem(this.COMPANY_STORAGE_KEY, JSON.stringify(this.ALL_COMPANIES));
   }

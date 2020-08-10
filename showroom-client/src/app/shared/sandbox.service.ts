@@ -8,6 +8,9 @@ import {EInvoice} from './xmlmodels/eInvoice/eInvoice.model';
 import {EReceipt} from './xmlmodels/eReceipt/e-receipt.model';
 import {map} from 'rxjs/operators';
 import {InventoryProduct} from './inventory.model';
+import {Order} from '../dashboard/ordering/order-shop/order-shop.component';
+import {priceExcludingVAT, priceIncludingVAT, round} from './utils/vatUtil';
+import {StoreService} from './store.service';
 
 
 const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
@@ -47,7 +50,9 @@ export class SandboxService {
     parseAttributeValue: true,
   };
 
-  constructor(private http: HttpClient, private companyService: CompanyService) {
+  constructor(private http: HttpClient,
+              private storeService: StoreService,
+              private companyService: CompanyService) {
     this.getTemplate('bankStatementPurchaseTemplate.xml', template => this.bankStatementTemplate = template);
     this.getTemplate('bankStatementLoanTemplate.xml', template => this.bankLoanStatementTemplate = template);
     this.getTemplate('finvoice_eReceiptTemplate.xml', template => this.eReceiptTemplate = template);
@@ -122,6 +127,21 @@ export class SandboxService {
     console.log('Loan recipients bank statement:');
     console.log(buyerStatement);
     return this.postDocument(loanRecipient.id, BANK_STATEMENT_TYPE, buyerStatement);
+  }
+
+  submitMultiOrderLinesPurchase(order: Order): Observable<any[]> {
+    const buyer = this.companyService.getCompany(order.buyer);
+    const subscriptions = [];
+    for (const orderLine of order.orderLines) {
+      subscriptions.push(this.submitPurchase({
+        paidByCard: false,
+        totalPriceExclVat: priceExcludingVAT(orderLine),
+        vatPrice: round(priceIncludingVAT(orderLine) - priceExcludingVAT(orderLine)),
+        totalPriceInclVat: priceIncludingVAT(orderLine),
+        amount: orderLine.amount
+      }, orderLine.product, buyer, this.storeService.getStore(order.seller)));
+    }
+    return forkJoin(...subscriptions);
   }
 
   submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Store): Observable<any[]> {

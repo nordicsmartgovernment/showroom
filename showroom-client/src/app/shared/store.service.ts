@@ -15,7 +15,10 @@ export class StoreService {
     return [STORE_1, STORE_2, STORE_3];
   }
 
-  getStore(id: string): Store {
+  getStore(id: string | number): Store {
+    if (typeof id === 'number') {
+      id = id.toString();
+    }
     return this.getStores().find(s => s.id.toString() === id);
   }
 
