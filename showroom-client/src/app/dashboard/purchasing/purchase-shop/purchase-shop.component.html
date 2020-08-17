@@ -31,7 +31,8 @@
     <button (click)="onNavigateBack()"
             class="btn btn-outline-dark">Go back
     </button>
-    <button (click)="onReviewOrder()"
+    <button (click)="onReviewPurchase()"
+            [disabled]="noProductsAddedToOrder()"
             class="btn btn-primary continue">
       <mat-icon svgIcon="cart-outline"></mat-icon>
       Continue
@@ -54,8 +55,8 @@
       </div>
       <hr>
     </div>
-    <p class="sum-total">Total SUM excl VAT {{totalSumInclVAT()}} {{activeStore.currency}}</p>
-    <p class="sum-total">Total SUM incl VAT {{totalSumExclVAT()}} {{activeStore.currency}}</p>
+    <p class="sum-total">Total SUM excl VAT {{totalSumExclVAT()}} {{activeStore.currency}}</p>
+    <p class="sum-total">Total SUM incl VAT {{totalSumInclVAT()}} {{activeStore.currency}}</p>
   </div>
 
 
@@ -63,9 +64,14 @@
     <button (click)="onNavigateBackToStore()"
             class="btn btn-outline-dark">Go back
     </button>
-    <button (click)="onSubmitOrder()"
-            class="btn btn-primary continue">
-      Submit order
+    <button (click)="onSubmitOrder(false)"
+            class="btn btn-primary continue btn-payment">
+      <mat-icon>request_page</mat-icon> Pay by invoice
+    </button>
+    <button (click)="onSubmitOrder(true)"
+            class="btn btn-primary continue btn-payment">
+      <mat-icon>payment</mat-icon>
+      Pay by card
     </button>
   </div>
 

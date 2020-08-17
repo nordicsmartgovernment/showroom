@@ -8,9 +8,9 @@ import {EInvoice} from './xmlmodels/eInvoice/eInvoice.model';
 import {EReceipt} from './xmlmodels/eReceipt/e-receipt.model';
 import {map} from 'rxjs/operators';
 import {InventoryProduct} from './inventory.model';
-import {Order} from '../dashboard/ordering/order-shop/order-shop.component';
-import {priceExcludingVAT, priceIncludingVAT, round} from './utils/vatUtil';
+import {orderLineToCalc, priceExcludingVAT, priceIncludingVAT, round} from './utils/vatUtil';
 import {StoreService} from './store.service';
+import {Order} from '../dashboard/ordering/order.component';
 
 
 const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
@@ -129,15 +129,15 @@ export class SandboxService {
     return this.postDocument(loanRecipient.id, BANK_STATEMENT_TYPE, buyerStatement);
   }
 
-  submitMultiOrderLinesPurchase(order: Order): Observable<any[]> {
+  submitMultiOrderLinesPurchase(order: Order, paidByCard: boolean = false): Observable<any[]> {
     const buyer = this.companyService.getCompany(order.buyer);
     const subscriptions = [];
     for (const orderLine of order.orderLines) {
       subscriptions.push(this.submitPurchase({
-        paidByCard: false,
-        totalPriceExclVat: priceExcludingVAT(orderLine),
-        vatPrice: round(priceIncludingVAT(orderLine) - priceExcludingVAT(orderLine)),
-        totalPriceInclVat: priceIncludingVAT(orderLine),
+        paidByCard,
+        totalPriceExclVat: priceExcludingVAT(orderLineToCalc(orderLine)),
+        vatPrice: round(priceIncludingVAT(orderLineToCalc(orderLine)) - priceExcludingVAT(orderLineToCalc(orderLine))),
+        totalPriceInclVat: priceIncludingVAT(orderLineToCalc(orderLine)),
         amount: orderLine.amount
       }, orderLine.product, buyer, this.storeService.getStore(order.seller)));
     }

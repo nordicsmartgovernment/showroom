@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
 import {InventoryProduct} from './inventory.model';
-import {Order} from '../dashboard/ordering/order-shop/order-shop.component';
+import {Order} from '../dashboard/ordering/order.component';
 
 export class Company {
   name: string;

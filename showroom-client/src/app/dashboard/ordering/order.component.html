@@ -1,0 +1,107 @@
+<div *ngIf="activePage===CREATE_ORDER_PAGE">
+  <mat-table [dataSource]="tableRows">
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+
+
+    <!-- store name -->
+    <ng-container matColumnDef="storeName">
+      <mat-header-cell *matHeaderCellDef>Store</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertItemType(element) as typedElement">
+          {{typedElement.store.name}} ({{typedElement.store.id}})
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Product name -->
+    <ng-container matColumnDef="productName">
+      <mat-header-cell *matHeaderCellDef>Product name</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertItemType(element) as typedElement">
+          {{typedElement.product.itemName}}
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!--Price-->
+    <ng-container matColumnDef="price">
+      <mat-header-cell *matHeaderCellDef>Price incl VAT</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertItemType(element) as typedElement">
+          Price: {{getProductDisplayPrice(typedElement)}}
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!--Amount-->
+    <ng-container matColumnDef="amount">
+      <mat-header-cell *matHeaderCellDef>Amount</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertItemType(element) as typedElement">
+          <div class="amount">
+            <button (click)="adjustAmount(typedElement, -1)" class="btn btn-light">
+              <mat-icon>arrow_left</mat-icon>
+            </button>
+
+            <!--suppress HtmlFormInputWithoutLabel -->
+            <input (ngModelChange)="onInputChanged(typedElement, $event)"
+                   [ngModel]="typedElement.amount"
+                   min="0"
+                   class="amount-input"
+
+                   type="number">
+
+            <button (click)="adjustAmount(typedElement, 1)"
+                    class="btn btn-light amount-button-right">
+              <mat-icon>arrow_right</mat-icon>
+            </button>
+
+            <p>{{typedElement.product.quantityCode}}</p>
+          </div>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+  </mat-table>
+  <button (click)="onReviewOrder()"
+          [disabled]="noProductsAddedToOrder()"
+          class="btn btn-primary btn-review-order">
+    <mat-icon svgIcon="cart-outline"></mat-icon>
+    Continue
+  </button>
+</div>
+
+<div *ngIf="activePage===REVIEW_ORDER_PAGE" class="review-order">
+  <div class="order-details">
+    <h2>Review your order</h2>
+    <div *ngFor="let tableDisplayLine of getActiveOrderLines()" class="order-line">
+      <div class="div">
+        <h3 class="product-title">{{tableDisplayLine.product.itemName}}</h3>
+        <p>Store: {{tableDisplayLine.store.name}} ({{tableDisplayLine.store.id}})</p>
+        <p>Amount: {{tableDisplayLine.amount}} {{tableDisplayLine.product.quantityCode}}</p>
+        <p class="product-price">Price: {{getProductDisplayPrice(tableDisplayLine)}}</p>
+      </div>
+      <div class="div">
+        <p>VAT: {{tableDisplayLine.product.vatRate}} %</p>
+        <p>Total price excluding VAT: {{priceExcludingVAT(tableDisplayLine)}} {{getActingCompanyCurrency()}}</p>
+        <p>Total price including VAT: {{priceExcludingVAT(tableDisplayLine)}} {{getActingCompanyCurrency()}}</p>
+      </div>
+      <hr>
+    </div>
+    <p class="sum-total">Total SUM excl VAT: {{totalSumExclVAT()}} {{getActingCompanyCurrency()}}</p>
+    <p class="sum-total">Total SUM incl VAT: {{totalSumInclVAT()}} {{getActingCompanyCurrency()}}</p>
+  </div>
+
+
+  <div class="nav-bar">
+    <button (click)="onNavigateBack()"
+            class="btn btn-outline-dark btn-submit-order">Go back
+    </button>
+    <button (click)="onSubmitOrder()"
+            class="btn btn-primary continue btn-back">
+      Submit order(s)
+    </button>
+  </div>
+
+</div>
+

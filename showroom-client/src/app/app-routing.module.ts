@@ -10,8 +10,6 @@ import {
   SALES_ROUTE,
   WAREHOUSE_ROUTE
 } from './shared/routing.constants';
-import {ShopsComponent} from './dashboard/purchasing/shops/shops.component';
-import {ShopComponent} from './dashboard/purchasing/shop/shop.component';
 import {OrangebooksComponent} from './dashboard/orangebooks/orangebooks.component';
 import {LoanComponent} from './dashboard/loan/loan.component';
 import {WarehouseComponent} from './dashboard/warehouse/warehouse.component';
@@ -20,9 +18,9 @@ import {PurchasedComponent} from './dashboard/warehouse/purchased/purchased.comp
 import {InventoryComponent} from './dashboard/warehouse/inventory/inventory.component';
 import {OverviewComponent} from './dashboard/warehouse/overview/overview.component';
 import {SalesComponent} from './dashboard/sales/sales.component';
-import {OrderingComponent} from './dashboard/ordering/ordering.component';
-import {OrderShopComponent} from './dashboard/ordering/order-shop/order-shop.component';
-import {OrderShopSelectionComponent} from './dashboard/ordering/order-shop-selection/order-shop-selection.component';
+import {PurchaseShopComponent} from './dashboard/purchasing/purchase-shop/purchase-shop.component';
+import {PurchaseShopSelectionComponent} from './dashboard/purchasing/purchase-shop-selection/purchase-shop-selection.component';
+import {OrderComponent} from './dashboard/ordering/order.component';
 
 
 const routes = [
@@ -30,19 +28,14 @@ const routes = [
   {path: 'dashboard', component: DashboardComponent},
   {
     path: PURCHASING_ROUTE, component: PurchasingComponent, children: [
-      {path: '', component: ShopsComponent},
-      {path: ':id', component: ShopComponent}
+      {path: '', component: PurchaseShopSelectionComponent},
+      {path: ':id', component: PurchaseShopComponent}
     ]
   },
   {path: ORANGEBOOKS_ROUTE, component: OrangebooksComponent},
   {path: LOAN_ROUTE, component: LoanComponent},
   {path: SALES_ROUTE, component: SalesComponent},
-  {
-    path: ORDERING_ROUTE, component: OrderingComponent, children: [
-      {path: '', component: OrderShopSelectionComponent},
-      {path: ':id', component: OrderShopComponent},
-    ]
-  },
+  {path: ORDERING_ROUTE, component: OrderComponent},
   {
     path: WAREHOUSE_ROUTE, component: WarehouseComponent,
     children: [

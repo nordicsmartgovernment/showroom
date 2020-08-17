@@ -4,26 +4,24 @@ import {StoreService} from '../../../shared/store.service';
 import {Product, Store} from '../../../shared/store.model';
 import {CompanyService} from '../../../shared/company.service';
 import {v4 as UUIDv4} from 'uuid';
-import {priceExcludingVAT, priceIncludingVAT, totalSumExclVAT, totalSumInclVAT} from '../../../shared/utils/vatUtil';
-
-export interface Order {
-  orderLines: OrderLine[];
-  orderId: string;
-  buyer?: number;
-  seller?: number;
-}
-
-export interface OrderLine {
-  product: Product;
-  amount: number;
-}
+import {
+  orderLineToCalc,
+  priceExcludingVAT,
+  priceIncludingVAT,
+  totalSumExclVAT,
+  totalSumInclVAT
+} from '../../../shared/utils/vatUtil';
+import {SandboxService} from '../../../shared/sandbox.service';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {PURCHASING_ROUTE} from '../../../shared/routing.constants';
+import {Order, OrderLine} from '../../ordering/order.component';
 
 @Component({
   selector: 'app-order-shop',
-  templateUrl: './order-shop.component.html',
-  styleUrls: ['./order-shop.component.css']
+  templateUrl: './purchase-shop.component.html',
+  styleUrls: ['./purchase-shop.component.css']
 })
-export class OrderShopComponent implements OnInit {
+export class PurchaseShopComponent implements OnInit {
   readonly CREATE_ORDER_PAGE = 'createOrder';
   readonly REVIEW_ORDER_PAGE = 'reviewOrder';
   order: Order;
@@ -34,6 +32,8 @@ export class OrderShopComponent implements OnInit {
 
   constructor(private router: Router,
               private companyService: CompanyService,
+              private snackBar: MatSnackBar,
+              private sandboxService: SandboxService,
               private storeService: StoreService,
               private route: ActivatedRoute) {
   }
@@ -67,10 +67,10 @@ export class OrderShopComponent implements OnInit {
   }
 
   onNavigateBack() {
-    this.router.navigate(['/ordering']);
+    this.router.navigate(['/' + PURCHASING_ROUTE]);
   }
 
-  onReviewOrder() {
+  onReviewPurchase() {
     this.activePage = this.REVIEW_ORDER_PAGE;
   }
 
@@ -79,11 +79,11 @@ export class OrderShopComponent implements OnInit {
   }
 
   priceIncludingVAT(orderLine: OrderLine): number {
-    return priceIncludingVAT(orderLine);
+    return priceIncludingVAT(orderLineToCalc(orderLine));
   }
 
   priceExcludingVAT(orderLine: OrderLine): number {
-    return priceExcludingVAT(orderLine);
+    return priceExcludingVAT(orderLineToCalc(orderLine));
   }
 
   totalSumInclVAT(): number {
@@ -98,12 +98,22 @@ export class OrderShopComponent implements OnInit {
     this.activePage = this.CREATE_ORDER_PAGE;
   }
 
-  onSubmitOrder() {
+  onSubmitOrder(payByCard: boolean) {
+
     this.order.orderLines = this.order.orderLines.filter(orderLine => orderLine.amount > 0);
     this.order.buyer = this.companyService.getActingCompany().id;
     this.order.seller = this.activeStore.id;
-    this.companyService.getCompany(this.route.snapshot.params.id.toString()).orders.push(this.order);
-    this.companyService.saveCompanies();
+    this.sandboxService.submitMultiOrderLinesPurchase(this.order, payByCard)
+      .subscribe(() => {
+        this.onNavigateBackToStore();
+      });
+    this.snackBar.open('Your purchase has been paid, and your order has been fulfilled', 'dismiss', {
+      duration: 10000
+    });
     this.onNavigateBack();
+  }
+
+  noProductsAddedToOrder() {
+    return !this.order.orderLines.some(order => order.amount > 0);
   }
 }

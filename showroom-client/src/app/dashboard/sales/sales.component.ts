@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {Order, OrderLine} from '../ordering/order-shop/order-shop.component';
 import {Company, CompanyService} from '../../shared/company.service';
 import {
   round,
@@ -10,6 +9,7 @@ import {SandboxService} from '../../shared/sandbox.service';
 import {StoreService} from '../../shared/store.service';
 import {Router} from '@angular/router';
 import {Store} from '../../shared/store.model';
+import {Order, OrderLine} from '../ordering/order.component';
 
 @Component({
   selector: 'app-sales',
@@ -44,7 +44,7 @@ export class SalesComponent implements OnInit {
   }
 
   onRejectOrder(index: number) {
-    this.salesOrders.splice(index);
+    this.salesOrders.splice(index, 1);
     this.companyService.saveCompanies();
   }
 

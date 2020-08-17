@@ -5,10 +5,10 @@ import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-order-shop-selection',
-  templateUrl: './order-shop-selection.component.html',
-  styleUrls: ['./order-shop-selection.component.css']
+  templateUrl: './purchase-shop-selection.component.html',
+  styleUrls: ['./purchase-shop-selection.component.css']
 })
-export class OrderShopSelectionComponent implements OnInit {
+export class PurchaseShopSelectionComponent implements OnInit {
   stores: Store[];
 
   constructor(private storeService: StoreService,
