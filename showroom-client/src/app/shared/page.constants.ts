@@ -20,7 +20,7 @@ export const PAGES: Page[] = [
   {title: 'Credit assessment', active: true , description: 'Apply for a loan', route: LOAN_ROUTE},
   {title: 'Warehouse management', active: true, description: 'Manage your wares', route: WAREHOUSE_ROUTE},
   {title: 'Sales', active: true, route: SALES_ROUTE},
-  {title: 'Supplier catalogue', active: true, route: ORDERING_ROUTE},
+  {title: 'Supplier catalogues', active: true, route: ORDERING_ROUTE},
   {title: 'Payroll', active: false},
   {title: 'Bookkeeping transactions', active: false},
   {title: 'Regulatory reporting', active: false},
