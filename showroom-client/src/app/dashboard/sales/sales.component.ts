@@ -85,7 +85,7 @@ export class SalesComponent implements OnInit, OnDestroy {
   onAcceptOrder() {
     this.sandboxService.submitMultiOrderLinesPurchase(this.selectedOrder)
       .subscribe(() => {
-        this.salesOrders.splice(this.selectedOrderNumber);
+        this.salesOrders.splice(this.selectedOrderNumber, 1);
         this.companyService.saveCompanies();
         this.onNavigateBackFromOrder();
       });
