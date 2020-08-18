@@ -1,12 +1,13 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Product, Store} from '../../shared/store.model';
 import {StoreService} from '../../shared/store.service';
 import {Router} from '@angular/router';
 import {CurrencyService} from '../../shared/currency.service';
 import {OrderCalc, priceExcludingVAT, priceIncludingVAT, round} from '../../shared/utils/vatUtil';
 import {SandboxService} from '../../shared/sandbox.service';
-import {CompanyService} from '../../shared/company.service';
+import {Company, CompanyService} from '../../shared/company.service';
 import {v4 as UUIDv4} from 'uuid';
+import {Subscription} from 'rxjs';
 
 export interface Order {
   orderLines: OrderLine[];
@@ -25,13 +26,7 @@ export interface OrderLine {
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
 })
-export class OrderComponent implements OnInit {
-  stores: Store[];
-  tableRows: ProductDisplayElement[];
-  displayedColumns: string[] = ['productName', 'price', 'storeName', 'amount'];
-  readonly CREATE_ORDER_PAGE = 'createOrder';
-  readonly REVIEW_ORDER_PAGE = 'reviewOrder';
-  activePage = this.CREATE_ORDER_PAGE;
+export class OrderComponent implements OnInit, OnDestroy{
 
   constructor(private storeService: StoreService,
               private router: Router,
@@ -39,13 +34,32 @@ export class OrderComponent implements OnInit {
               private companyService: CompanyService,
               private currencyService: CurrencyService) {
   }
+  stores: Store[];
+  tableRows: ProductDisplayElement[];
+  displayedColumns: string[] = ['productName', 'price', 'storeName', 'amount'];
+  readonly CREATE_ORDER_PAGE = 'createOrder';
+  readonly REVIEW_ORDER_PAGE = 'reviewOrder';
+  activePage = this.CREATE_ORDER_PAGE;
+  actingCompany: Company;
+
+  private actingCompanySubscription: Subscription;
+
+  ngOnDestroy(): void {
+        this.actingCompanySubscription.unsubscribe();
+    }
 
   ngOnInit(): void {
     this.stores = this.storeService.getStores();
-    this.tableRows = this.getStoreCatalogue();
+    this.actingCompany = this.companyService.getActingCompany();
+    this.onActingCompanyChanged();
+    this.actingCompanySubscription = this.companyService.actingCompanyChanged.subscribe(company => {
+      this.actingCompany = company;
+      this.onActingCompanyChanged();
+    });
+
   }
 
-  getStoreCatalogue(): ProductDisplayElement[] {
+  getStoreCatalogueProducts(): ProductDisplayElement[] {
     const catalogue: ProductDisplayElement[] = [];
     this.stores.forEach(store => {
       store.storeProductSelection.forEach(product => {
@@ -163,6 +177,11 @@ export class OrderComponent implements OnInit {
 
   private clearAmounts() {
     this.tableRows.forEach(row => row.amount = 0);
+  }
+
+  private onActingCompanyChanged() {
+    this.tableRows = this.getStoreCatalogueProducts()
+      .filter(row => row.store.id !== this.companyService.getActingCompany().id);
   }
 }
 

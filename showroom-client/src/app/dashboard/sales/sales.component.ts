@@ -1,22 +1,19 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Company, CompanyService} from '../../shared/company.service';
-import {
-  round,
-  totalSumExclVAT,
-  totalSumInclVAT
-} from '../../shared/utils/vatUtil';
+import {round, totalSumExclVAT, totalSumInclVAT} from '../../shared/utils/vatUtil';
 import {SandboxService} from '../../shared/sandbox.service';
 import {StoreService} from '../../shared/store.service';
 import {Router} from '@angular/router';
 import {Store} from '../../shared/store.model';
 import {Order, OrderLine} from '../ordering/order.component';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-sales',
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
 })
-export class SalesComponent implements OnInit {
+export class SalesComponent implements OnInit, OnDestroy {
   readonly REVIEW_SALES_PAGE = 'reviewSales';
   readonly REVIEW_SALE_PAGE = 'reviewSale';
   activePage = this.REVIEW_SALES_PAGE;
@@ -25,6 +22,7 @@ export class SalesComponent implements OnInit {
   selectedOrder: Order;
   private selectedOrderNumber: number;
   private actingCompany: Company;
+  private actingCompanySubscription: Subscription;
 
   constructor(private companyService: CompanyService,
               private router: Router,
@@ -32,11 +30,15 @@ export class SalesComponent implements OnInit {
               private sandboxService: SandboxService) {
   }
 
+  ngOnDestroy(): void {
+    this.actingCompanySubscription.unsubscribe();
+  }
+
   ngOnInit(): void {
     this.onCompanyChanged(this.companyService.getActingCompany());
     this.salesOrders = this.actingCompany.orders;
 
-    this.companyService.actingCompanyChanged.subscribe(
+    this.actingCompanySubscription = this.companyService.actingCompanyChanged.subscribe(
       company => {
         this.onCompanyChanged(company);
       }
