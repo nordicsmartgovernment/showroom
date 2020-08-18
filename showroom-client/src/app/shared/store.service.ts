@@ -1,14 +1,48 @@
 import {Injectable} from '@angular/core';
 import {Store} from './store.model';
-import {BEST_POWER_TOOLS, BUILDERS_PARADISE, FRUIT_4_YOU} from './company.service';
+import {BEST_POWER_TOOLS, BUILDERS_PARADISE, CompanyService, FRUIT_4_YOU} from './company.service';
+import {InventoryProduct} from './inventory.model';
+import {formatDate} from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StoreService {
+  private readonly HAS_INITIALIZED_KEY = 'hasInitializedStoreInventory';
 
-  constructor() {
+  constructor(private companyService: CompanyService) {
+    this.initializeStoreInventory(companyService);
   }
+
+  private initializeStoreInventory(companyService: CompanyService) {
+    const hasInitialized = localStorage.getItem(this.HAS_INITIALIZED_KEY);
+    if (!hasInitialized || hasInitialized !== 'true') {
+      this.getStores()
+        .forEach(store => {
+          const company = companyService.getCompany(store.id);
+          company.inventory = this.createStoreBaseInventoryStock(store);
+          companyService.saveCompanies();
+        });
+      localStorage.setItem(this.HAS_INITIALIZED_KEY, 'true');
+    }
+  }
+
+  createStoreBaseInventoryStock(store: Store): InventoryProduct[] {
+    return store.storeProductSelection.map(product => {
+        // number between 20 and 100 divisible by 10
+        const amount = Math.round(Math.random() * 8) * 10 + 20;
+
+        return new InventoryProduct(
+          product.itemName,
+          amount,
+          product.quantityCode,
+          product.price * amount,
+          store.currency,
+          parseInt(formatDate(new Date(), 'yyyyMMdd', 'en-en'), 10));
+      }
+    );
+  }
+
 
   getStores(): Store[] {
     // Static stores - should be parsed from XMl later

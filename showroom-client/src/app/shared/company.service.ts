@@ -51,9 +51,6 @@ export const BEST_POWER_TOOLS = new Company({
   postCodeIdentifier: '0660',
   streetName: 'Verktøygata 1',
   townName: 'Oslo',
-  inventory: [
-    new InventoryProduct('Circular Saw', 100, 'PCS', 5250, 'NOK', 20200729)
-  ]
 });
 export const BUILDERS_PARADISE = new Company({
   id: 994023491,

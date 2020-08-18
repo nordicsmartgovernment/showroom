@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
+import {Component} from '@angular/core';
+import {MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -10,11 +10,24 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class AppComponent {
   title = 'NGS Showroom';
 
+  // used to clear the local storage if there is a new version of the showroom
+  private readonly CURRENT_DATA_VERSION = 1;
+  private readonly DATA_VERSION_KEY = 'DATA_VERSION';
+
   constructor(private matIconRegistry: MatIconRegistry,
               private domSanitizer: DomSanitizer) {
     matIconRegistry.addSvgIconSet(
       domSanitizer.bypassSecurityTrustResourceUrl('/assets/mdi.svg')
     );
+    this.checkDataVersion();
   }
 
+  // Clears local data if they are not from the current version.
+  private checkDataVersion() {
+    const dataVersion = localStorage.getItem(this.DATA_VERSION_KEY);
+    if (!dataVersion || +dataVersion < this.CURRENT_DATA_VERSION) {
+      localStorage.clear();
+      localStorage.setItem(this.DATA_VERSION_KEY, '' + this.CURRENT_DATA_VERSION);
+    }
+  }
 }
