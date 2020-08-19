@@ -15,6 +15,7 @@ import {SandboxService} from '../../../shared/sandbox.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {PURCHASING_ROUTE} from '../../../shared/routing.constants';
 import {Order, OrderLine} from '../../ordering/order.component';
+import {SNACKBAR} from '../../../shared/snackbar-texts';
 
 @Component({
   selector: 'app-order-shop',
@@ -107,8 +108,11 @@ export class PurchaseShopComponent implements OnInit {
       .subscribe(() => {
         this.onNavigateBackToStore();
       });
-    this.snackBar.open('Your purchase has been paid, and your order has been fulfilled', 'dismiss', {
-      duration: 10000
+    this.snackBar.open(SNACKBAR.purchased, SNACKBAR.purchasedAction, {
+      duration: SNACKBAR.purchasedDisplayDurationMS
+    }).onAction()
+      .subscribe(() => {
+      this.router.navigate(['/warehouse/purchased']);
     });
     this.onNavigateBack();
   }

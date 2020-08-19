@@ -8,6 +8,7 @@ import {SandboxService} from '../../shared/sandbox.service';
 import {Company, CompanyService} from '../../shared/company.service';
 import {v4 as UUIDv4} from 'uuid';
 import {Subscription} from 'rxjs';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 export interface Order {
   orderLines: OrderLine[];
