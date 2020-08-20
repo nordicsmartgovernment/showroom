@@ -11,6 +11,7 @@ import {InventoryProduct} from './inventory.model';
 import {orderLineToCalc, priceExcludingVAT, priceIncludingVAT, round} from './utils/vatUtil';
 import {StoreService} from './store.service';
 import {Order} from '../dashboard/ordering/order.component';
+import {CurrencyService} from './currency.service';
 
 
 const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
@@ -52,6 +53,7 @@ export class SandboxService {
 
   constructor(private http: HttpClient,
               private storeService: StoreService,
+              private currencyService: CurrencyService,
               private companyService: CompanyService) {
     this.getTemplate('bankStatementPurchaseTemplate.xml', template => this.bankStatementTemplate = template);
     this.getTemplate('bankStatementLoanTemplate.xml', template => this.bankLoanStatementTemplate = template);
@@ -160,6 +162,8 @@ export class SandboxService {
 
 
     // Buyer bank statement
+    const totalPriceInclVatBuyer = this.currencyService
+      .convertCurrency(purchase.totalPriceInclVat, seller.currency, buyer.country);
     const buyerStatementInfo = {
       $MessageID$: this.randomString(),
       $CompanyName$: buyer.name,
@@ -172,10 +176,10 @@ export class SandboxService {
       $DateTimePurchaseFrom$: twoMinBeforeNowISOString,
       $DateTimePurchaseTo$: oneMinBeforeNowISOString,
       $TransactionType$: 'DBIT',
-      $TotalDebit$: '' + purchase.totalPriceInclVat,
+      $TotalDebit$: '' + totalPriceInclVatBuyer,
       $TotalCredit$: '0.00',
-      $TotalPrice$: '' + purchase.totalPriceInclVat,
-      $Currency$: seller.currency,
+      $TotalPrice$: '' + totalPriceInclVatBuyer,
+      $Currency$: this.currencyService.getCurrency(buyer.country),
       $InvoiceID$: invoiceId,
       $PaymentReference$: paymentReference
     };

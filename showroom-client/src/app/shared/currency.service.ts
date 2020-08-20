@@ -31,22 +31,28 @@ export class CurrencyService {
   }
 
   convertToActingCompanyCurrency(amount: number, fromConutryOrCurrency: string): number {
-    let currency;
-    if (this.countryCurrencymap.get(fromConutryOrCurrency)) {
-      currency = this.countryCurrencymap.get(fromConutryOrCurrency);
-    } else {
-      currency = fromConutryOrCurrency;
-    }
+    const currency = this.getCurrency(fromConutryOrCurrency);
     const toCurrency = this.getActingCompanyCurrency();
     return this.convertCurrency(amount, toCurrency, currency);
   }
 
-  convertCurrency(amount: number, fromCurrency: string, toCurrency: string): number {
+  convertCurrency(amount: number, fromCurrencyOrCountry: string,
+                  toCurrencyOrCountry: string): number {
+    const fromCurrency = this.getCurrency(fromCurrencyOrCountry);
+    const toCurrency = this.getCurrency(toCurrencyOrCountry);
     return round((amount * this.currencyEuroValue.get(toCurrency)) / this.currencyEuroValue.get(fromCurrency));
   }
 
   getActingCompanyCurrency() {
     return this.countryCurrencymap.get(this.actingCompany.country);
+  }
+
+  getCurrency(countryOrCurrency: string) {
+    if (this.countryCurrencymap.get(countryOrCurrency)) {
+      return this.countryCurrencymap.get(countryOrCurrency);
+    } else {
+      return countryOrCurrency;
+    }
   }
 }
 
