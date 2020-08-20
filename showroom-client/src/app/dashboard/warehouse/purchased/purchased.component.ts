@@ -4,6 +4,7 @@ import {InventoryService} from '../../../shared/inventory.service';
 import {Company, CompanyService} from '../../../shared/company.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {InventoryProduct} from '../../../shared/inventory.model';
+import {CurrencyService} from '../../../shared/currency.service';
 
 @Component({
   selector: 'app-purchased',
@@ -20,6 +21,7 @@ export class PurchasedComponent implements OnInit, OnDestroy {
 
   constructor(private sandboxService: SandboxService,
               private router: Router,
+              private currencyService: CurrencyService,
               private route: ActivatedRoute,
               private inventoryService: InventoryService,
               private companyService: CompanyService) {
@@ -70,5 +72,14 @@ export class PurchasedComponent implements OnInit, OnDestroy {
 
   navigateBack() {
     this.router.navigate(['/warehouse']);
+  }
+
+
+  convertToCompanyCurrency(i: InventoryProduct): number {
+    return this.currencyService.convertToActingCompanyCurrency(i.price, i.currency);
+  }
+
+  companyCurrency(): string {
+    return this.currencyService.getActingCompanyCurrency();
   }
 }

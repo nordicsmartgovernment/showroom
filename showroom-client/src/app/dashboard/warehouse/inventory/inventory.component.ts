@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {InventoryService} from '../../../shared/inventory.service';
 import {InventoryProduct} from '../../../shared/inventory.model';
+import {CurrencyService} from '../../../shared/currency.service';
 
 @Component({
   selector: 'app-inventory',
@@ -13,6 +14,7 @@ export class InventoryComponent implements OnInit {
   inventory: InventoryProduct[];
 
   constructor(private router: Router,
+              private currencyService: CurrencyService,
               private inventoryService: InventoryService) {
   }
 
@@ -56,5 +58,13 @@ export class InventoryComponent implements OnInit {
 
   private inventoryChanged() {
     this.inventoryService.pushInventoryChangedEvent();
+  }
+
+  convertToCompanyCurrency(i: InventoryProduct): number {
+    return this.currencyService.convertToActingCompanyCurrency(i.price, i.currency);
+  }
+
+  companyCurrency(): string {
+    return this.currencyService.getActingCompanyCurrency();
   }
 }

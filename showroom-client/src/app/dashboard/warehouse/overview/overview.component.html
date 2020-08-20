@@ -21,7 +21,7 @@
         <p>{{i.amount}} {{i.amountUnit}}</p>
       </div>
       <div class="col col-sm-3">
-        <p>{{i.price}} {{i.currency}}</p>
+        <p>{{convertToCompanyCurrency(i)}} {{companyCurrency()}}</p>
       </div>
     </div>
   </div>
