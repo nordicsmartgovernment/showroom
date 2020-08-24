@@ -4,6 +4,12 @@ import {InventoryProduct} from './inventory.model';
 import {Order} from '../dashboard/ordering/order.component';
 
 export class Company {
+
+  static readonly EU_COUNTRY_CODES = [
+    'BE', 'EL', 'LT', 'PT', 'BG', 'ES', 'LU', 'RO', 'CZ',
+    'FR', 'HU', 'SI', 'DK', 'HR', 'MT', 'SK', 'DE', 'IT',
+    'NL', 'FI', 'EE', 'CY', 'AT', 'SE', 'IE', 'LV', 'PL',
+  ];
   name: string;
   id: number;
   vatId: string;
@@ -39,6 +45,9 @@ export class Company {
     if (inventory) {
       this.inventory = inventory;
     }
+  }
+  isInTheEU(): boolean {
+    return Company.EU_COUNTRY_CODES.includes(this.country);
   }
 }
 

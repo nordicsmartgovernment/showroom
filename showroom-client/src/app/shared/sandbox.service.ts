@@ -236,9 +236,23 @@ export class SandboxService {
     } else { // eInvoice
       const finvoice = new EInvoice();
       const eInvoiceModel = finvoice.Finvoice;
-      eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
-      const eInvoiceXmlString = this.objectToXml(finvoice);
 
+
+      if (seller.country !== buyer.country) {
+        if (seller.isInTheEU() && buyer.isInTheEU()) {
+          eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
+          eInvoiceModel.InvoiceDetails.VatSpecificationDetails.VatCode = 'AE';
+        } else {
+          purchase.vatPrice = 0;
+          purchase.totalPriceInclVat = purchase.totalPriceExclVat;
+          product.vatRate = 0;
+          eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
+        }
+      } else {
+        eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
+      }
+
+      const eInvoiceXmlString = this.objectToXml(finvoice);
       console.log('eInvoice:');
       console.log(eInvoiceXmlString);
 
