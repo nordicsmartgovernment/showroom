@@ -21,8 +21,4 @@ export const PAGES: Page[] = [
   {title: 'Warehouse management', active: true, description: 'Manage your wares', route: WAREHOUSE_ROUTE},
   {title: 'Supplier catalogues', active: true, route: ORDERING_ROUTE},
   {title: 'Sales', active: true, route: SALES_ROUTE},
-  {title: 'Payroll', active: false},
-  {title: 'Bookkeeping transactions', active: false},
-  {title: 'Regulatory reporting', active: false},
-  {title: 'Customer/supplier statistics', active: false}
 ];
