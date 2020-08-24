@@ -24,6 +24,19 @@
         <p>{{convertToCompanyCurrency(i)}} {{companyCurrency()}}</p>
       </div>
     </div>
+    <hr *ngIf="getPendingOrders().length !== 0">
+    <div class="row inventory-row" *ngFor="let i of getPendingOrders(); let index = index"
+         [classList]="index%2===0? 'row inventory-row dark-row' : 'row inventory-row light-row'">
+      <div class="col col-sm-6">
+        <p>{{i.name}} (Pending order)</p>
+      </div>
+      <div class="col col-sm-3">
+        <p>{{i.amount}} {{i.amountUnit}}</p>
+      </div>
+      <div class="col col-sm-3">
+        <p>{{convertToCompanyCurrency(i)}} {{companyCurrency()}}</p>
+      </div>
+    </div>
   </div>
   <div class="rightButtonMenu">
     <button class="btn btn-primary"

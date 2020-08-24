@@ -35,6 +35,11 @@ export interface PurchaseDescription {
 })
 export class SandboxService {
 
+  readonly EU_COUNTRY_CODES = [
+    'BE', 'EL', 'LT', 'PT', 'BG', 'ES', 'LU', 'RO', 'CZ',
+    'FR', 'HU', 'SI', 'DK', 'HR', 'MT', 'SK', 'DE', 'IT',
+    'NL', 'FI', 'EE', 'CY', 'AT', 'SE', 'IE', 'LV', 'PL',
+  ];
   private bankStatementTemplate: string;
   private bankLoanStatementTemplate: string;
   private eReceiptTemplate: string;
@@ -88,6 +93,10 @@ export class SandboxService {
       product.amount >= 0 &&
       product.price &&
       product.price >= 0;
+  }
+
+  isInTheEU(company: Company): boolean {
+    return this.EU_COUNTRY_CODES.includes(company.country);
   }
 
   postDocument(companyId: number, documentType: string, payload: string) {
@@ -239,7 +248,7 @@ export class SandboxService {
 
 
       if (seller.country !== buyer.country) {
-        if (seller.isInTheEU() && buyer.isInTheEU()) {
+        if (this.isInTheEU(seller) && this.isInTheEU(buyer)) {
           eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
           eInvoiceModel.InvoiceDetails.VatSpecificationDetails.VatCode = 'AE';
         } else {
