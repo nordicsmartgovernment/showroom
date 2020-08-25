@@ -1,34 +1,38 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {StoreService} from '../../../shared/store.service';
 import {Product, Store} from '../../../shared/store.model';
-import {CompanyService} from '../../../shared/company.service';
+import {Company, CompanyService} from '../../../shared/company.service';
 import {v4 as UUIDv4} from 'uuid';
 import {
   orderLineToCalc,
   priceExcludingVAT,
   priceIncludingVAT,
   totalSumExclVAT,
-  totalSumInclVAT
+  totalSumInclVAT,
+  vatDetailsBetweenTwoCountries
 } from '../../../shared/utils/vatUtil';
 import {SandboxService} from '../../../shared/sandbox.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {PURCHASING_ROUTE} from '../../../shared/routing.constants';
 import {Order, OrderLine} from '../../ordering/order.component';
 import {SNACKBAR} from '../../../shared/snackbar-texts';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-order-shop',
   templateUrl: './purchase-shop.component.html',
   styleUrls: ['./purchase-shop.component.css']
 })
-export class PurchaseShopComponent implements OnInit {
+export class PurchaseShopComponent implements OnInit, OnDestroy {
   readonly CREATE_ORDER_PAGE = 'createOrder';
   readonly REVIEW_ORDER_PAGE = 'reviewOrder';
   order: Order;
   orderLines: OrderLine[];
   activePage = this.CREATE_ORDER_PAGE;
   activeStore: Store;
+  private actingCompany: Company;
+  private actingCompanySubscription: Subscription;
 
 
   constructor(private router: Router,
@@ -42,6 +46,9 @@ export class PurchaseShopComponent implements OnInit {
   ngOnInit(): void {
     this.orderLines = [];
     this.activeStore = this.storeService.getStore(this.route.snapshot.params.id);
+    this.actingCompany = this.companyService.getActingCompany();
+    this.actingCompanySubscription = this.companyService.actingCompanyChanged
+      .subscribe(company => this.actingCompany = company);
     this.order = {
       orderLines: this.orderLines,
       orderId: UUIDv4(),
@@ -80,7 +87,7 @@ export class PurchaseShopComponent implements OnInit {
   }
 
   priceIncludingVAT(orderLine: OrderLine): number {
-    return priceIncludingVAT(orderLineToCalc(orderLine));
+    return priceIncludingVAT(orderLineToCalc(orderLine), this.actingCompany.country, this.activeStore.country);
   }
 
   priceExcludingVAT(orderLine: OrderLine): number {
@@ -88,7 +95,7 @@ export class PurchaseShopComponent implements OnInit {
   }
 
   totalSumInclVAT(): number {
-    return totalSumInclVAT(this.order);
+    return totalSumInclVAT(this.order, this.actingCompany.country, this.activeStore.country);
   }
 
   totalSumExclVAT(): number {
@@ -112,12 +119,21 @@ export class PurchaseShopComponent implements OnInit {
       duration: SNACKBAR.purchasedDisplayDurationMS
     }).onAction()
       .subscribe(() => {
-      this.router.navigate(['/warehouse/purchased']);
-    });
+        this.router.navigate(['/warehouse/purchased']);
+      });
     this.onNavigateBack();
   }
 
   noProductsAddedToOrder() {
     return !this.order.orderLines.some(order => order.amount > 0);
+  }
+
+  vatRate(orderLine: OrderLine): number {
+    const includeVat = vatDetailsBetweenTwoCountries(this.actingCompany.country, this.activeStore.country).includeVat;
+    return includeVat ? orderLine.product.vatRate : 0;
+  }
+
+  ngOnDestroy(): void {
+    this.actingCompanySubscription.unsubscribe();
   }
 }

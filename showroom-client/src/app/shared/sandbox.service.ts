@@ -34,12 +34,6 @@ export interface PurchaseDescription {
   providedIn: 'root'
 })
 export class SandboxService {
-
-  readonly EU_COUNTRY_CODES = [
-    'BE', 'EL', 'LT', 'PT', 'BG', 'ES', 'LU', 'RO', 'CZ',
-    'FR', 'HU', 'SI', 'DK', 'HR', 'MT', 'SK', 'DE', 'IT',
-    'NL', 'FI', 'EE', 'CY', 'AT', 'SE', 'IE', 'LV', 'PL',
-  ];
   private bankStatementTemplate: string;
   private bankLoanStatementTemplate: string;
   private eReceiptTemplate: string;
@@ -95,10 +89,6 @@ export class SandboxService {
       product.price >= 0;
   }
 
-  isInTheEU(company: Company): boolean {
-    return this.EU_COUNTRY_CODES.includes(company.country);
-  }
-
   postDocument(companyId: number, documentType: string, payload: string) {
     return this.http.post(SANDBOX_URL + DOCUMENTS_PATH + companyId, payload, {
       headers: new HttpHeaders({'Content-Type': documentType})
@@ -144,18 +134,20 @@ export class SandboxService {
     const buyer = this.companyService.getCompany(order.buyer);
     const subscriptions = [];
     for (const orderLine of order.orderLines) {
+      const seller = this.storeService.getStore(order.seller);
+      const priceInclVat = priceIncludingVAT(orderLineToCalc(orderLine), buyer.country, seller.country);
       subscriptions.push(this.submitPurchase({
         paidByCard,
         totalPriceExclVat: priceExcludingVAT(orderLineToCalc(orderLine)),
-        vatPrice: round(priceIncludingVAT(orderLineToCalc(orderLine)) - priceExcludingVAT(orderLineToCalc(orderLine))),
-        totalPriceInclVat: priceIncludingVAT(orderLineToCalc(orderLine)),
+        vatPrice: round(priceInclVat - priceExcludingVAT(orderLineToCalc(orderLine))),
+        totalPriceInclVat: priceInclVat,
         amount: orderLine.amount
-      }, orderLine.product, buyer, this.storeService.getStore(order.seller)));
+      }, orderLine.product, buyer, seller));
     }
     return forkJoin(...subscriptions);
   }
 
-  submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Store): Observable<any[]> {
+  private submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Store): Observable<any[]> {
     // This template-style XML generation is a quick-fix - it would be preferable to generate from
     // objects using some library
 
@@ -245,27 +237,10 @@ export class SandboxService {
     } else { // eInvoice
       const finvoice = new EInvoice();
       const eInvoiceModel = finvoice.Finvoice;
-
-
-      if (seller.country !== buyer.country) {
-        if (this.isInTheEU(seller) && this.isInTheEU(buyer)) {
-          eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
-          eInvoiceModel.InvoiceDetails.VatSpecificationDetails.VatCode = 'AE';
-        } else {
-          purchase.vatPrice = 0;
-          purchase.totalPriceInclVat = purchase.totalPriceExclVat;
-          product.vatRate = 0;
-          eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
-        }
-      } else {
-        eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
-      }
-
+      eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
       const eInvoiceXmlString = this.objectToXml(finvoice);
       console.log('eInvoice:');
       console.log(eInvoiceXmlString);
-
-
       buyerDocumentRequest = this.postDocument(buyer.id, PURCHASE_INVOICE_TYPE, eInvoiceXmlString);
       sellerDocumentRequest = this.postDocument(seller.id, SALES_INVOICE_TYPE, eInvoiceXmlString);
     }

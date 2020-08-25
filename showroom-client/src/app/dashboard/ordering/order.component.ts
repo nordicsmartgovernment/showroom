@@ -3,7 +3,13 @@ import {Product, Store} from '../../shared/store.model';
 import {StoreService} from '../../shared/store.service';
 import {Router} from '@angular/router';
 import {CurrencyService} from '../../shared/currency.service';
-import {OrderCalc, priceExcludingVAT, priceIncludingVAT, round} from '../../shared/utils/vatUtil';
+import {
+  OrderCalc,
+  priceExcludingVAT,
+  priceIncludingVAT,
+  round,
+  vatDetailsBetweenTwoCountries
+} from '../../shared/utils/vatUtil';
 import {SandboxService} from '../../shared/sandbox.service';
 import {Company, CompanyService} from '../../shared/company.service';
 import {v4 as UUIDv4} from 'uuid';
@@ -26,14 +32,8 @@ export interface OrderLine {
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
 })
-export class OrderComponent implements OnInit, OnDestroy{
+export class OrderComponent implements OnInit, OnDestroy {
 
-  constructor(private storeService: StoreService,
-              private router: Router,
-              private sandboxService: SandboxService,
-              private companyService: CompanyService,
-              private currencyService: CurrencyService) {
-  }
   stores: Store[];
   tableRows: ProductDisplayElement[];
   displayedColumns: string[] = ['productName', 'price', 'storeName', 'amount'];
@@ -41,12 +41,18 @@ export class OrderComponent implements OnInit, OnDestroy{
   readonly REVIEW_ORDER_PAGE = 'reviewOrder';
   activePage = this.CREATE_ORDER_PAGE;
   actingCompany: Company;
-
   private actingCompanySubscription: Subscription;
 
+  constructor(private storeService: StoreService,
+              private router: Router,
+              private sandboxService: SandboxService,
+              private companyService: CompanyService,
+              private currencyService: CurrencyService) {
+  }
+
   ngOnDestroy(): void {
-        this.actingCompanySubscription.unsubscribe();
-    }
+    this.actingCompanySubscription.unsubscribe();
+  }
 
   ngOnInit(): void {
     this.stores = this.storeService.getStores();
@@ -100,7 +106,8 @@ export class OrderComponent implements OnInit, OnDestroy{
   }
 
   priceIncludingVAT(orderLine: ProductDisplayElement): number {
-    const price = priceIncludingVAT(this.displayElementToOrderCalc(orderLine));
+    const price =
+      priceIncludingVAT(this.displayElementToOrderCalc(orderLine), this.actingCompany.country, orderLine.store.country);
     return this.currencyService.convertToActingCompanyCurrency(price, orderLine.store.currency);
   }
 
@@ -173,6 +180,11 @@ export class OrderComponent implements OnInit, OnDestroy{
         tableDisplayLine.product.price,
         tableDisplayLine.store.currency);
     return `${displayAmount} ${this.getActingCompanyCurrency()}`;
+  }
+
+  vatRate(orderLine: ProductDisplayElement): number {
+    const includeVat = vatDetailsBetweenTwoCountries(this.actingCompany.country, orderLine.store.country).includeVat;
+    return includeVat ? orderLine.product.vatRate : 0;
   }
 
   private clearAmounts() {

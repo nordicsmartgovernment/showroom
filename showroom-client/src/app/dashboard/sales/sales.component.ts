@@ -20,9 +20,13 @@ export class SalesComponent implements OnInit, OnDestroy {
   salesOrders: Order[];
   actingStore: Store;
   selectedOrder: Order;
+  reInvoice: boolean;
   private selectedOrderNumber: number;
   private actingCompany: Company;
   private actingCompanySubscription: Subscription;
+  ownOrderLines: OrderLine[] = [];
+  reAssignedOrderLines: OrderLine[] = [];
+  selectedReinvoiceCompany: number;
 
   constructor(private companyService: CompanyService,
               private router: Router,
@@ -99,4 +103,31 @@ export class SalesComponent implements OnInit, OnDestroy {
     }
     this.salesOrders = company.orders;
   }
+/*
+  toggleReinvoiceView() {
+    this.reInvoice = !this.reInvoice;
+    this.ownOrderLines = this.selectedOrder.orderLines.slice();
+    this.reAssignedOrderLines = [];
+  }
+
+  otherCompaniesAndNotBuyer(): Company[] {
+    return this.companyService.getAllCompanies()
+      .filter(company => company.id !== this.actingCompany.id && company.id !== this.selectedOrder.buyer);
+  }
+
+  dropInto(event: CdkDragDrop<OrderLine[], any>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex);
+    }
+  }
+
+  onSelectReinvoiceCompany(selectedCompany: number) {
+    this.ownOrderLines = this.selectedOrder.orderLines.slice();
+    this.reAssignedOrderLines = [];
+  }*/
 }

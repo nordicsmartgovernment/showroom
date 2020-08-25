@@ -82,7 +82,7 @@
         <p class="product-price">Price: {{getProductDisplayPrice(tableDisplayLine)}}</p>
       </div>
       <div class="div">
-        <p>VAT: {{tableDisplayLine.product.vatRate}} %</p>
+        <p>VAT: {{vatRate(tableDisplayLine)}} %</p>
         <p>Total price excluding VAT: {{priceExcludingVAT(tableDisplayLine)}} {{getActingCompanyCurrency()}}</p>
         <p>Total price including VAT: {{priceExcludingVAT(tableDisplayLine)}} {{getActingCompanyCurrency()}}</p>
       </div>

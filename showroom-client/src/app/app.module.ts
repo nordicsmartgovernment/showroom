@@ -35,6 +35,8 @@ import {PurchaseShopSelectionComponent} from './dashboard/purchasing/purchase-sh
 import {MatTreeModule} from '@angular/material/tree';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatTableModule} from '@angular/material/table';
+import {MatSelectModule} from '@angular/material/select';
+import {DragDropModule} from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -73,7 +75,9 @@ import {MatTableModule} from '@angular/material/table';
     MatProgressSpinnerModule,
     ScrollingModule,
     MatTreeModule,
-    MatTableModule
+    MatTableModule,
+    MatSelectModule,
+    DragDropModule
   ],
   entryComponents: [],
   providers: [MatIconRegistry, MatSnackBar],

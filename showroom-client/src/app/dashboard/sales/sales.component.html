@@ -1,4 +1,4 @@
-<div class="orders-review" *ngIf="activePage === REVIEW_SALES_PAGE">
+<div *ngIf="activePage === REVIEW_SALES_PAGE" class="orders-review">
   <h3>Review incoming orders</h3>
   <div style="overflow:auto">
   </div>
@@ -26,24 +26,75 @@
       <td><p class="table-text">{{getBuyer(i.buyer).name}} ({{getBuyer(i.buyer).id}})
         <p></td>
       <td>
-        <p class="table-text">{{getBuyer(i.buyer).streetName}}, {{getBuyer(i.buyer).postCodeIdentifier}}, {{getBuyer(i.buyer).townName}}
+        <p class="table-text">{{getBuyer(i.buyer).streetName}}, {{getBuyer(i.buyer).postCodeIdentifier}}
+          , {{getBuyer(i.buyer).townName}}
         <p>
       </td>
       <td>
-        <button class="btn btn-primary" (click)="onReviewOrder(index)">Accept and finalize order</button>
-        <button class="btn btn-danger" (click)="onRejectOrder(index)">Reject</button>
+        <button (click)="onReviewOrder(index)" class="btn btn-primary">Accept and finalize order</button>
+        <button (click)="onRejectOrder(index)" class="btn btn-danger">Reject</button>
       </td>
     </tr>
     </tbody>
   </table>
 </div>
-<div class="order-review" *ngIf="activePage === REVIEW_SALE_PAGE">
+
+
+<div *ngIf="activePage === REVIEW_SALE_PAGE" class="order-review">
   <h3>Sales details</h3>
+
+  <!--
+  <button (click)="toggleReinvoiceView()" class="btn btn-primary">Re-invoice</button>
+  <mat-form-field appearance="fill">
+    <mat-label>Select company to re-invoice to</mat-label>
+    <mat-select (selectionChange)="onSelectReinvoiceCompany($event.value)" [(ngModel)]="selectedReinvoiceCompany">
+      <mat-option *ngFor="let company of otherCompaniesAndNotBuyer()"
+                  [value]="company.id">
+        {{company.name}} ({{company.id}})
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+
+  <div *ngIf="selectedReinvoiceCompany">
+
+    <div class="orderline-container">
+      <h2>Your order lines</h2>
+
+      <div
+        #ownOrderLinesList="cdkDropList"
+        (cdkDropListDropped)="dropInto($event)"
+        [cdkDropListConnectedTo]="[reAssignedOrderLinesList]"
+        [cdkDropListData]="ownOrderLines"
+        cdkDropList
+        class="drop-list">
+        <div *ngFor="
+        let orderLine of ownOrderLines" cdkDrag class="drag-drop-box">
+          {{orderLine.amount}} {{orderLine.product.itemName}}</div>
+      </div>
+    </div>
+  </div>
+  <div class="orderline-container">
+    <h2>Other company order lines</h2>
+
+    <div
+      #reAssignedOrderLinesList="cdkDropList"
+      (cdkDropListDropped)="dropInto($event)"
+      [cdkDropListConnectedTo]="[ownOrderLinesList]"
+      [cdkDropListData]="reAssignedOrderLines"
+      cdkDropList
+      class="drop-list">
+      <div *ngFor="let orderLine of reAssignedOrderLines" cdkDrag class="drag-drop-box">
+        {{orderLine.amount}} {{orderLine.product.itemName}}</div>
+    </div>
+  </div>
+  -->
   <h2>Order Lines:</h2>
   <div *ngFor="let orderLine of selectedOrder.orderLines">
     <p>{{orderDisplayText(orderLine)}}</p>
     <hr>
   </div>
+
   <p>Amount net: {{totalSumExclVAT()}} {{actingStore.currency}}</p>
   <p>VAT: {{totalVAT()}} {{actingStore.currency}}</p>
   <p>Amount total: {{totalSumInclVAT()}} {{actingStore.currency}}</p>

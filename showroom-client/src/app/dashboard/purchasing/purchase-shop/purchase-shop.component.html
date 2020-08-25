@@ -49,7 +49,7 @@
         <p class="product-price">Price: {{orderLine.product.price}} {{activeStore.currency}}</p>
       </div>
       <div class="div">
-        <p>VAT: {{orderLine.product.vatRate}} %</p>
+        <p>VAT: {{vatRate(orderLine)}} %</p>
         <p>Total price excluding VAT: {{priceExcludingVAT(orderLine)}}</p>
         <p>Total price including VAT: {{priceIncludingVAT(orderLine)}}</p>
       </div>
