@@ -21,6 +21,7 @@ import {SalesComponent} from './dashboard/sales/sales.component';
 import {PurchaseShopComponent} from './dashboard/purchasing/purchase-shop/purchase-shop.component';
 import {PurchaseShopSelectionComponent} from './dashboard/purchasing/purchase-shop-selection/purchase-shop-selection.component';
 import {OrderComponent} from './dashboard/ordering/order.component';
+import {SalesOverviewComponent} from './dashboard/sales/sales-overview/sales-overview.component';
 
 
 const routes = [
@@ -34,7 +35,9 @@ const routes = [
   },
   {path: ORANGEBOOKS_ROUTE, component: OrangebooksComponent},
   {path: LOAN_ROUTE, component: LoanComponent},
-  {path: SALES_ROUTE, component: SalesComponent},
+  {path: SALES_ROUTE, component: SalesComponent, children: [
+      {path: '', component: SalesOverviewComponent},
+    ]},
   {path: ORDERING_ROUTE, component: OrderComponent},
   {
     path: WAREHOUSE_ROUTE, component: WarehouseComponent,

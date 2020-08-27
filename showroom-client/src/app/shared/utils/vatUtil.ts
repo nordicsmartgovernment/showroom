@@ -75,7 +75,7 @@ function isInTheEU(country: string): boolean {
 }
 
 export interface VatDetails {
-  vatCode: string;
+  vatCode?: string;
   includeVat: boolean;
 }
 
@@ -84,11 +84,10 @@ export function vatDetailsBetweenTwoCountries(buyerCountry: string, sellerCountr
     if (isInTheEU(sellerCountry) && isInTheEU(buyerCountry)) {
       return {
         vatCode: 'AE',
-        includeVat: true,
+        includeVat: false,
       };
     } else {
       return {
-        vatCode: 'S',
         includeVat: false,
       };
     }

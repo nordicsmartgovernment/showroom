@@ -17,7 +17,8 @@ export class InvoiceRowModel {
   RowVatAmount: CurrencyAmount;
   SubInvoiceRow: SubInvoiceRow;
 
-  generate(product: Product, purchase: PurchaseDescription, currency: string) {
+  generate(product: Product, purchase: PurchaseDescription, currency: string, vatCode: string) {
+    // All fields are set in the correct order. Right now this is the only way to order the fields in the xml.
     this.ArticleIdentifier = '';
     this.ArticleGroupIdentifier = '';
     this.ArticleName = '';
@@ -40,7 +41,7 @@ export class InvoiceRowModel {
     this.OrderedQuantity.__QuantityUnitCode = product.quantityCode;
     this.UnitPriceAmount.set(product.price, currency);
     this.RowVatRatePercent = product.vatRate;
-    this.RowVatCode = 'S';
+    this.RowVatCode = vatCode;
     this.RowVatAmount.set(purchase.vatPrice, currency);
     this.RowVatExcludedAmount.set(purchase.totalPriceExclVat, currency);
     this.RowAmount.set(purchase.totalPriceInclVat, currency);

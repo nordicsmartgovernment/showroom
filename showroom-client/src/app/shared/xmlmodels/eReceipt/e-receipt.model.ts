@@ -6,6 +6,7 @@ import {InvoiceRowModel} from '../Invoice-row.model';
 import {EpiDetailsModel} from '../epi-details.model';
 import {Company} from '../../company.service';
 import {MessageDetailsModel} from './message-details.model';
+import {vatDetailsBetweenTwoCountries} from '../../utils/vatUtil';
 
 export class EReceipt {
   Finvoice = new EReceiptModel();
@@ -29,6 +30,7 @@ export class EReceiptModel {
            paymentReference: string,
            invoiceId: string,
            buyer: Company) {
+    const vatCode = vatDetailsBetweenTwoCountries(buyer.country, seller.country).vatCode;
     this.MessageTransmissionDetails.generate(seller.id);
     this.PaymentStatusDetails.PaymentStatusCode = 'PAID';
     this.InvoiceDetails.generate(purchase, product, seller.currency, invoiceId);
@@ -37,7 +39,7 @@ export class EReceiptModel {
     this.BuyerPartyDetails = new BuyerPartyDetailsModel(buyer);
     this.SellerPartyDetails = new SellerPartyDetailsModel(seller);
     const invoiceRow = new InvoiceRowModel();
-    invoiceRow.generate(product, purchase, seller.currency);
+    invoiceRow.generate(product, purchase, seller.currency, vatCode);
     const invoiceSubRow = new InvoiceRowModel();
     invoiceSubRow.generateSubInvoiceRow(purchase, seller.currency);
     this.InvoiceRow.push(

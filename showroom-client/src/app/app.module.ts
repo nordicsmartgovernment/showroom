@@ -37,6 +37,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatTableModule} from '@angular/material/table';
 import {MatSelectModule} from '@angular/material/select';
 import {DragDropModule} from '@angular/cdk/drag-drop';
+import { SalesOverviewComponent } from './dashboard/sales/sales-overview/sales-overview.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     SalesComponent,
     OrderComponent,
     PurchaseShopComponent,
-    PurchaseShopSelectionComponent
+    PurchaseShopSelectionComponent,
+    SalesOverviewComponent,
   ],
   imports: [
     HttpClientModule,

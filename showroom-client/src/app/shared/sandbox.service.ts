@@ -8,7 +8,12 @@ import {EInvoice} from './xmlmodels/eInvoice/eInvoice.model';
 import {EReceipt} from './xmlmodels/eReceipt/e-receipt.model';
 import {map} from 'rxjs/operators';
 import {InventoryProduct} from './inventory.model';
-import {orderLineToCalc, priceExcludingVAT, priceIncludingVAT, round} from './utils/vatUtil';
+import {
+  orderLineToCalc,
+  priceExcludingVAT,
+  priceIncludingVAT,
+  round
+} from './utils/vatUtil';
 import {StoreService} from './store.service';
 import {Order} from '../dashboard/ordering/order.component';
 import {CurrencyService} from './currency.service';
