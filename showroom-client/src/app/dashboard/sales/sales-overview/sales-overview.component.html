@@ -62,7 +62,6 @@
 
   <h3>Purchases</h3>
   <h4>Create invoices from existing purchases</h4>
-  <mat-spinner *ngIf="isLoadingPurchases"></mat-spinner>
   <mat-table [dataSource]="purchases">
     <mat-header-row *matHeaderRowDef="purchaseColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: purchaseColumns;"></mat-row>
@@ -89,7 +88,7 @@
 
     <!--Customer-->
     <ng-container matColumnDef="customer">
-      <mat-header-cell *matHeaderCellDef>Customer</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Purchased from</mat-header-cell>
       <mat-cell *matCellDef="let element">
         <ng-container *ngIf="assertPurchaseDetails(element) as purchase">
           <p class="table-text">{{getCompanyDisplayLine(purchase.sellerId)}}</p>
@@ -117,6 +116,7 @@
       </mat-cell>
     </ng-container>
   </mat-table>
+  <mat-spinner *ngIf="isLoadingPurchases"></mat-spinner>
 </div>
 
 

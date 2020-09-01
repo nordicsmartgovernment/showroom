@@ -1,6 +1,6 @@
 import {AppXmlDate, CurrencyAmount, IdentityWithScheme} from './common-types';
-import {Store} from '../store.model';
 import {PurchaseDescription} from '../sandbox.service';
+import {Company} from '../company.service';
 
 export class EpiDetailsModel {
 
@@ -8,10 +8,10 @@ export class EpiDetailsModel {
   EpiPartyDetails = new EpiPartyDetails();
   EpiPaymentInstructionDetails = new EpiPaymentInstructionDetails();
 
-  generate(purchase: PurchaseDescription, seller: Store, paymentReference: string) {
+  generate(purchase: PurchaseDescription, seller: Company, paymentReference: string, sellerCurrency: string) {
     this.EpiIdentificationDetails.generate();
     this.EpiPartyDetails.generate(seller);
-    this.EpiPaymentInstructionDetails.generate(purchase, paymentReference, seller.currency);
+    this.EpiPaymentInstructionDetails.generate(purchase, paymentReference, sellerCurrency);
   }
 }
 
@@ -29,7 +29,7 @@ class EpiPartyDetails {
   EpiBfiPartyDetails = '';
   EpiBeneficiaryPartyDetails = new EpiBeneficiaryPartyDetails();
 
-  generate(seller: Store) {
+  generate(seller: Company) {
     this.EpiBfiPartyDetails = '';
     this.EpiBeneficiaryPartyDetails.generate(seller.name);
   }

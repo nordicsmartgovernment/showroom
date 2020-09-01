@@ -135,7 +135,7 @@ export class SalesOverviewComponent implements OnInit, OnDestroy {
 
   getCompanyDisplayLine(companyId: number) {
     const buyerCompany = this.getCompany(companyId);
-    return `${buyerCompany.name} (${buyerCompany.postCodeIdentifier}), ${buyerCompany.townName}`;
+    return `${buyerCompany.name} (${buyerCompany.id})`;
   }
 
   onReinvoicePurchase(purchase: PurchaseDetails) {
@@ -156,7 +156,7 @@ export class SalesOverviewComponent implements OnInit, OnDestroy {
           }
         ]
       }
-    );
+    ).subscribe(() => this.onNavigateBackToSales());
   }
 
   getInvoiceableCompanies(): Company[] {

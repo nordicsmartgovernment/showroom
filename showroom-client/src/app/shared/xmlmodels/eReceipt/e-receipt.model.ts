@@ -1,6 +1,6 @@
 import {BuyerPartyDetailsModel, SellerPartyDetailsModel} from '../details.model';
 import {PurchaseDescription} from '../../sandbox.service';
-import {Product, Store} from '../../store.model';
+import {Product} from '../../store.model';
 import {InvoiceDetailsReceiptModel} from './invoice-details-receipt.model';
 import {InvoiceRowModel} from '../Invoice-row.model';
 import {EpiDetailsModel} from '../epi-details.model';
@@ -26,22 +26,22 @@ export class EReceiptModel {
 
   generate(purchase: PurchaseDescription,
            product: Product,
-           seller: Store,
+           seller: Company,
            paymentReference: string,
            invoiceId: string,
-           buyer: Company) {
+           buyer: Company, sellerCurrency: string) {
     const vatCode = vatDetailsBetweenTwoCountries(buyer.country, seller.country).vatCode;
     this.MessageTransmissionDetails.generate(seller.id);
     this.PaymentStatusDetails.PaymentStatusCode = 'PAID';
-    this.InvoiceDetails.generate(purchase, product, seller.currency, invoiceId);
-    this.EpiDetails.generate(purchase, seller, paymentReference);
+    this.InvoiceDetails.generate(purchase, product, sellerCurrency, invoiceId);
+    this.EpiDetails.generate(purchase, seller, paymentReference, sellerCurrency);
     this.EpiDetails.EpiIdentificationDetails.EpiDate.setToCurrentDate();
     this.BuyerPartyDetails = new BuyerPartyDetailsModel(buyer);
     this.SellerPartyDetails = new SellerPartyDetailsModel(seller);
     const invoiceRow = new InvoiceRowModel();
-    invoiceRow.generate(product, purchase, seller.currency, vatCode);
+    invoiceRow.generate(product, purchase, sellerCurrency, vatCode);
     const invoiceSubRow = new InvoiceRowModel();
-    invoiceSubRow.generateSubInvoiceRow(purchase, seller.currency);
+    invoiceSubRow.generateSubInvoiceRow(purchase, sellerCurrency);
     this.InvoiceRow.push(
       invoiceRow,
       invoiceSubRow,

@@ -56,16 +56,17 @@ export class StoreService {
   }
 
   findProduct(productId: number): Product {
+    let foundProduct: Product = null;
     this.getStores().forEach(
       store => store.storeProductSelection.forEach(
         product => {
           if (product.standardItemID === '' + productId) {
-            return product;
+            foundProduct = product;
           }
         }
       )
     );
-    return null;
+    return foundProduct;
   }
 }
 

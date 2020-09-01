@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Company, CompanyService} from './company.service';
-import {Product, Store} from './store.model';
+import {Product} from './store.model';
 import {forkJoin, Observable} from 'rxjs';
 import {j2xParser as ObjToXmlParser, parse} from 'fast-xml-parser';
 import {EInvoice, EInvoiceModel} from './xmlmodels/eInvoice/eInvoice.model';
@@ -102,6 +102,33 @@ export class SandboxService {
       product.price >= 0;
   }
 
+  private static mapFromInvoiceToInventoryProduct(finvoice: EInvoiceModel) {
+    const inventoryProduct = new InventoryProduct(
+      finvoice.InvoiceRow.ArticleName,
+      finvoice.InvoiceRow.DeliveredQuantity._text_,
+      finvoice.InvoiceRow.DeliveredQuantity.__QuantityUnitCode,
+      finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
+      finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
+      finvoice.InvoiceDetails.PaymentTermsDetails.InvoiceDueDate._text_
+    );
+    inventoryProduct.setInvoiceId(finvoice.InvoiceDetails.InvoiceNumber);
+    return inventoryProduct;
+  }
+
+  private static mapFromReceiptToInventoryProduct(receipt: EReceipt) {
+    const invoiceRow = receipt.Finvoice.InvoiceRow.filter(row => row.ArticleName !== null)[0];
+    const inventoryProduct = new InventoryProduct(
+      invoiceRow.ArticleName,
+      invoiceRow.DeliveredQuantity._text_,
+      invoiceRow.DeliveredQuantity.__QuantityUnitCode,
+      receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
+      receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
+      receipt.Finvoice.InvoiceDetails.InvoiceDate._text_
+    );
+    inventoryProduct.setInvoiceId(receipt.Finvoice.InvoiceDetails.InvoiceNumber);
+    return inventoryProduct;
+  }
+
   postDocument(companyId: number, documentType: string, payload: string) {
     return this.http.post(SANDBOX_URL + DOCUMENTS_PATH + companyId, payload, {
       headers: new HttpHeaders({'Content-Type': documentType})
@@ -147,7 +174,7 @@ export class SandboxService {
     const buyer = this.companyService.getCompany(order.buyer);
     const subscriptions = [];
     for (const orderLine of order.orderLines) {
-      const seller = this.storeService.getStore(order.seller);
+      const seller = this.companyService.getCompany(order.seller);
       const priceInclVat = priceIncludingVAT(orderLineToCalc(orderLine), buyer.country, seller.country);
       subscriptions.push(this.submitPurchase({
         paidByCard,
@@ -186,7 +213,7 @@ export class SandboxService {
         quantityCode: finvoice.InvoiceRow.OrderedQuantity.__QuantityUnitCode,
         productName: finvoice.InvoiceRow.ArticleName,
         unitPrice: finvoice.InvoiceRow.UnitPriceAmount._text_,
-        productId: + finvoice.InvoiceRow.EanCode
+        productId: +finvoice.InvoiceRow.EanCode
       };
     };
 
@@ -203,7 +230,7 @@ export class SandboxService {
         quantityCode: invoiceRow.OrderedQuantity.__QuantityUnitCode,
         productName: invoiceRow.ArticleName,
         unitPrice: invoiceRow.UnitPriceAmount._text_,
-        productId: + invoiceRow.EanCode
+        productId: +invoiceRow.EanCode
       };
     };
 
@@ -238,7 +265,7 @@ export class SandboxService {
       });
   }
 
-  private submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Store): Observable<any[]> {
+  private submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Company): Observable<any[]> {
     // This template-style XML generation is a quick-fix - it would be preferable to generate from
     // objects using some library
 
@@ -251,11 +278,12 @@ export class SandboxService {
     // These two be provided, needs to be the same in multiple documents
     const invoiceId = this.randomString();
     const paymentReference = this.randomString();
+    const sellerCurrency = this.currencyService.getCurrency(seller.country);
 
 
     // Buyer bank statement
     const totalPriceInclVatBuyer = this.currencyService
-      .convertCurrency(purchase.totalPriceInclVat, seller.currency, buyer.country);
+      .convertCurrency(purchase.totalPriceInclVat, seller.country, buyer.country);
     const buyerStatementInfo = {
       $MessageID$: this.randomString(),
       $CompanyName$: buyer.name,
@@ -298,7 +326,7 @@ export class SandboxService {
       $TotalDebit$: '0.00',
       $TotalCredit$: '' + purchase.totalPriceInclVat,
       $TotalPrice$: '' + purchase.totalPriceInclVat,
-      $Currency$: seller.currency,
+      $Currency$: this.currencyService.getCurrency(seller.country),
       $InvoiceID$: invoiceId,
       $PaymentReference$: paymentReference
     };
@@ -317,7 +345,7 @@ export class SandboxService {
 
       const eReceipt = new EReceipt();
       const eReceiptModel = eReceipt.Finvoice;
-      eReceiptModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
+      eReceiptModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer, sellerCurrency);
       const eReceiptXmlString = this.objectToXml(eReceipt);
 
       console.log('eReceipt:');
@@ -328,7 +356,7 @@ export class SandboxService {
     } else { // eInvoice
       const finvoice = new EInvoice();
       const eInvoiceModel = finvoice.Finvoice;
-      eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer);
+      eInvoiceModel.generate(purchase, product, seller, paymentReference, invoiceId, buyer, sellerCurrency);
       const eInvoiceXmlString = this.objectToXml(finvoice);
       console.log('eInvoice:');
       console.log(eInvoiceXmlString);
@@ -366,19 +394,6 @@ export class SandboxService {
       );
   }
 
-  private static mapFromInvoiceToInventoryProduct(finvoice: EInvoiceModel) {
-    const inventoryProduct = new InventoryProduct(
-      finvoice.InvoiceRow.ArticleName,
-      finvoice.InvoiceRow.DeliveredQuantity._text_,
-      finvoice.InvoiceRow.DeliveredQuantity.__QuantityUnitCode,
-      finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
-      finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
-      finvoice.InvoiceDetails.PaymentTermsDetails.InvoiceDueDate._text_
-    );
-    inventoryProduct.setInvoiceId(finvoice.InvoiceDetails.InvoiceNumber);
-    return inventoryProduct;
-  }
-
   private objectToXml(eInvoiceModel: any): string {
     return new ObjToXmlParser(this.xmlWriterOptions)
       .parse(eInvoiceModel);
@@ -393,7 +408,6 @@ export class SandboxService {
     // Silly code I found for generating a random string, should probably be e.g. an UUID
     return [...Array(30)].map(() => Math.random().toString(36)[2]).join('');
   }
-
 
   private getAndMapReceipt<T>(
     isBuyer: boolean,
@@ -422,20 +436,6 @@ export class SandboxService {
         })
       );
 
-  }
-
-  private static mapFromReceiptToInventoryProduct(receipt: EReceipt) {
-    const invoiceRow = receipt.Finvoice.InvoiceRow.filter(row => row.ArticleName !== null)[0];
-    const inventoryProduct = new InventoryProduct(
-      invoiceRow.ArticleName,
-      invoiceRow.DeliveredQuantity._text_,
-      invoiceRow.DeliveredQuantity.__QuantityUnitCode,
-      receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
-      receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
-      receipt.Finvoice.InvoiceDetails.InvoiceDate._text_
-    );
-    inventoryProduct.setInvoiceId(receipt.Finvoice.InvoiceDetails.InvoiceNumber);
-    return inventoryProduct;
   }
 
   private isBuyer(receipt: EReceipt) {

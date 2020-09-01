@@ -2,7 +2,7 @@ import {BuyerPartyDetailsModel, SellerPartyDetailsModel} from '../details.model'
 import {InvoiceDetailsModel} from './invoice-details.model';
 import {EpiDetailsModel} from '../epi-details.model';
 import {PurchaseDescription} from '../../sandbox.service';
-import {Product, Store} from '../../store.model';
+import {Product} from '../../store.model';
 import {InvoiceRowModel} from '../Invoice-row.model';
 import {Company} from '../../company.service';
 import {vatDetailsBetweenTwoCountries} from '../../utils/vatUtil';
@@ -22,14 +22,15 @@ export class EInvoiceModel {
 
   generate(purchase: PurchaseDescription,
            product: Product,
-           seller: Store,
+           seller: Company,
            paymentReference: string,
            invoiceId: string,
-           buyer: Company) {
+           buyer: Company,
+           sellerCurrency: string) {
     const vatCode = vatDetailsBetweenTwoCountries(buyer.country, seller.country).vatCode;
-    this.InvoiceDetails.generate(purchase, product, seller.currency, invoiceId);
-    this.InvoiceRow.generate(product, purchase, seller.currency, vatCode);
-    this.EpiDetails.generate(purchase, seller, paymentReference);
+    this.InvoiceDetails.generate(purchase, product, sellerCurrency, invoiceId);
+    this.InvoiceRow.generate(product, purchase, sellerCurrency, vatCode);
+    this.EpiDetails.generate(purchase, seller, paymentReference, sellerCurrency);
     this.BuyerPartyDetails = new BuyerPartyDetailsModel(buyer);
     this.SellerPartyDetails = new SellerPartyDetailsModel(seller);
   }
