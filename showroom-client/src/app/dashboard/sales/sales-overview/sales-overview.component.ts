@@ -179,6 +179,7 @@ export class SalesOverviewComponent implements OnInit, OnDestroy {
     this.salesOrders = company.orders;
     this.isLoadingPurchases = true;
     this.purchases = [];
+    this.onNavigateBackToSales();
     this.sandboxService.getPurchaseDetailsForActingCompany()
       .then(purchases => this.purchases = purchases)
       .finally(() => this.isLoadingPurchases = false);
