@@ -3,6 +3,7 @@ import {RouterModule} from '@angular/router';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {PurchasingComponent} from './dashboard/purchasing/purchasing.component';
 import {
+  CASHFLOW_ROUTE,
   LOAN_ROUTE,
   ORANGEBOOKS_ROUTE,
   ORDERING_ROUTE,
@@ -22,6 +23,7 @@ import {PurchaseShopComponent} from './dashboard/purchasing/purchase-shop/purcha
 import {PurchaseShopSelectionComponent} from './dashboard/purchasing/purchase-shop-selection/purchase-shop-selection.component';
 import {OrderComponent} from './dashboard/ordering/order.component';
 import {SalesOverviewComponent} from './dashboard/sales/sales-overview/sales-overview.component';
+import {CashflowComponent} from './dashboard/cashflow/cashflow.component';
 
 
 const routes = [
@@ -39,6 +41,7 @@ const routes = [
       {path: '', component: SalesOverviewComponent},
     ]},
   {path: ORDERING_ROUTE, component: OrderComponent},
+  {path: CASHFLOW_ROUTE, component: CashflowComponent},
   {
     path: WAREHOUSE_ROUTE, component: WarehouseComponent,
     children: [

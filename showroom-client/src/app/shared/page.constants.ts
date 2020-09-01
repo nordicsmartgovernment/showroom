@@ -1,4 +1,5 @@
 import {
+  CASHFLOW_ROUTE,
   LOAN_ROUTE,
   ORANGEBOOKS_ROUTE,
   ORDERING_ROUTE,
@@ -21,4 +22,5 @@ export const PAGES: Page[] = [
   {title: 'Warehouse management', active: true, description: 'Manage your wares', route: WAREHOUSE_ROUTE},
   {title: 'Supplier catalogues', active: true, route: ORDERING_ROUTE},
   {title: 'Sales', active: true, route: SALES_ROUTE},
+  {title: 'Cashflow', active: true, route: CASHFLOW_ROUTE},
 ];
