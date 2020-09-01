@@ -4,16 +4,11 @@ import {Company, CompanyService} from './company.service';
 import {Product, Store} from './store.model';
 import {forkJoin, Observable} from 'rxjs';
 import {j2xParser as ObjToXmlParser, parse} from 'fast-xml-parser';
-import {EInvoice} from './xmlmodels/eInvoice/eInvoice.model';
+import {EInvoice, EInvoiceModel} from './xmlmodels/eInvoice/eInvoice.model';
 import {EReceipt} from './xmlmodels/eReceipt/e-receipt.model';
 import {map} from 'rxjs/operators';
 import {InventoryProduct} from './inventory.model';
-import {
-  orderLineToCalc,
-  priceExcludingVAT,
-  priceIncludingVAT,
-  round
-} from './utils/vatUtil';
+import {orderLineToCalc, priceExcludingVAT, priceIncludingVAT, round} from './utils/vatUtil';
 import {StoreService} from './store.service';
 import {Order} from '../dashboard/ordering/order.component';
 import {CurrencyService} from './currency.service';
@@ -33,6 +28,19 @@ export interface PurchaseDescription {
   vatPrice: number;
   totalPriceInclVat: number;
   amount: number;
+}
+
+export interface PurchaseDetails {
+  productId: number;
+  unitPrice: number;
+  amount: number;
+  sellerId: number;
+  totalPriceExclVat: number;
+  totalPriceInclVat: number;
+  vatRate: number;
+  currency: string;
+  quantityCode: string;
+  productName: string;
 }
 
 @Injectable({
@@ -152,6 +160,84 @@ export class SandboxService {
     return forkJoin(...subscriptions);
   }
 
+  async getPurchaseItemsForActingCompany() {
+    const invoicePurchases =
+      await this.getAndMapInvoice(PURCHASE_INVOICE_TYPE, SandboxService.mapFromInvoiceToInventoryProduct).toPromise();
+    const receiptPurchases =
+      await this.getAndMapReceipt(true, SandboxService.mapFromReceiptToInventoryProduct).toPromise();
+
+    // Filter out weird purchases
+    return invoicePurchases.concat(receiptPurchases)
+      .filter(purchase => {
+        return SandboxService.filterValidProduct(purchase);
+      });
+  }
+
+  async getPurchaseDetailsForActingCompany(): Promise<PurchaseDetails[]> {
+    let mapInvoice: (eInvoice: EInvoiceModel) => PurchaseDetails;
+    mapInvoice = finvoice => {
+      return {
+        amount: finvoice.InvoiceRow.OrderedQuantity._text_,
+        sellerId: +finvoice.SellerPartyDetails.SellerPartyIdentifier,
+        totalPriceExclVat: finvoice.InvoiceRow.RowVatExcludedAmount._text_,
+        totalPriceInclVat: finvoice.InvoiceRow.RowAmount._text_,
+        vatRate: +finvoice.InvoiceDetails.VatSpecificationDetails.VatRatePercent,
+        currency: finvoice.InvoiceRow.RowVatExcludedAmount.__AmountCurrencyIdentifier,
+        quantityCode: finvoice.InvoiceRow.OrderedQuantity.__QuantityUnitCode,
+        productName: finvoice.InvoiceRow.ArticleName,
+        unitPrice: finvoice.InvoiceRow.UnitPriceAmount._text_,
+        productId: + finvoice.InvoiceRow.EanCode
+      };
+    };
+
+    let mapReceipt: (eReceipt: EReceipt) => PurchaseDetails;
+    mapReceipt = finvoice => {
+      const invoiceRow = finvoice.Finvoice.InvoiceRow.filter(row => row.ArticleName !== null)[0];
+      return {
+        amount: invoiceRow.OrderedQuantity._text_,
+        sellerId: +finvoice.Finvoice.SellerPartyDetails.SellerPartyIdentifier,
+        totalPriceExclVat: invoiceRow.RowVatExcludedAmount._text_,
+        totalPriceInclVat: invoiceRow.RowAmount._text_,
+        vatRate: +finvoice.Finvoice.InvoiceDetails.VatSpecificationDetails.VatRatePercent,
+        currency: invoiceRow.RowVatExcludedAmount.__AmountCurrencyIdentifier,
+        quantityCode: invoiceRow.OrderedQuantity.__QuantityUnitCode,
+        productName: invoiceRow.ArticleName,
+        unitPrice: invoiceRow.UnitPriceAmount._text_,
+        productId: + invoiceRow.EanCode
+      };
+    };
+
+    const invoicePurchases = await this.getAndMapInvoice(PURCHASE_INVOICE_TYPE, mapInvoice).toPromise();
+    const receiptPurchases = await this.getAndMapReceipt(true, mapReceipt).toPromise();
+    return invoicePurchases.concat(receiptPurchases);
+  }
+
+  getBusinessDocuments(documentType: string) {
+    const actingCompanyId = this.companyService.getActingCompany().id;
+    return this.http
+      .get(SANDBOX_URL + DOCUMENTS_PATH + actingCompanyId, {
+        responseType: 'arraybuffer',
+        params: new HttpParams()
+          .set('companyId', '' + actingCompanyId)
+          .set('documentTypes', '' + documentType),
+        headers: new HttpHeaders()
+          .set('accept', 'application/xml')
+      });
+  }
+
+  async getSalesForActingCompany() {
+    const invoiceSales
+      = await this.getAndMapInvoice(SALES_INVOICE_TYPE, SandboxService.mapFromInvoiceToInventoryProduct).toPromise();
+    const receiptSales =
+      await this.getAndMapReceipt(false, SandboxService.mapFromReceiptToInventoryProduct).toPromise();
+
+    // Filter out weird purchases
+    return invoiceSales.concat(receiptSales)
+      .filter(sale => {
+        return SandboxService.filterValidProduct(sale);
+      });
+  }
+
   private submitPurchase(purchase: PurchaseDescription, product: Product, buyer: Company, seller: Store): Observable<any[]> {
     // This template-style XML generation is a quick-fix - it would be preferable to generate from
     // objects using some library
@@ -255,48 +341,16 @@ export class SandboxService {
     return forkJoin([buyerStatementRequest, sellerStatementRequest, buyerDocumentRequest, sellerDocumentRequest]);
   }
 
-  async getPurchasesForActingCompany() {
-    const invoicePurchases = await this.getInventoryItemFromInvoice(PURCHASE_INVOICE_TYPE).toPromise();
-    const receiptPurchases = await this.getInventoryItemFromReceipt(true).toPromise();
+  private getAndMapInvoice<T>(
+    documentType: string,
+    mappingFunction: (finvoice: EInvoiceModel) => T): Observable<T[]> {
 
-    // Filter out weird purchases
-    return invoicePurchases.concat(receiptPurchases)
-      .filter(purchase => {
-        return SandboxService.filterValidProduct(purchase);
-      });
-  }
-
-  getBusinessDocuments(documentType: string) {
-    const actingCompanyId = this.companyService.getActingCompany().id;
-    return this.http
-      .get(SANDBOX_URL + DOCUMENTS_PATH + actingCompanyId, {
-        responseType: 'arraybuffer',
-        params: new HttpParams()
-          .set('companyId', '' + actingCompanyId)
-          .set('documentTypes', '' + documentType),
-        headers: new HttpHeaders()
-          .set('accept', 'application/xml')
-      });
-  }
-
-  async getSalesForActingCompany() {
-    const invoiceSales = await this.getInventoryItemFromInvoice(SALES_INVOICE_TYPE).toPromise();
-    const receiptSales = await this.getInventoryItemFromReceipt(false).toPromise();
-
-    // Filter out weird purchases
-    return invoiceSales.concat(receiptSales)
-      .filter(sale => {
-        return SandboxService.filterValidProduct(sale);
-      });
-  }
-
-  private getInventoryItemFromInvoice(documentType: string): Observable<InventoryProduct[]> {
     return this.getBusinessDocuments(documentType)
       .pipe(
         map(documents => {
-          const inventoryProducts: InventoryProduct[] = [];
+          const mappedItems: T[] = [];
           if (!documents) {
-            return inventoryProducts;
+            return mappedItems;
           }
 
           const items = SandboxService.getDocumentStrings(documents);
@@ -304,21 +358,25 @@ export class SandboxService {
             const xmlString = atob(item.original);
             const purchaseInvoice = parse(xmlString, this.xmlReaderOptions) as EInvoice;
             const finvoice = purchaseInvoice.Finvoice;
-            const inventoryProduct = new InventoryProduct(
-              finvoice.InvoiceRow.ArticleName,
-              finvoice.InvoiceRow.DeliveredQuantity._text_,
-              finvoice.InvoiceRow.DeliveredQuantity.__QuantityUnitCode,
-              finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
-              finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
-              finvoice.InvoiceDetails.PaymentTermsDetails.InvoiceDueDate._text_
-            );
-            inventoryProduct.setInvoiceId(finvoice.InvoiceDetails.InvoiceNumber);
-            inventoryProducts.push(
-              inventoryProduct);
+            const mappedItem = mappingFunction(finvoice);
+            mappedItems.push(mappedItem);
           }
-          return inventoryProducts;
+          return mappedItems;
         })
       );
+  }
+
+  private static mapFromInvoiceToInventoryProduct(finvoice: EInvoiceModel) {
+    const inventoryProduct = new InventoryProduct(
+      finvoice.InvoiceRow.ArticleName,
+      finvoice.InvoiceRow.DeliveredQuantity._text_,
+      finvoice.InvoiceRow.DeliveredQuantity.__QuantityUnitCode,
+      finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
+      finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
+      finvoice.InvoiceDetails.PaymentTermsDetails.InvoiceDueDate._text_
+    );
+    inventoryProduct.setInvoiceId(finvoice.InvoiceDetails.InvoiceNumber);
+    return inventoryProduct;
   }
 
   private objectToXml(eInvoiceModel: any): string {
@@ -336,13 +394,17 @@ export class SandboxService {
     return [...Array(30)].map(() => Math.random().toString(36)[2]).join('');
   }
 
-  private getInventoryItemFromReceipt(isBuyer: boolean): Observable<InventoryProduct[]> {
+
+  private getAndMapReceipt<T>(
+    isBuyer: boolean,
+    mappingFunction: (finvoice: EReceipt) => T): Observable<T[]> {
+
     return this.getBusinessDocuments(RECEIPT_TYPE)
       .pipe(
         map(documents => {
-          const inventoryProducts = [];
+          const mappedItems: T[] = [];
           if (!documents) {
-            return inventoryProducts;
+            return mappedItems;
           }
 
           const items = SandboxService.getDocumentStrings(documents);
@@ -351,26 +413,29 @@ export class SandboxService {
             const receipt = parse(xmlString, this.xmlReaderOptions) as EReceipt;
 
             if (isBuyer && this.isBuyer(receipt) || !isBuyer && this.isSeller(receipt)) {
-              const invoiceRow = receipt.Finvoice.InvoiceRow.filter(row => row.ArticleName !== null)[0];
-              const inventoryProduct = new InventoryProduct(
-                invoiceRow.ArticleName,
-                invoiceRow.DeliveredQuantity._text_,
-                invoiceRow.DeliveredQuantity.__QuantityUnitCode,
-                receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
-                receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
-                receipt.Finvoice.InvoiceDetails.InvoiceDate._text_
-              );
-              inventoryProduct.setInvoiceId(receipt.Finvoice.InvoiceDetails.InvoiceNumber);
+              const inventoryProduct = mappingFunction(receipt);
 
-              inventoryProducts.push(
-                inventoryProduct
-              );
+              mappedItems.push(inventoryProduct);
             }
           }
-          return inventoryProducts;
+          return mappedItems;
         })
       );
 
+  }
+
+  private static mapFromReceiptToInventoryProduct(receipt: EReceipt) {
+    const invoiceRow = receipt.Finvoice.InvoiceRow.filter(row => row.ArticleName !== null)[0];
+    const inventoryProduct = new InventoryProduct(
+      invoiceRow.ArticleName,
+      invoiceRow.DeliveredQuantity._text_,
+      invoiceRow.DeliveredQuantity.__QuantityUnitCode,
+      receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount._text_,
+      receipt.Finvoice.InvoiceDetails.InvoiceTotalVatIncludedAmount.__AmountCurrencyIdentifier,
+      receipt.Finvoice.InvoiceDetails.InvoiceDate._text_
+    );
+    inventoryProduct.setInvoiceId(receipt.Finvoice.InvoiceDetails.InvoiceNumber);
+    return inventoryProduct;
   }
 
   private isBuyer(receipt: EReceipt) {

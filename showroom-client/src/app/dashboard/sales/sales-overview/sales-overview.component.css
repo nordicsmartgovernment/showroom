@@ -5,7 +5,7 @@
 h3 {
   font-weight: 400;
   font-size: 150%;
-  margin: 10px 10px 20px;
+  margin: 30px 10px 20px;
 }
 
 .inventory {
@@ -26,7 +26,7 @@ h3 {
   margin: 10px;
 }
 
-.inventory{
+.inventory {
   border: 1px solid #908fa5;
 }
 
@@ -36,7 +36,7 @@ h3 {
   flex-direction: column;
 }
 
-.inventory-row , .description-row {
+.inventory-row, .description-row {
   margin: 5px 20px;
 }
 
@@ -54,6 +54,7 @@ h3 {
 .col p {
   margin: 0;
 }
+
 .overflow-scrollable {
   overflow: auto;
 }
@@ -99,4 +100,14 @@ table.dataTable thead .sorting_desc_disabled:before {
   margin: 0 25px 25px 0;
   display: inline-block;
   vertical-align: top;
+}
+
+.table-text {
+  font-size: 16px;
+}
+
+mat-form-field {
+  width: 400px;
+  height: 50px;
+  margin-bottom: 50px;
 }

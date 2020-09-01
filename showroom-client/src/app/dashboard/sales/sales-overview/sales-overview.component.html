@@ -1,73 +1,122 @@
 <div *ngIf="activePage === REVIEW_SALES_PAGE" class="orders-review">
   <h3>Review incoming orders</h3>
-  <div style="overflow:auto">
-  </div>
-  <table class="table table-striped table-bordered table-sm">
-    <thead>
-    <tr>
-      <th class="th-sm">OrderLines</th>
-      <th class="th-sm">Price</th>
-      <th class="th-sm">Customer</th>
-      <th class="th-sm">Shipping address</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let i of salesOrders; let index = index">
-      <td class="order-lines">
-        <table class="table table-striped table-bordered table-sm order-lines-table">
-          <tbody>
-          <tr *ngFor="let orderLine of i.orderLines">
-            <td>{{orderLine.product.itemName}}</td>
-            <td>{{orderLine.amount}}</td>
-          </tr>
-          </tbody>
-        </table>
-      </td>
-      <td><p class="table-text">{{getBuyer(i.buyer).name}} ({{getBuyer(i.buyer).id}})
-        <p></td>
-      <td>
-        <p class="table-text">{{getBuyer(i.buyer).streetName}}, {{getBuyer(i.buyer).postCodeIdentifier}}
-          , {{getBuyer(i.buyer).townName}}
-        <p>
-      </td>
-      <td>
-        <button (click)="onReviewOrder(index)" class="btn btn-primary">Accept and finalize order</button>
-        <button (click)="onRejectOrder(index)" class="btn btn-danger">Reject</button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+  <mat-table [dataSource]="salesOrdersTableData">
+    <mat-header-row *matHeaderRowDef="orderColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: orderColumns;"></mat-row>
 
-  <h3>Create invoices from existing purchases</h3>
-  <div style="overflow:auto">
-  </div>
-  <table class="table table-striped table-bordered table-sm">
-    <thead>
-    <tr>
-      <th class="th-sm">Purchase</th>
-      <th class="th-sm">Price</th>
-      <th class="th-sm">Customer</th>
-      <th class="th-sm">Shipping address</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let i of purchaseInvoices; let index = index">
-      <td>
-        <p class="table-text">{{getBuyer(i.buyer).name}} ({{getBuyer(i.buyer).id}})
-        <p>
-      </td>
-      <td>
-        <p class="table-text">{{getBuyer(i.buyer).streetName}}, {{getBuyer(i.buyer).postCodeIdentifier}}
-          , {{getBuyer(i.buyer).townName}}
-        <p>
-      </td>
-      <td>
-        <button (click)="onReviewOrder(index)" class="btn btn-primary">Accept and finalize order</button>
-        <button (click)="onRejectOrder(index)" class="btn btn-danger">Reject</button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+    <!--Order lines-->
+    <ng-container matColumnDef="orderLines">
+      <mat-header-cell *matHeaderCellDef>OrderLines</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertOrder(element) as typedElement">
+          <mat-list>
+            <mat-list-item *ngFor="let orderLine of typedElement.orderLines">
+              <p class="table-text">{{orderLine.amount}} x {{orderLine.product.itemName}}</p>
+            </mat-list-item>
+          </mat-list>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!--Price-->
+    <ng-container matColumnDef="price">
+      <mat-header-cell *matHeaderCellDef>Price</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertOrder(element) as typedElement">
+          <p class="table-text">{{priceIncludingVat(typedElement)}} {{actingCompanyCurrency}}</p>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!--Customer-->
+    <ng-container matColumnDef="customer">
+      <mat-header-cell *matHeaderCellDef>Customer</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertOrder(element) as typedElement">
+          <p class="table-text">{{getCompanyDisplayLine(typedElement.buyer)}}</p>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!--Address-->
+    <ng-container matColumnDef="address">
+      <mat-header-cell *matHeaderCellDef>Seller</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertOrder(element) as typedElement">
+          <p class="table-text">{{getCompanyAddressDisplayLine(typedElement.buyer)}}</p>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!-- sticky button panel right -->
+    <ng-container matColumnDef="action" stickyEnd>
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertOrder(element) as typedElement">
+          <button (click)="onReviewOrder(typedElement)" class="btn btn-primary">Accept and finalize order</button>
+          <button (click)="onRejectOrder(typedElement)" class="btn btn-danger">Reject</button>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+  </mat-table>
+
+  <h3>Purchases</h3>
+  <h4>Create invoices from existing purchases</h4>
+  <mat-spinner *ngIf="isLoadingPurchases"></mat-spinner>
+  <mat-table [dataSource]="purchases">
+    <mat-header-row *matHeaderRowDef="purchaseColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: purchaseColumns;"></mat-row>
+
+    <!--purchase product name-->
+    <ng-container matColumnDef="purchaseDescription">
+      <mat-header-cell *matHeaderCellDef>Purchase</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertPurchaseDetails(element) as purchase">
+          <p class="table-text">{{purchase.amount}} x {{purchase.productName}}</p>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!--Price-->
+    <ng-container matColumnDef="price">
+      <mat-header-cell *matHeaderCellDef>Price incl VAT</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertPurchaseDetails(element) as purchase">
+          <p class="table-text">{{purchase.totalPriceInclVat}} {{actingCompanyCurrency}}</p>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!--Customer-->
+    <ng-container matColumnDef="customer">
+      <mat-header-cell *matHeaderCellDef>Customer</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertPurchaseDetails(element) as purchase">
+          <p class="table-text">{{getCompanyDisplayLine(purchase.sellerId)}}</p>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!--Address-->
+    <ng-container matColumnDef="address">
+      <mat-header-cell *matHeaderCellDef>Address</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertPurchaseDetails(element) as purchase">
+          <p class="table-text">{{getCompanyAddressDisplayLine(purchase.sellerId)}}</p>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+
+    <!-- sticky button panel right -->
+    <ng-container matColumnDef="action" stickyEnd>
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <ng-container *ngIf="assertPurchaseDetails(element) as purchase">
+          <button (click)="onReinvoicePurchase(purchase)" class="btn btn-primary">Re-invoice</button>
+        </ng-container>
+      </mat-cell>
+    </ng-container>
+  </mat-table>
 </div>
 
 
@@ -80,17 +129,47 @@
     <hr>
   </div>
 
-  <p>Amount net: {{totalSumExclVAT()}} {{actingStore.currency}}</p>
-  <p>VAT: {{totalVAT()}} {{actingStore.currency}}</p>
-  <p>Amount total: {{totalSumInclVAT()}} {{actingStore.currency}}</p>
+  <p>Amount net: {{totalSumExclVAT()}} {{actingCompanyCurrency}}</p>
+  <p>VAT: {{totalVAT()}} {{actingCompanyCurrency}}</p>
+  <p>Amount total: {{totalSumInclVAT()}} {{actingCompanyCurrency}}</p>
 
   <div class="nav-bar">
-    <button (click)="onNavigateBackFromOrder()"
+    <button (click)="onNavigateBackToSales()"
             class="btn btn-outline-dark">Go back
     </button>
     <button (click)="onAcceptOrder()"
             class="btn btn-primary continue">
       Accept order and send invoice
+    </button>
+  </div>
+</div>
+
+<div *ngIf="activePage === REVIEW_REINVOICE_PAGE">
+  <h3>Invoice details</h3>
+
+  <p>Product: {{selectedPurchase.productName}}</p>
+  <p>Amount: {{selectedPurchase.amount}} {{selectedPurchase.quantityCode}}</p>
+  <p>Price excluding VAT: {{selectedPurchase.totalPriceExclVat}} {{selectedPurchase.currency}}</p>
+  <p>VAT rate percent: {{selectedPurchase.vatRate}}%</p>
+  <p>Price including VAT: {{selectedPurchase.totalPriceInclVat}} {{selectedPurchase.currency}}</p>
+  <p>Purchased from: {{getCompanyDisplayLine(selectedPurchase.sellerId)}}</p>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Select a company to invoice</mat-label>
+    <mat-select [(value)]="selectedReinvoiceCompany">
+      <mat-option [value]="company"
+        *ngFor="let company of getInvoiceableCompanies()">{{getCompanyDisplayLine(company.id)}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+
+  <div class="nav-bar">
+    <button (click)="onNavigateBackToSales()"
+            class="btn btn-outline-dark">Go back
+    </button>
+    <button (click)="onSubmitReinvoice()"
+            [disabled]="!selectedReinvoiceCompany"
+            class="btn btn-primary continue">Send invoice
     </button>
   </div>
 </div>

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Store} from './store.model';
+import {Product, Store} from './store.model';
 import {BEST_POWER_TOOLS, BUILDERS_PARADISE, CompanyService, FRUIT_4_YOU} from './company.service';
 import {InventoryProduct} from './inventory.model';
 import {formatDate} from '@angular/common';
@@ -12,19 +12,6 @@ export class StoreService {
 
   constructor(private companyService: CompanyService) {
     this.initializeStoreInventory(companyService);
-  }
-
-  private initializeStoreInventory(companyService: CompanyService) {
-    const hasInitialized = localStorage.getItem(this.HAS_INITIALIZED_KEY);
-    if (!hasInitialized || hasInitialized !== 'true') {
-      this.getStores()
-        .forEach(store => {
-          const company = companyService.getCompany(store.id);
-          company.inventory = this.createStoreBaseInventoryStock(store);
-          companyService.saveCompanies();
-        });
-      localStorage.setItem(this.HAS_INITIALIZED_KEY, 'true');
-    }
   }
 
   createStoreBaseInventoryStock(store: Store): InventoryProduct[] {
@@ -43,7 +30,6 @@ export class StoreService {
     );
   }
 
-
   getStores(): Store[] {
     // Static stores - should be parsed from XMl later
     return [STORE_1, STORE_2, STORE_3];
@@ -56,6 +42,31 @@ export class StoreService {
     return this.getStores().find(s => s.id.toString() === id);
   }
 
+  private initializeStoreInventory(companyService: CompanyService) {
+    const hasInitialized = localStorage.getItem(this.HAS_INITIALIZED_KEY);
+    if (!hasInitialized || hasInitialized !== 'true') {
+      this.getStores()
+        .forEach(store => {
+          const company = companyService.getCompany(store.id);
+          company.inventory = this.createStoreBaseInventoryStock(store);
+          companyService.saveCompanies();
+        });
+      localStorage.setItem(this.HAS_INITIALIZED_KEY, 'true');
+    }
+  }
+
+  findProduct(productId: number): Product {
+    this.getStores().forEach(
+      store => store.storeProductSelection.forEach(
+        product => {
+          if (product.standardItemID === '' + productId) {
+            return product;
+          }
+        }
+      )
+    );
+    return null;
+  }
 }
 
 

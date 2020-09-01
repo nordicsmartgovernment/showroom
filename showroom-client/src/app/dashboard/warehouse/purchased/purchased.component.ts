@@ -59,7 +59,7 @@ export class PurchasedComponent implements OnInit, OnDestroy {
   }
 
   private updatePurchases() {
-    this.sandboxService.getPurchasesForActingCompany()
+    this.sandboxService.getPurchaseItemsForActingCompany()
       .then(inventoryProducts => {
         this.inventory = this.filterPurchases(inventoryProducts);
       });
