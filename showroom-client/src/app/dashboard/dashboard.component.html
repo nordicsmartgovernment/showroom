@@ -1,6 +1,6 @@
 <div class="dashboard-wrapper">
   <button
-    *ngFor="let card of getCards()" [disabled]="!card.active"
+    *ngFor="let card of cards" [disabled]="!card.active"
     [matTooltip]="card.description"
     [routerLink]="['/' + card.route]"
     color="primary"

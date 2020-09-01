@@ -81,6 +81,10 @@ export class SalesOverviewComponent implements OnInit, OnDestroy {
 
   onNavigateBackFromOrder() {
     this.activePage = this.REVIEW_SALES_PAGE;
+    this.selectedPurchase = null;
+    this.selectedReinvoiceCompany = null;
+    this.selectedOrder = null;
+    this.selectedOrderNumber = null;
   }
 
   onAcceptOrder() {
