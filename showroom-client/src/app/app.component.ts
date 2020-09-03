@@ -14,7 +14,7 @@ export class AppComponent implements OnInit, OnDestroy{
   // Clears local data if they are not from the current version.
   actingCompany: Company;
   // used to clear the local storage if there is a new version of the showroom
-  private readonly CURRENT_DATA_VERSION = 1;
+  private readonly CURRENT_DATA_VERSION = 2;
   private readonly DATA_VERSION_KEY = 'DATA_VERSION';
   private actingCompanySubscription: Subscription;
 
