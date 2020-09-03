@@ -4,10 +4,11 @@
 }
 
 .nav-bar {
-  display: inline-block;
-  border: #908fa5 solid 1px;
   width: 100%;
+  background-color: #ffffff;
   flex-shrink: 1;
+  margin-top: auto;
+  justify-self: flex-end;
 }
 
 .continue {
@@ -28,7 +29,6 @@
   background-position: center center;
   background-attachment: fixed;
   display: flex;
-  justify-content: flex-start;
   flex-direction: column;
   overflow: auto;
 }

@@ -1,7 +1,11 @@
-<div class="headerContainer">
-  <app-header></app-header>
-</div>
 
-<div class="pageContentContainer">
-  <router-outlet></router-outlet>
+
+<div class="background-container"
+     [style.background-image]="'linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), url(' + background() + ')'">
+  <div class="headerContainer">
+    <app-header></app-header>
+  </div>
+  <div class="page-content-container mat-elevation-z15">
+    <router-outlet></router-outlet>
+  </div>
 </div>

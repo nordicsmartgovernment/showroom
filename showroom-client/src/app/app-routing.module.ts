@@ -24,6 +24,7 @@ import {PurchaseShopSelectionComponent} from './dashboard/purchasing/purchase-sh
 import {OrderComponent} from './dashboard/ordering/order.component';
 import {SalesOverviewComponent} from './dashboard/sales/sales-overview/sales-overview.component';
 import {CashflowComponent} from './dashboard/cashflow/cashflow.component';
+import {InvoicingComponent} from './dashboard/sales/invoicing/invoicing.component';
 
 
 const routes = [
@@ -39,6 +40,7 @@ const routes = [
   {path: LOAN_ROUTE, component: LoanComponent},
   {path: SALES_ROUTE, component: SalesComponent, children: [
       {path: '', component: SalesOverviewComponent},
+      {path: 'invoicing', component: InvoicingComponent},
     ]},
   {path: ORDERING_ROUTE, component: OrderComponent},
   {path: CASHFLOW_ROUTE, component: CashflowComponent},

@@ -185,4 +185,8 @@ export class SalesOverviewComponent implements OnInit, OnDestroy {
       .finally(() => this.isLoadingPurchases = false);
     this.actingCompanyCurrency = this.currencyService.getActingCompanyCurrency();
   }
+
+  onCreateNewInvoice() {
+    this.router.navigate(['./invoicing'], {relativeTo: this.route});
+  }
 }

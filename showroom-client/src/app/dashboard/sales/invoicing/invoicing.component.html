@@ -1,0 +1,60 @@
+<form #form="ngForm" (ngSubmit)="onSubmit(form)" class="form-group" ngForm>
+  <div class="row">
+    <div class="col col-5">
+      <label for="company">Amount excluding vat</label>
+    </div>
+    <div class="col col-7">
+      <mat-form-field appearance="fill">
+        <mat-label>Select a company to invoice</mat-label>
+        <mat-select [(value)]="selectedInvoiceCompany" name="company" id="company" ngModel>
+          <mat-option [value]="company"
+                      *ngFor="let company of getInvoiceableCompanies()">{{company.name}} ({{company.id}})</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-5">
+      <label for="todo">todo</label>
+    </div>
+    <div class="col-7">
+      <input
+        #todo=ngModel
+        class="form-control"
+        id="todo"
+        min="1"
+        name="todo"
+        ngModel
+        pattern="^[1-9]+[0-9]*$" required
+        type="number">
+      <div *ngIf="todo.touched && todo.invalid" class="invalid-feedback">Please fill in a number greater then 1
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-5">
+      <label for="paybackTime">Preferred payback time (years):</label>
+    </div>
+    <div class="col-7">
+      <input
+        #paybackTime=ngModel
+        class="form-control"
+        id="paybackTime"
+        min="1"
+        name="paybackTime"
+        ngModel
+        pattern="^[1-9]+[0-9]*$" required
+        type="number">
+      <div *ngIf="paybackTime.touched && paybackTime.invalid" class="invalid-feedback">Please fill in a number greater then 1
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col float-right">
+      <button [disabled]="form.invalid" class="btn btn-primary float-right" type="submit">Submit invoice</button>
+    </div>
+    <div class="clearfix"></div>
+  </div>
+</form>

@@ -13,10 +13,11 @@ export class Company {
   postCodeIdentifier: string;
   streetName: string;
   townName: string;
+  backgroundImage: string;
   orders: Order[] = [];
   inventory: InventoryProduct[] = [];
 
-  constructor({id, name, vatId, country, iban, postCodeIdentifier, streetName, townName, inventory}
+  constructor({id, name, vatId, country, iban, postCodeIdentifier, streetName, townName, inventory, backgroundImage}
                 : {
                 id: number,
                 name: string,
@@ -26,6 +27,7 @@ export class Company {
                 postCodeIdentifier: string,
                 streetName: string,
                 townName: string,
+                backgroundImage?: string,
                 inventory?: InventoryProduct[],
               },
   ) {
@@ -40,6 +42,7 @@ export class Company {
     if (inventory) {
       this.inventory = inventory;
     }
+    this.backgroundImage = backgroundImage;
   }
 }
 
@@ -52,6 +55,7 @@ export const BEST_POWER_TOOLS = new Company({
   postCodeIdentifier: '0660',
   streetName: 'Verktøygata 1',
   townName: 'Oslo',
+  backgroundImage: 'assets/img/stores/best-power-tools/shop-splash.jpg',
 });
 export const BUILDERS_PARADISE = new Company({
   id: 994023491,
@@ -62,6 +66,7 @@ export const BUILDERS_PARADISE = new Company({
   postCodeIdentifier: '01510',
   streetName: 'Laamannintie 1',
   townName: 'Helsingfors',
+  backgroundImage: 'assets/img/stores/builders-paradise/shop-splash.jpg',
 });
 
 export const FRUIT_4_YOU = new Company({
@@ -73,6 +78,7 @@ export const FRUIT_4_YOU = new Company({
   postCodeIdentifier: '8000',
   streetName: 'Viborgvej 2',
   townName: 'Århus',
+  backgroundImage: 'assets/img/stores/fruit4u/shop-splash.jpg',
 });
 
 @Injectable({
@@ -92,6 +98,7 @@ export class CompanyService {
       postCodeIdentifier: '0660',
       streetName: 'Verktøygata 2',
       townName: 'Oslo',
+      backgroundImage: 'assets/img/companies/abc/splash.jpg',
     }),
     new Company({
       name: 'XYZ Corp.',
@@ -102,6 +109,7 @@ export class CompanyService {
       postCodeIdentifier: '01510',
       streetName: 'Laamannintie 2',
       townName: 'Helsingfors',
+      backgroundImage: 'assets/img/companies/xyz/splash.jpg',
     }),
     new Company({
       name: 'Köttbullar AB',
@@ -112,6 +120,7 @@ export class CompanyService {
       postCodeIdentifier: '11640',
       streetName: 'Nytorgsgatan 1',
       townName: 'Stockholm',
+      backgroundImage: 'assets/img/companies/koetbullar/splash.jpg',
     }),
     BEST_POWER_TOOLS,
     BUILDERS_PARADISE,

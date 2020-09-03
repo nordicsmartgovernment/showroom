@@ -26,17 +26,17 @@
       </div>
 
     </div>
-  </div>
-  <div class="nav-bar">
-    <button (click)="onNavigateBack()"
-            class="btn btn-outline-dark">Go back
-    </button>
-    <button (click)="onReviewPurchase()"
-            [disabled]="noProductsAddedToOrder()"
-            class="btn btn-primary continue">
-      <mat-icon svgIcon="cart-outline"></mat-icon>
-      Continue
-    </button>
+    <div class="nav-bar">
+      <button (click)="onNavigateBack()"
+              class="btn btn-outline-dark">Go back
+      </button>
+      <button (click)="onReviewPurchase()"
+              [disabled]="noProductsAddedToOrder()"
+              class="btn btn-primary continue">
+        <mat-icon svgIcon="cart-outline"></mat-icon>
+        Continue
+      </button>
+    </div>
   </div>
 </div>
 <div *ngIf="activePage===REVIEW_ORDER_PAGE" class="review-order">
