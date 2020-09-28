@@ -39,7 +39,7 @@ export class CashflowComponent implements OnInit, OnDestroy {
       this.isLoading = true;
     }, 500);
     this.isLoading = true;
-    const url = 'http://173.82.108.98/cashflow.html?companyId=' + this.actingCompany.id;
+    const url = 'https://nsg-cashflow.com/?companyId=' + this.actingCompany.id;
     this.safeUrl =  this.dom.bypassSecurityTrustResourceUrl(url);
   }
 

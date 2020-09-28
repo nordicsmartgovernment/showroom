@@ -9,3 +9,11 @@ A simple Angular-based web application has been established (see ShowroomClient)
 The general application structure is in place, and should be ready for expansion with more functionality.
 
 Due to time contraints, little work in automated testing, CI/CD, etc. has been done. A testing framework and setup is is provided and ready to use.
+
+# How to build and deploy
+
+```
+ng build --prod
+gcloud app deploy
+```
+

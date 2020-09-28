@@ -17,7 +17,8 @@ import {CurrencyService} from './currency.service';
 const SANDBOX_URL = 'https://nsg.fellesdatakatalog.brreg.no/';
 const DOCUMENTS_PATH = 'document/';
 const BANK_STATEMENT_TYPE = 'application/vnd.nordicsmartgovernment.bank-statement';
-const RECEIPT_TYPE = 'application/vnd.nordicsmartgovernment.receipt';
+const PURCHASE_RECEIPT_TYPE = 'application/vnd.nordicsmartgovernment.purchase-receipt';
+const SALES_RECEIPT_TYPE = 'application/vnd.nordicsmartgovernment.sales-receipt';
 const PURCHASE_INVOICE_TYPE = 'application/vnd.nordicsmartgovernment.purchase-invoice';
 const SALES_INVOICE_TYPE = 'application/vnd.nordicsmartgovernment.sales-invoice';
 
@@ -191,7 +192,7 @@ export class SandboxService {
     const invoicePurchases =
       await this.getAndMapInvoice(PURCHASE_INVOICE_TYPE, SandboxService.mapFromInvoiceToInventoryProduct).toPromise();
     const receiptPurchases =
-      await this.getAndMapReceipt(true, SandboxService.mapFromReceiptToInventoryProduct).toPromise();
+      await this.getAndMapReceipt(PURCHASE_RECEIPT_TYPE, SandboxService.mapFromReceiptToInventoryProduct).toPromise();
 
     // Filter out weird purchases
     return invoicePurchases.concat(receiptPurchases)
@@ -235,7 +236,7 @@ export class SandboxService {
     };
 
     const invoicePurchases = await this.getAndMapInvoice(PURCHASE_INVOICE_TYPE, mapInvoice).toPromise();
-    const receiptPurchases = await this.getAndMapReceipt(true, mapReceipt).toPromise();
+    const receiptPurchases = await this.getAndMapReceipt(PURCHASE_RECEIPT_TYPE, mapReceipt).toPromise();
     return invoicePurchases.concat(receiptPurchases);
   }
 
@@ -256,7 +257,7 @@ export class SandboxService {
     const invoiceSales
       = await this.getAndMapInvoice(SALES_INVOICE_TYPE, SandboxService.mapFromInvoiceToInventoryProduct).toPromise();
     const receiptSales =
-      await this.getAndMapReceipt(false, SandboxService.mapFromReceiptToInventoryProduct).toPromise();
+      await this.getAndMapReceipt(SALES_RECEIPT_TYPE, SandboxService.mapFromReceiptToInventoryProduct).toPromise();
 
     // Filter out weird purchases
     return invoiceSales.concat(receiptSales)
@@ -351,8 +352,8 @@ export class SandboxService {
       console.log('eReceipt:');
       console.log(eReceiptXmlString);
 
-      buyerDocumentRequest = this.postDocument(buyer.id, RECEIPT_TYPE, eReceiptXmlString);
-      sellerDocumentRequest = this.postDocument(seller.id, RECEIPT_TYPE, eReceiptXmlString);
+      buyerDocumentRequest = this.postDocument(buyer.id, PURCHASE_RECEIPT_TYPE, eReceiptXmlString);
+      sellerDocumentRequest = this.postDocument(seller.id, SALES_RECEIPT_TYPE, eReceiptXmlString);
     } else { // eInvoice
       const finvoice = new EInvoice();
       const eInvoiceModel = finvoice.Finvoice;
@@ -410,10 +411,10 @@ export class SandboxService {
   }
 
   private getAndMapReceipt<T>(
-    isBuyer: boolean,
+    documentType: string,
     mappingFunction: (finvoice: EReceipt) => T): Observable<T[]> {
 
-    return this.getBusinessDocuments(RECEIPT_TYPE)
+    return this.getBusinessDocuments(documentType)
       .pipe(
         map(documents => {
           const mappedItems: T[] = [];
@@ -425,12 +426,8 @@ export class SandboxService {
           for (const item of items) {
             const xmlString = atob(item.original);
             const receipt = parse(xmlString, this.xmlReaderOptions) as EReceipt;
-
-            if (isBuyer && this.isBuyer(receipt) || !isBuyer && this.isSeller(receipt)) {
-              const inventoryProduct = mappingFunction(receipt);
-
-              mappedItems.push(inventoryProduct);
-            }
+            const mappedItem = mappingFunction(receipt);
+            mappedItems.push(mappedItem);
           }
           return mappedItems;
         })
@@ -438,15 +435,6 @@ export class SandboxService {
 
   }
 
-  private isBuyer(receipt: EReceipt) {
-    return receipt.Finvoice.BuyerPartyDetails.BuyerPartyIdentifier.toString()
-      === this.companyService.getActingCompany().id.toString();
-  }
-
-  private isSeller(receipt: EReceipt) {
-    return receipt.Finvoice.SellerPartyDetails.SellerPartyIdentifier.toString()
-      === this.companyService.getActingCompany().id.toString();
-  }
 }
 
 function populateTemplate(template: string, info: { [id: string]: string }): string {
